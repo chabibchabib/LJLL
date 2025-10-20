@@ -70,35 +70,35 @@ void BasisFctPK(int K ){
             REAL denom=tgamma(i+1)*tgamma(j+1)*tgamma(k+1);
             if(i>0){
                 for (int ii = 0; ii<=i-1;ii++) {//result *= (K*lambda1 - ii );
-                        coef[0][ii]=(REAL(K));
-                        shift[0][ii]=-(REAL(ii));
+                        coef[0][ii]=1.;
+                        shift[0][ii]=(REAL(ii));
 
                 }
-                if(coef[0][0] !=0) {coef[0][0]/=denom; shift[0][0]/=denom;} 
+                //if(coef[0][0] !=0) {coef[0][0]/=denom; shift[0][0]/=denom;} 
             }
             if(j>0){
                 for (int jj = 0; jj<=j-1;jj++) {//result *= (K*lambda2 - jj );
-                        coef[1][jj]=(REAL(K));
+                        coef[1][jj]=1.;
                         shift[1][jj]=(REAL(jj));
                 }
-                if(coef[1][0] !=0 && coef[0][0] ==0 ) {coef[1][0]/=denom; shift[1][0]/=denom;}
+                //if(coef[1][0] !=0 && coef[0][0] ==0 ) {coef[1][0]/=denom; shift[1][0]/=denom;}
             }
             if(k>0){
                 for (int kk = 0; kk<=k-1;kk++){ //result *= (K*lambda3 - kk );
-                        coef[2][kk]=(REAL(K));
+                        coef[2][kk]=1.;
                         shift[2][kk]=(REAL(kk));
                 }
-                if(coef[2][0] !=0 && coef[1][0] ==0 && coef[0][0] ==0 ) {coef[2][0]/=denom; shift[2][0]/=denom;}
+                //if(coef[2][0] !=0 && coef[1][0] ==0 && coef[0][0] ==0 ) {coef[2][0]/=denom; shift[2][0]/=denom;}
 
             }
 
             for (int j =0; j<coef[0].size();j++){
                 if(coef[0][j] !=0 ||shift[0][j] !=0 )
-                    cout<<"\t C[0]= "<< coef[0][j]<<" "<<"S[0]= "<<shift[0][j]<<endl;
+                    cout<<"\t denom="<<denom<< "\t C[0]= "<<coef[0][j]<<" "<<"S[0]= "<<shift[0][j]<<endl;
                 if(coef[1][j] !=0 ||shift[1][j] !=0 )
-                    cout<<"\t C[1]= "<< coef[1][j]<<" "<<"S[1]= "<<shift[1][j]<<endl;
+                    cout<<"\t denom="<<denom<< "\t C[1]= "<< coef[1][j]<<" "<<"S[1]= "<<shift[1][j]<<endl;
                 if(coef[2][j] !=0 ||shift[2][j] !=0 )                
-                    cout<<"\t C[2]= "<< coef[2][j]<<" "<<"S[2]= "<<shift[2][j]<<endl;
+                    cout<<"\t denom="<<denom<< "\t C[2]= "<< coef[2][j]<<" "<<"S[2]= "<<shift[2][j]<<endl;
 
             }
         }
@@ -106,9 +106,9 @@ void BasisFctPK(int K ){
 }
 
 int main(int argc, char **argv){
-    int PK= 4;
+    int PK= 3;
     int i =1, j=1,k=0;
-    REAL result= EvaluateBasisFct(  i,  j ,  k,REAL(i)/PK ,REAL(j)/PK,REAL(k)/PK,PK );   
+    //REAL result= EvaluateBasisFct(  i,  j ,  k,REAL(i)/PK ,REAL(j)/PK,REAL(k)/PK,PK );   
     //cout<<"Result: "<<result<<endl;
     BasisFctPK(PK );
 
