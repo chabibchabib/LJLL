@@ -1,0 +1,30 @@
+// Plane wave 3D
+include "getARGV.idp"
+load "Element_P3"
+load "Element_P4"
+load "msh3"  
+load "MUMPS"
+load "medit"
+load"GMintegration3D"
+load"qf11to25"
+real k = getARGV("-waven",5.);
+//func f =exp(1i/sqrt(3)*k*(x+y+z));
+func f =exp(1i/sqrt(1)*k*(x));
+
+func Gxm = -1i/sqrt(1)*k*f;
+func GxM = -Gxm;
+
+func Gym = 0;
+func GyM = -Gym;
+
+//func Gzm = -1i/sqrt(3)*k*f;
+func Gzm = 0;
+func GzM = -Gzm;
+
+real lambda = 2*pi/k;
+int npplo =4;
+mesh3 Th = cube(npplo*1./lambda,npplo*1./lambda,npplo*1./lambda);    // global mesh
+
+func ff= x^10+y^7+z^7;
+cout<< "Value exacte integral: "<<int3d(Th,qfV=qfVp7)(ff)<<endl ; 
+cout<< "Value my integral: "<<int3d(Th,qfV=GMQuadrature(5))(ff)<<endl ; 
