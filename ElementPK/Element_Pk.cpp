@@ -146,9 +146,12 @@ vector<pair<int,int>> Exchangeidx(int k){
 
 // Numerotation point interieur
 void NumInternPoint(int k ){
+    // l'indice i associe a la coord lambda3 et j a lambda2
+    // donc celui de lambda1 va etre k-(i+j) on itere uniquement
+    // entre 1 et k-2 pour eviter les noeuds des aretes  
     for (int i =1;i<=k-2;i++){
         for (int j =1;j<=k-2-i+1;j++){
-            cout<<"("<<k-(j+1)<<","<<i+1<<")";
+            cout<<"("<<k-(i+j)<<","<<j<<")";
         }
     }
 }
