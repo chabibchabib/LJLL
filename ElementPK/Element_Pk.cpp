@@ -42,6 +42,7 @@ public:
 #include <vector>
 #include<iostream>
 #include<map>
+#include<cmath>
 using namespace std; 
 struct R2
 {
@@ -52,14 +53,28 @@ struct R2
     }
 };
 
+// Numerotation point interieur
+void NumInternPoint(int k,vector<R2> &Pt ){
+    // l'indice i associe a la coord lambda3 et j a lambda2
+    // donc celui de lambda1 va etre k-(i+j) on itere uniquement
+    // entre 1 et k-2 pour eviter les noeuds des aretes  
+    for (int i =1;i<=k-2;i++){
+        for (int j =1;j<=k-2-i+1;j++){
+            //Pt.push_back(R2(double(k-(i+j)),double(j)));
+            Pt.push_back(R2(double(j),double(i)));
+
+        }
+    }
+}
+
 // Constuction des coordonnees de points (TO DO: ajouter les points de l'interieur PB? Reste à savoir comment numeroter par convention)
 vector<R2> PtConstruction(int k){
     int NptPerV = k-1;
     vector<R2> Pt;//(Ndof);
     // sommets
     Pt.push_back(R2(0,0));
-    Pt.push_back(R2(1,0));
-    Pt.push_back(R2(0,1));
+    Pt.push_back(R2(k,0));
+    Pt.push_back(R2(0,k));
     // arrete bas 
     for(int i =0; i<NptPerV;i++) Pt.push_back(R2( double(k-i-1),double(i+1)));
     // arrete droite
@@ -67,7 +82,7 @@ vector<R2> PtConstruction(int k){
     // arrete gauche
     for(int i =0; i<NptPerV;i++) Pt.push_back(R2(double(i+1),0.)); 
     // Interieur de l'element
-
+    NumInternPoint( k,Pt );
     return Pt;
 }
 
@@ -144,22 +159,12 @@ vector<pair<int,int>> Exchangeidx(int k){
     return permut;
 }
 
-// Numerotation point interieur
-void NumInternPoint(int k ){
-    // l'indice i associe a la coord lambda3 et j a lambda2
-    // donc celui de lambda1 va etre k-(i+j) on itere uniquement
-    // entre 1 et k-2 pour eviter les noeuds des aretes  
-    for (int i =1;i<=k-2;i++){
-        for (int j =1;j<=k-2-i+1;j++){
-            cout<<"("<<k-(i+j)<<","<<j<<")";
-        }
-    }
-}
+
 int main(int argv, char **argc){
     int PK= std::atoi(argc[1]);
     int Ndof=(PK+1)*(PK+2)*0.5;
     vector<R2> Test= PtConstruction(PK);
-    //for(auto &elem :Test ) cout<<"elem:"<<elem.i<<","<<elem.j<<endl;
+    for(auto &elem :Test ) cout<<"elem:"<<elem.i<<","<<elem.j<<endl;
     vector<int> Data;
     vector<int> Pi_dataLagrange;
 
@@ -181,7 +186,15 @@ int main(int argv, char **argc){
     //for (auto elem :Pi_dataLagrange ) cout<<" "<<elem<<endl;
     //vector<pair<int,int>> Idxs=Exchangeidx( PK);
     //for (auto elm : Idxs ) cout<<"("<<elm.first<<","<<elm.second<<")";
-    NumInternPoint(PK );
+    vector<int> other(Ndof,0);
+    for(int i=0; i<Ndof;i++ ) other[i]=i;
+    for(int i=0; i<3;i++ ) {
+        for (int j=0; j<((PK-1)/2);j++ ){
+            other[3+i*(PK-1)+j]=3+(i+1)*(PK-1)-j-1;
+            other[3+(i+1)*(PK-1)-j-1]=3+i*(PK-1)+j;
+        }
+    }
+     for(int i=0; i<Ndof;i++ ) cout<<other[i]<<" ";
     cout<<endl;
     return 0; 
 }
