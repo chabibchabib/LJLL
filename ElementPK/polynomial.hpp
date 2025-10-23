@@ -89,140 +89,49 @@ vector<vector<int>> sort_partitions_geometric(vector<vector<int>> partitions, in
     return sorted;
 }
 
-REAL EvaluateBasisFct( int i, int j , int k, REAL lambda1, REAL lambda2, REAL lambda3, int K ){ 
-    // Silverster formula ~1968 
-    // Compute Phi_{i,j,k}(lambda1,lambda2,lambda3) ; while i+j+k=K and lambda are the basis coordinates  
-    double result=1;
-    double denom=tgamma(i+1)*tgamma(j+1)*tgamma(k+1);
-    if( (i+j+k==K) && (lambda1 +lambda2 +lambda3 ==1)){
-            if(i>0){
-                for (int ii = 0; ii<=i-1;ii++) result *= (K*lambda1 - ii );
-            }
-            if(j>0){
-                for (int jj = 0; jj<=j-1;jj++) result *= (K*lambda2 - jj );
-            }
-            if(k>0){
-                for (int kk = 0; kk<=k-1;kk++) result *= (K*lambda3 - kk );
-            }
-        return result/denom;
-        }
-    else return -1;
-}
 
 void BasisFctPK(int K, vector<vector<int>> &coef,vector<vector<int>> &shift, vector<int> &ff, vector<int> &il,vector<int> &jl,vector<int> &kl){ 
     // Silverster formula ~1968 
     // Compute Phi_{i,j,k}(lambda1,lambda2,lambda3) basis functions; while i+j+k=K and lambda are the barycentric coordinates  
-    REAL result=1;
 
     vector<vector<int>> unsortedpartitionK=generate_partitions(K, 3);
     vector<vector<int>> partitionK=sort_partitions_geometric(unsortedpartitionK,  K);
     int idx=0;
     for (auto &partition : partitionK ){
-        /*vector<vector<REAL>> coef;//(3,vector<REAL>(K));
-        vector<vector<REAL>> shift;//(3,vector<REAL>(K));
-        coef.resize(3);
-        shift.resize(3);
-
-        for (int i=0; i<3;i++){
-            coef[i].resize(K,-1);
-            shift[i].resize(K,-1);
-
-        }*/
         int i = partition[0];
         int j = partition[1];
         int k = partition[2];
         if (i+j+k==K){
             int ID=0;
             cout<<"Point -->"<< idx<<"( "<<i<<" "<<j<<" "<<k<<" )" << endl;
-            REAL denom=tgamma(i+1)*tgamma(j+1)*tgamma(k+1);
+            int denom=tgamma(i+1)*tgamma(j+1)*tgamma(k+1);
             ff[idx]=denom;
             il[idx]=i;
             jl[idx]=j;
             kl[idx]=k;
             if(i>0){
-                for (int ii = 0; ii<=i-1;ii++) {//result *= (K*lambda1 - ii );
-                        /*coef[0][ii]=0;
-                        shift[0][ii]=(REAL(ii));*/
+                for (int ii = 0; ii<=i-1;ii++) {
+
                         coef[idx][ID]=0;
                         shift[idx][ID]=ii;
                         ID++;
-
-
                 }
-                //if(coef[0][0] !=0) {coef[0][0]/=denom; shift[0][0]/=denom;} 
             }
             if(j>0){
-                for (int jj = 0; jj<=j-1;jj++) {//result *= (K*lambda2 - jj );
-                        /*coef[1][jj]=1;
-                        shift[1][jj]=(REAL(jj));*/
+                for (int jj = 0; jj<=j-1;jj++) {
                         coef[idx][ID]=1;
                         shift[idx][ID]=jj;
                         ID++;
                 }
-                //if(coef[1][0] !=0 && coef[0][0] ==0 ) {coef[1][0]/=denom; shift[1][0]/=denom;}
             }
             if(k>0){
-                for (int kk = 0; kk<=k-1;kk++){ //result *= (K*lambda3 - kk );
-                        /*coef[2][kk]=2;
-                        shift[2][kk]=(REAL(kk));*/
+                for (int kk = 0; kk<=k-1;kk++){ 
                         coef[idx][ID]=2;
                         shift[idx][ID]=kk;
                         ID++;
                 }
-                //if(coef[2][0] !=0 && coef[1][0] ==0 && coef[0][0] ==0 ) {coef[2][0]/=denom; shift[2][0]/=denom;}
-
             }
-            //cout<<"ID="<<ID<<endl;
             idx++;
-            /*for (int j =0; j<coef[0].size();j++){
-                //if(coef[0][j] !=0 ||shift[0][j] !=0 )
-                if(coef[0][j] !=-1)
-                    cout<<"\t denom="<<denom<< "\t C[0]= "<<coef[0][j]<<" "<<"S[0]= "<<shift[0][j]<<endl;
-                //if(coef[1][j] !=0 ||shift[1][j] !=0 )
-                if(coef[1][j] !=-1)
-                    cout<<"\t denom="<<denom<< "\t C[1]= "<< coef[1][j]<<" "<<"S[1]= "<<shift[1][j]<<endl;
-                //if(coef[2][j] !=0 ||shift[2][j] !=0 )
-                if(coef[2][j] !=-1)
-                    cout<<"\t denom="<<denom<< "\t C[2]= "<< coef[2][j]<<" "<<"S[2]= "<<shift[2][j]<<endl;
-
-            }*/
         }
     }
-}
-
-int main(int argc, char **argv){
-    int PK= 4;
-    int i =1, j=1,k=0;
-    int ndof=(PK+1)*(PK+2)*0.5;
-    vector<vector<int>> coef;//(3,vector<REAL>(K));
-    vector<vector<int>> shift;//(3,vector<REAL>(K));
-    coef.resize(ndof);
-    shift.resize(ndof);
-    for (int i=0; i<ndof;i++){
-        coef[i].resize(PK,-1);
-        shift[i].resize(PK,-1);
-    }
-    vector<int> ff,il,jl,kl;
-    ff.resize(ndof,-1);
-    il.resize(ndof,-1);
-    jl.resize(ndof,-1);
-    kl.resize(ndof,-1);
-    BasisFctPK( PK, coef,shift, ff, il,jl,kl);
-    cout<<"coordinates:"<<endl;
-    for (int i =0;i<ndof;i++){
-        cout<<"{"<<il[i]<<","<<jl[i]<<","<<kl[i]<<"}\t";
-    }
-    /*cout<<"\n denom:"<<endl;
-    for (int i =0;i<ndof;i++){
-        cout<<"{"<<ff[i]<<","<<ff[i]<<","<<ff[i]<<"}\t";
-    }
-    cout<<"\nCoef:"<<endl;
-    for (int i =0;i<ndof;i++){
-        cout<<"{"<<coef[i][0]<<","<<coef[i][1]<<","<<coef[i][2]<<","<<coef[i][3]<<"}\t";
-    }
-    cout<<"\n Shift:"<<endl;
-    for (int i =0;i<ndof;i++){
-        cout<<"{"<<shift[i][0]<<","<<shift[i][1]<<","<<shift[i][2]<<","<<shift[i][3]<<"}\t";
-    }*/
-    cout<<endl;
 }
