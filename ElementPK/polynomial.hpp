@@ -79,10 +79,16 @@ vector<vector<int>> sort_partitions_geometric(vector<vector<int>> partitions, in
     }
     
     // Trier interieur par k decroissant, puis j croissant
-    sort(interior.begin(), interior.end(), [](const vector<int> &a, const vector<int> &b) {
+    /*sort(interior.begin(), interior.end(), [](const vector<int> &a, const vector<int> &b) {
         if (a[2] != b[2]) return a[2] > b[2];
         return a[1] < b[1];
-    });
+    });*/
+    sort(interior.begin(), interior.end(),
+        [](const vector<int>& a, const vector<int>& b) {
+            if (a[2] != b[2]) return a[2] > b[2];   // composante 2 : plus petite d'abord
+            if (a[0] != b[0]) return a[0] < b[0];   // composante 0 : croissant
+            return a[1] > b[1];                     // composante 1 : croissant
+        });
     
     sorted.insert(sorted.end(), interior.begin(), interior.end());
     

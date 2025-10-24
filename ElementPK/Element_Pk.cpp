@@ -59,7 +59,15 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
             //R2(0 / 3., 1 / 3.), R2(1 / 3., 0 / 3.), R2(2 / 3., 0 / 3.),
             //R2(1 / 3., 1 / 3.)}; *
         cout<<endl;
-        for (auto elm : Pt) cout<<"("<<elm.x<<","<<elm.y<<")"<<" ";
+        for (auto elm : il) cout<<elm<<" ";
+        cout<<endl;
+        for (auto elm : jl) cout<<elm<<" ";
+        cout<<endl;        
+        for (auto elm : kl) cout<<elm<<" ";
+        cout<<endl;
+        for (auto elm : nn) {for(auto elmelm : elm) cout<<elmelm<<" ";}
+        cout<<endl;
+        for (auto elm : aa) {for(auto elmelm : elm) cout<<elmelm<<" ";}
         cout<<endl;
         // 3,4,5,6,7,8
         vector<int> other(ndf,0);//[ndf] = {-1, -1, -1, 4, 3, 6, 5, 8, 7, -1}; // 
@@ -227,7 +235,8 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
     }
 }
 
-static  TypeOfFE_PkLagrange PK(3);
+static  TypeOfFE_PkLagrange PK3(3);
+static  TypeOfFE_PkLagrange PK4(4);
 
 static void init( ) {
 /*for (int i=0;i<1000; i++) TablePK[i]=nullptr;
@@ -237,8 +246,10 @@ static void init( ) {
       new OneOperator1s_< TypeOfFE_PkLagrange ,long>(GenerateTypeOfFE_PkLagrangeOperator)
   );
   //for (int i=1;i<5;i++)   AddNewFE("P_"+str(i), &PK(i));*/
-AddNewFE("PP3", &PK);
-static ListOfTFE FE_PK("PP3", &PK); // to add P3 in list of Common FE
+AddNewFE("PK3", &PK3);
+static ListOfTFE FE_P3("PK3", &PK3); // to add P3 in list of Common FE
+AddNewFE("PK4", &PK4);
+static ListOfTFE FE_P4("PK4", &PK4); // to add P4 in list of Common FE
 }
 
 }    // namespace Fem2D

@@ -28,6 +28,18 @@ void NumInternPoint(int k,vector<R2> &Pt ){
     }
 }
 
+// Numerotation point interieur comme P4
+void NumInternPoint2(int k,vector<R2> &Pt ){
+ 
+    for (int i =1;i<=k-2;i++){
+        for (int j =1;j<=k-2-i+1;j++){
+            //Pt.push_back(R2(double(k-(i+j)),double(j)));
+            Pt.push_back(R2(double(j)/k,double(k-2-i+1-(j-1))/k));
+            //cout<<"("<<j<<","<<k-2-i+1-(j-1)<<")";
+        }
+    }
+}
+
 // Constuction des coordonnees de points (TO DO: ajouter les points de l'interieur PB? Reste à savoir comment numeroter par convention)
 vector<R2> PtConstruction(int k){
     int NptPerV = k-1;
@@ -43,7 +55,7 @@ vector<R2> PtConstruction(int k){
     // arrete gauche
     for(int i =0; i<NptPerV;i++) Pt.push_back(R2(double(i+1)/k,0./k)); 
     // Interieur de l'element
-    NumInternPoint( k,Pt );
+    NumInternPoint2( k,Pt );
     return Pt;
 }
 
