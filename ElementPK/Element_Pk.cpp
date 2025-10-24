@@ -14,19 +14,29 @@ using namespace std;
 namespace Fem2D {
 // ------ P3  Hierarchical (just remove P1 node of the P2 finite element)  --------
 class TypeOfFE_PkLagrange : public TypeOfFE {
-public:
+
+    private:
+    static vector<int> PrepareData(int PK) {
+        cout<<"\nSTART\n";
+        int ndof = (PK + 2) * (PK + 1) / 2;
+        vector<int> data(5*ndof+3,0);
+        vector<double> dummy_pi_coef;
+        // Remplir data ici
+        FillDataLagrange(PK, data, dummy_pi_coef);
+        return data;
+    }
+    public:
     int k ;
     int ndf;
-    vector<int> Data;
-    vector<double> Pi_h_coef;
-    vector<vector<int>> nn;//[ndf][k];
-    vector<vector<int>>aa;//[ndf][k];
-    vector<int> ff;//[ndf];
-    vector<int> il;//[ndf];
-    vector<int> jl;//[ndf];
-    vector<int> kl;//[ndf];
-
-    TypeOfFE_PkLagrange( int PK ) : TypeOfFE((PK+1)*(PK+2)*0.5, 1, Data.data(), PK, 1, (PK+1)*(PK+2)*0.5 +6, (PK+1)*(PK+2)*0.5, 0) {
+     vector<int> Data;
+     vector<double> Pi_h_coef;
+     vector<vector<int>> nn;//[ndf][k];
+     vector<vector<int>>aa;//[ndf][k];
+     vector<int> ff;//[ndf];
+     vector<int> il;//[ndf];
+     vector<int> jl;//[ndf];
+     vector<int> kl;//[ndf];
+    TypeOfFE_PkLagrange( int PK ) : TypeOfFE((PK+1)*(PK+2)/2, 1, PrepareData(PK).data(), PK, 1, (PK+1)*(PK+2)/2 +6, (PK+1)*(PK+2)/2, 0) {
         k=PK;
         ndf = (k + 2) * (k + 1) / 2;
         nn.resize(ndf);
@@ -39,30 +49,34 @@ public:
         il.resize(ndf,-1);
         jl.resize(ndf,-1);
         kl.resize(ndf,-1);
-        // Fill Data Lagrange 
+        // Fill Data Lagrange
         FillDataLagrange( k, Data, Pi_h_coef );
+
         //Fill ff,il,jl,kl,nn,aa
         BasisFctPK(k, nn,aa, ff, il,jl,kl);
        vector<R2> Pt=PtConstruction( k);//[ndf] //= {R2(0 / 3., 0 / 3.), R2(3 / 3., 0 / 3.), R2(0 / 3., 3 / 3.),
             //R2(2 / 3., 1 / 3.), R2(1 / 3., 2 / 3.), R2(0 / 3., 2 / 3.),
             //R2(0 / 3., 1 / 3.), R2(1 / 3., 0 / 3.), R2(2 / 3., 0 / 3.),
-            //R2(1 / 3., 1 / 3.)}; 
+            //R2(1 / 3., 1 / 3.)}; *
+        cout<<endl;
+        for (auto elm : Pt) cout<<"("<<elm.x<<","<<elm.y<<")"<<" ";
+        cout<<endl;
         // 3,4,5,6,7,8
         vector<int> other(ndf,0);//[ndf] = {-1, -1, -1, 4, 3, 6, 5, 8, 7, -1}; // 
         FillOther(other, k,  ndf);
         int kk = 0;
-        
+
         for (int i = 0; i < NbDoF; i++) {
             pij_alpha[kk++] = IPJ(i, i, 0);
-            if (other[i] >= 0) {
+            if (other[i] != i) {
                 pij_alpha[kk++] = IPJ(i, other[i], 0);
             }
             
             P_Pi_h[i] = Pt[i];
-        }
-        
+        }        
         assert(P_Pi_h.N( ) == NbDoF);
         assert(pij_alpha.N( ) == kk);
+
     }
     
     void FB(const bool *whatd, const Mesh &Th, const Triangle &K, const RdHat &PHat,
@@ -213,26 +227,22 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
     }
 }
 
-//#include "Element_PkL.hpp"
-// link with FreeFem++
-static TypeOfFE_PkLagrange PkLagrangeP3(int );
-// a static variable to add the finite element to freefem++
-/*static TypeOfFE_P3_3d P3_3d;
-static TypeOfFE_Pk_L P3_L(3);
-static TypeOfFE_P3_S P3_S;
-static TypeOfFE_P3Hermite P3H_L;
+static  TypeOfFE_PkLagrange PK(3);
 
-GTypeOfFE< Mesh3 > &Elm_P3_3d(P3_3d);
-GTypeOfFE< MeshL > &Elm_P3_L(P3_L);
-GTypeOfFE< MeshS > &Elm_P3_S(P3_S);
-GTypeOfFE< MeshL > &Elm_P3H_L(P3H_L);*/
+static void init( ) {
+/*for (int i=0;i<1000; i++) TablePK[i]=nullptr;
 
-/*static void init( ) {
-    AddNewFE("Pk", &PkLagrangeP3(int));
-    static ListOfTFE FE_P3("Pk", &PkLagrangeP3(int )); // to add P3 in list of Common FE
-}*/
+  Global.Add(
+      "PK", "(",
+      new OneOperator1s_< TypeOfFE_PkLagrange ,long>(GenerateTypeOfFE_PkLagrangeOperator)
+  );
+  //for (int i=1;i<5;i++)   AddNewFE("P_"+str(i), &PK(i));*/
+AddNewFE("PP3", &PK);
+static ListOfTFE FE_PK("PP3", &PK); // to add P3 in list of Common FE
+}
+
 }    // namespace Fem2D
-//LOADFUNC(Fem2D::init);
+LOADFUNC(Fem2D::init);
 
 
 

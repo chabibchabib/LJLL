@@ -22,7 +22,7 @@ void NumInternPoint(int k,vector<R2> &Pt ){
     for (int i =1;i<=k-2;i++){
         for (int j =1;j<=k-2-i+1;j++){
             //Pt.push_back(R2(double(k-(i+j)),double(j)));
-            Pt.push_back(R2(double(j),double(i)));
+            Pt.push_back(R2(double(j)/k,double(i)/k));
 
         }
     }
@@ -34,14 +34,14 @@ vector<R2> PtConstruction(int k){
     vector<R2> Pt;//(Ndof);
     // sommets
     Pt.push_back(R2(0,0));
-    Pt.push_back(R2(k,0));
-    Pt.push_back(R2(0,k));
+    Pt.push_back(R2(k/k,0));
+    Pt.push_back(R2(0,k/k));
     // arrete bas 
-    for(int i =0; i<NptPerV;i++) Pt.push_back(R2( double(k-i-1),double(i+1)));
+    for(int i =0; i<NptPerV;i++) Pt.push_back(R2( double(k-i-1)/k,double(i+1)/k));
     // arrete droite
-    for(int i =0; i<NptPerV;i++) Pt.push_back(R2(0,double(k-i-1)));
+    for(int i =0; i<NptPerV;i++) Pt.push_back(R2(0/k,double(k-i-1)/k));
     // arrete gauche
-    for(int i =0; i<NptPerV;i++) Pt.push_back(R2(double(i+1),0.)); 
+    for(int i =0; i<NptPerV;i++) Pt.push_back(R2(double(i+1)/k,0./k)); 
     // Interieur de l'element
     NumInternPoint( k,Pt );
     return Pt;
