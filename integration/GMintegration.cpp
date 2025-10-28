@@ -260,7 +260,7 @@ static void Load_Init( ) {
     tab[i]= ("gm2ds"+to_string(i));
     Global.New(tab[i].c_str(), CConstant< const QuadratureFormular * >(GenerateQuadratureFormular(i,2)));    
   }*/
-  for (int i=0;i<1000; i++) TabQuadrFormula[i]=nullptr;
+  for (int i=0;i<10; i++) TabQuadrFormula[i]=nullptr;
   Global.Add(
       "GMQuadrature3D", "(",
       new OneOperator1s_<const QuadratureFormular*,long>(GenerateQuadratureFormularForOperator)

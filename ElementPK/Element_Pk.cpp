@@ -36,7 +36,7 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
      vector<int> il;//[ndf];
      vector<int> jl;//[ndf];
      vector<int> kl;//[ndf];
-    TypeOfFE_PkLagrange( int PK ) : TypeOfFE((PK+1)*(PK+2)/2, 1, PrepareData(PK).data(), PK, 1, (PK+1)*(PK+2)/2 +6, (PK+1)*(PK+2)/2, 0) {
+    TypeOfFE_PkLagrange( int PK ) : TypeOfFE((PK+1)*(PK+2)/2, 1, PrepareData(PK).data(), PK, 1, (PK+1)*(PK+2)/2 +((PK%2)? (PK-1)*3 : (PK-2)*3), (PK+1)*(PK+2)/2, 0) {
         k=PK;
         ndf = (k + 2) * (k + 1) / 2;
         nn.resize(ndf);
@@ -72,6 +72,9 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
         // 3,4,5,6,7,8
         vector<int> other(ndf,0);//[ndf] = {-1, -1, -1, 4, 3, 6, 5, 8, 7, -1}; // 
         FillOther(other, k,  ndf);
+        cout<<endl;
+        for (auto elm : Data)  cout<<elm<<" ";
+        cout<<endl;
         int kk = 0;
 
         for (int i = 0; i < NbDoF; i++) {
@@ -85,25 +88,26 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
         assert(P_Pi_h.N( ) == NbDoF);
         assert(pij_alpha.N( ) == kk);
 
+
     }
     
     void FB(const bool *whatd, const Mesh &Th, const Triangle &K, const RdHat &PHat,
             RNMK_ &val) const;
     void Pi_h_alpha(const baseFElement &K, KN_< double > &v) const {
-        for (int i = 0; i < ndf+6; ++i) {
+
+        /*for (int i = 0; i < 16; ++i) {
             v[i] = 1;
         }
-        
         int e0 = K.EdgeOrientation(0);
         int e1 = K.EdgeOrientation(1);
         int e2 = K.EdgeOrientation(2);
         int ooo[6] = {e0, e0, e1, e1, e2, e2};
         int iii[6] = {};
         int jjj[6] = {};
-        
         for (int i = 0; i < 6; ++i) {
             iii[i] = 3 + 2 * i;    // si  orient = 1
             jjj[i] = 4 + 2 * i;    // si orient = -1
+
         }
         
         for (int i = 0; i < 6; ++i) {
@@ -112,8 +116,40 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
             } else {
                 v[iii[i]] = 0;
             }
+        }*/
+    
+   // Generic code 
+    int nbrPerm=(k%2)? (k-1)*3 : (k-2)*3; // Number of permutation
+    vector<vector<int>> indicesIJ(2, vector<int>(nbrPerm,0)); // IJ indices
+    vector<int> ooo(nbrPerm,0);
+    int KK = (k%2)? (k-1) : (k-2);
+    for (int i=0;i<nbrPerm;i++){
+        if(k%2==1)         indicesIJ[0][i]=(3+2*i);
+        else{
+            int arete=i/(k-2);
+            int idxlocal =i%(k-2);
+            if(k-2>2) idxlocal/=2;
+            indicesIJ[0][i]=(3+2*i+arete+idxlocal);
+
+        }
+        indicesIJ[1][i]=(1+indicesIJ[0][i]);
+        ooo[i]=K.EdgeOrientation(i/KK);
+
+    } 
+
+    for (int i = 0; i < ndf+nbrPerm; ++i) {
+        v[i] = 1;
+    }
+    for (int i = 0; i < nbrPerm; ++i) {
+        if (ooo[i] == 1) {
+            v[indicesIJ[1][i]] = 0;
+        } else {
+            v[indicesIJ[0][i]] = 0;
         }
     }
+
+    }
+
 };
 
 // on what     nu df on node node of df
@@ -132,7 +168,7 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
     R l0 = 1 - PHat.x - PHat.y, l1 = PHat.x, l2 = PHat.y;
     R L[3] = {l0 * k, l1 * k, l2 * k};
     
-    throwassert(val.N( ) >= ndf);
+    throwassert(val.N( ) >= 10);
     throwassert(val.M( ) == 1);
     // Attention il faut renumeroter les fonction de bases
     // car dans freefem++, il y a un node par sommet, arete or element
@@ -147,6 +183,9 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
     
     // Get index exchange 
     vector<pair<int,int>> ExId=Exchangeidx( k);
+    /*cout<<endl;
+    for (auto elm :  ExId) cout<<elm.first<<","<<elm.second<<"\t";
+    cout<<endl;*/
 
     if (K.EdgeOrientation(0) < 0) {
         Exchange(p[ExId[0].first], p[ExId[0].second]);   
@@ -235,8 +274,10 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
     }
 }
 
-static  TypeOfFE_PkLagrange PK3(3);
-static  TypeOfFE_PkLagrange PK4(4);
+/*static  TypeOfFE_PkLagrange PK3(3);
+static  TypeOfFE_PkLagrange PK4(4);*/
+static  TypeOfFE_PkLagrange PK5(5);
+//static  TypeOfFE_PkLagrange PK6(6);
 
 static void init( ) {
 /*for (int i=0;i<1000; i++) TablePK[i]=nullptr;
@@ -246,10 +287,15 @@ static void init( ) {
       new OneOperator1s_< TypeOfFE_PkLagrange ,long>(GenerateTypeOfFE_PkLagrangeOperator)
   );
   //for (int i=1;i<5;i++)   AddNewFE("P_"+str(i), &PK(i));*/
-AddNewFE("PK3", &PK3);
+
+/*AddNewFE("PK3", &PK3);
 static ListOfTFE FE_P3("PK3", &PK3); // to add P3 in list of Common FE
 AddNewFE("PK4", &PK4);
-static ListOfTFE FE_P4("PK4", &PK4); // to add P4 in list of Common FE
+static ListOfTFE FE_P4("PK4", &PK4); // to add P4 in list of Common FE*/
+AddNewFE("PK5", &PK5);
+static ListOfTFE FE_P5("PK5", &PK5); // to add P4 in list of Common FE*/
+/*AddNewFE("PK6", &PK6);
+static ListOfTFE FE_P6("PK6", &PK6); // to add P4 in list of Common FE*/
 }
 
 }    // namespace Fem2D
