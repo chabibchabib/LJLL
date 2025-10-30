@@ -5,37 +5,55 @@ load"Element_P4"
 load"GMintegration"
 load"GMintegration3D"
 load"qf11to25"
-
+load "MUMPS"
 real k = getARGV("-waven",3.);
-func f = exp(-((x-.5)^2+(y-.5)^2)*k*10);
+real c = 1;
+real s= 0; 
+func f =exp(1i*k*(x*c+y*s));
+
+func Gxm = -1i*k*c*exp(1i*k*(x*c+y*s));
+func GxM = -Gxm;
+
+func Gym = -1i*k*s*exp(1i*k*(x*c+y*s));
+func GyM = -Gym;
 
 real lambda = 2*pi/k;
 
-real epsilonprob = 0;
-int Dirichlet = 1;
-int Robin = 2;
+/*mesh Th = square(1,1);    // global mesh
+fespace UH(Th,PK5);
+fespace UH1(Th,P1);
 
-int[int] chlab=[1, Robin, 2, Robin, 3, Robin, 4, Robin];
+UH  ftest=x;
+Th=trunc(Th,1,split=5);
+UH1  ftest1=ftest;
+plot(ftest);
+plot(ftest1);
 
-real npplo = 50.;
+//cout<<ftest[]<<endl;
+cout<<ftest1[]<<endl;
 
-mesh Th = square(npplo*1./lambda,npplo*1./lambda);    // global mesh
-
-Th=change(Th,refe=chlab);
-
-//fespace Uh(Th,P3);
-fespace Uh(Th,P4);
-
-Uh <complex> u,v;
+//exit(0);*/
 macro Grad(u) [dx(u),dy(u)] // EOM
-int intorder = 10;
-solve  pph(u,v) =
-  int2d(Th,qft=qf25pT)(-(k^2-1i*epsilonprob)*u*v+Grad(u)'*Grad(v))
-				+ int1d(Th,Robin,qforder=intorder)(1i*k*u*v)
-				+ on(Dirichlet,u=0) - int2d(Th,qft=qf25pT)(f*v);
-Uh ur= real (u);
-plot (ur,fill=1,value=1);
-int order=2;
+NewMacro Verfimacro(PK)
+for (int npplo =50; npplo<=50; npplo+=10){
+    mesh Th = square(npplo*1./lambda,npplo*1./lambda);    // global mesh
+    fespace Uh(Th,PK);
+    Uh <complex> u,v;
+    //macro Grad(u) [dx(u),dy(u)] // EOM
+    solve  pph(u,v,solver=sparsesolver) =
+    int2d(Th,qft=qf25pT)(-(k^2)*u*v+Grad(u)'*Grad(v))
+        +int1d(Th, 1,2,3,4,qft=qf25pT)( (1i*k*u)  * v )
+            +int1d(Th, 1,qft=qf25pT)( (-(1i*k*f) - Gym) * v )
+            +int1d(Th, 2,qft=qf25pT)( (-(1i*k*f) - GxM) * v )
+            +int1d(Th, 3,qft=qf25pT)( (-(1i*k*f) - GyM) * v )
+            +int1d(Th, 4,qft=qf25pT)( (-(1i*k*f) - Gxm) * v );
+    real Err= abs(sqrt( int2d(Th,qft=qf25pT)(u-f)^2));
+    Uh ur= real (u);
+    plot (ur,fill=1,value=1);
+    cout<<"Error= "<<Err/abs(sqrt( int2d(Th,qft=qf25pT)(f)^2))<<endl;
+    cout<<"Npoint(npplo)="<<npplo<<"\t Error(relative)= "<<Err/abs(sqrt( int2d(Th)(f)^2))<<endl;
 
-real Val=real (int2d(Th,qft=qf25pT)((f-u)'*(f-u)));
-cout<<endl<<"Error="<<sqrt(Val/real(int2d(Th,qft=qf25pT)(f^2)))<<endl;
+}
+EndMacro
+
+Verfimacro(PK6);

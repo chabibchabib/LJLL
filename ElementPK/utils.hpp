@@ -31,13 +31,20 @@ void NumInternPoint(int k,vector<R2> &Pt ){
 // Numerotation point interieur comme P4
 void NumInternPoint2(int k,vector<R2> &Pt ){
  
-    for (int i =1;i<=k-2;i++){
+    /*for (int i =1;i<=k-2;i++){
         for (int j =1;j<=k-2-i+1;j++){
             //Pt.push_back(R2(double(k-(i+j)),double(j)));
             Pt.push_back(R2(double(j)/k,double(k-2-i+1-(j-1))/k));
             //cout<<"("<<j<<","<<k-2-i+1-(j-1)<<")";
         }
-    }
+    }*/
+
+    for (int i =k-2;i>=1;i--){
+            for (int j =1;j<=k-2-i+1;j++){
+                Pt.push_back(R2(double(k-1-i-(j-1))/k,double(i)/k));
+                cout<<"("<<j<<","<<k-1-i-(j-1)<<","<<i<<")";
+            }
+        }
 }
 
 // Constuction des coordonnees de points (TO DO: ajouter les points de l'interieur PB? Reste à savoir comment numeroter par convention)
@@ -116,7 +123,7 @@ void FillDataLagrange(int k, vector<int> &Data, vector<double> &Pi_h_coef ){
     Pi_h_coef.resize(ndof,1.);
 
 }
-// if orientation is <-1 it provides the indices of nodes to be exchanged  
+// if orientation is <-1 it provides the indices of nodes to be exchanged  (Valable que pour K3 et K4)
 vector<pair<int,int>> Exchangeidx(int k){
     vector<pair<int,int>> permut;
     permut.resize(3);
@@ -131,7 +138,21 @@ vector<pair<int,int>> Exchangeidx(int k){
     permut[2].second=3+(3*k-4);    
     return permut;
 }
-
+// Generic de Exchangeidx
+vector<pair<int,int>> ExchangeidxVector(int k){
+    int nbrPerm=(k%2)? (k-1) : (k-2); // Number of permutation per axis
+    vector<pair<int,int>> permut;
+    for (int i=0;i<nbrPerm/2;i++){
+        permut.push_back(make_pair(3+i,3+(k-2)-i));
+    }
+    for (int i=0;i<nbrPerm/2;i++){
+        permut.push_back(make_pair(3+k-1+i,3+(2*k-3)-i));
+    }
+    for (int i=0;i<nbrPerm/2;i++){
+        permut.push_back(make_pair(3+2*k-2+i,3+(3*k-4)-i));
+    }
+    return permut;
+}
 // Fill Other table
 void FillOther(vector<int> &other, int PK, int Ndof){
     for(int i=0; i<Ndof;i++ ) other[i]=i;

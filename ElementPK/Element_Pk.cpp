@@ -36,7 +36,7 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
      vector<int> il;//[ndf];
      vector<int> jl;//[ndf];
      vector<int> kl;//[ndf];
-    TypeOfFE_PkLagrange( int PK ) : TypeOfFE((PK+1)*(PK+2)/2, 1, PrepareData(PK).data(), PK, 1, (PK+1)*(PK+2)/2 +((PK%2)? (PK-1)*3 : (PK-2)*3), (PK+1)*(PK+2)/2, 0) {
+    TypeOfFE_PkLagrange( int PK ) : TypeOfFE((PK+1)*(PK+2)/2, 1, PrepareData(PK).data(), PK, PK, (PK+1)*(PK+2)/2 +((PK%2)? (PK-1)*3 : (PK-2)*3), (PK+1)*(PK+2)/2, 0) {
         k=PK;
         ndf = (k + 2) * (k + 1) / 2;
         nn.resize(ndf);
@@ -58,20 +58,30 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
             //R2(2 / 3., 1 / 3.), R2(1 / 3., 2 / 3.), R2(0 / 3., 2 / 3.),
             //R2(0 / 3., 1 / 3.), R2(1 / 3., 0 / 3.), R2(2 / 3., 0 / 3.),
             //R2(1 / 3., 1 / 3.)}; *
+        cout<<"\nil";
         cout<<endl;
         for (auto elm : il) cout<<elm<<" ";
         cout<<endl;
+        cout<<"jl\n";
         for (auto elm : jl) cout<<elm<<" ";
-        cout<<endl;        
+        cout<<endl;
+        cout<<"kl\n";        
         for (auto elm : kl) cout<<elm<<" ";
         cout<<endl;
+        cout<<"nn\n";        
         for (auto elm : nn) {for(auto elmelm : elm) cout<<elmelm<<" ";}
         cout<<endl;
+        cout<<"aa\n";        
         for (auto elm : aa) {for(auto elmelm : elm) cout<<elmelm<<" ";}
         cout<<endl;
         // 3,4,5,6,7,8
         vector<int> other(ndf,0);//[ndf] = {-1, -1, -1, 4, 3, 6, 5, 8, 7, -1}; // 
         FillOther(other, k,  ndf);
+        cout<<"Other";        
+        cout<<endl;
+        for (auto elm : other)  cout<<elm<<" ";
+        cout<<endl;
+        cout<<"Data";        
         cout<<endl;
         for (auto elm : Data)  cout<<elm<<" ";
         cout<<endl;
@@ -122,6 +132,7 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
     int nbrPerm=(k%2)? (k-1)*3 : (k-2)*3; // Number of permutation
     vector<vector<int>> indicesIJ(2, vector<int>(nbrPerm,0)); // IJ indices
     vector<int> ooo(nbrPerm,0);
+    //cout<<"OOO\n";
     int KK = (k%2)? (k-1) : (k-2);
     for (int i=0;i<nbrPerm;i++){
         if(k%2==1)         indicesIJ[0][i]=(3+2*i);
@@ -134,9 +145,9 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
         }
         indicesIJ[1][i]=(1+indicesIJ[0][i]);
         ooo[i]=K.EdgeOrientation(i/KK);
-
+        //cout<<ooo[i]<<" ";
     } 
-
+    //cout<<"\n";
     for (int i = 0; i < ndf+nbrPerm; ++i) {
         v[i] = 1;
     }
@@ -182,21 +193,36 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
     }
     
     // Get index exchange 
-    vector<pair<int,int>> ExId=Exchangeidx( k);
-    /*cout<<endl;
+    vector<pair<int,int>> ExId=ExchangeidxVector( k);
+    /*cout<<"\n Exchange Indices";
+    cout<<endl;
     for (auto elm :  ExId) cout<<elm.first<<","<<elm.second<<"\t";
     cout<<endl;*/
 
-    if (K.EdgeOrientation(0) < 0) {
-        Exchange(p[ExId[0].first], p[ExId[0].second]);   
+    /*if (K.EdgeOrientation(0) < 0) {
+        Exchange(p[ExId[0].first], p[ExId[0].second]);
+        Exchange(p[4], p[5]);   
+   
     }
     
     if (K.EdgeOrientation(1) < 0) {
-        Exchange(p[ExId[1].first], p[ExId[1].second]);    
+        Exchange(p[ExId[1].first], p[ExId[1].second]);   
+        Exchange(p[9], p[8]);   
+
     }
     
     if (K.EdgeOrientation(2) < 0) {
-        Exchange(p[ExId[2].first], p[ExId[2].second]);    
+        Exchange(p[ExId[2].first], p[ExId[2].second]);  
+        Exchange(p[12], p[13]);   
+      
+    }*/
+    int nbrPermAxis=(k%2)? (k-1) : (k-2); // Number of permutation per axis
+    for (int i=0;i<3;i++){
+        if(K.EdgeOrientation(i)<0){
+            for (int j=i*nbrPermAxis/2;j<(i+1)*nbrPermAxis/2;j++)
+                //cout<<"("<<permut[j].first<<","<<permut[j].second<<") ";
+                Exchange(p[ExId[j].first], p[ExId[j].second]);
+        }
     }
     
     val = 0;
@@ -274,11 +300,10 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
     }
 }
 
-/*static  TypeOfFE_PkLagrange PK3(3);
-static  TypeOfFE_PkLagrange PK4(4);*/
+static  TypeOfFE_PkLagrange PK3(3);
+static  TypeOfFE_PkLagrange PK4(4);
 static  TypeOfFE_PkLagrange PK5(5);
-//static  TypeOfFE_PkLagrange PK6(6);
-
+static  TypeOfFE_PkLagrange PK6(6);
 static void init( ) {
 /*for (int i=0;i<1000; i++) TablePK[i]=nullptr;
 
@@ -288,12 +313,14 @@ static void init( ) {
   );
   //for (int i=1;i<5;i++)   AddNewFE("P_"+str(i), &PK(i));*/
 
-/*AddNewFE("PK3", &PK3);
-static ListOfTFE FE_P3("PK3", &PK3); // to add P3 in list of Common FE
+AddNewFE("PK3", &PK3);
+static ListOfTFE FE_P3("PK3", &PK3); // to add P3 in list of Common FE*/
 AddNewFE("PK4", &PK4);
 static ListOfTFE FE_P4("PK4", &PK4); // to add P4 in list of Common FE*/
 AddNewFE("PK5", &PK5);
 static ListOfTFE FE_P5("PK5", &PK5); // to add P4 in list of Common FE*/
+AddNewFE("PK6", &PK6);
+static ListOfTFE FE_P6("PK6", &PK6); // to add P4 in list of Common FE*/
 /*AddNewFE("PK6", &PK6);
 static ListOfTFE FE_P6("PK6", &PK6); // to add P4 in list of Common FE*/
 }
