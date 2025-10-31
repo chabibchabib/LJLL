@@ -11,8 +11,18 @@
 
 using namespace std;
 typedef double REAL  ; 
-vector<vector<int>> generate_partitions(int sum, int nparts) {
-    vector<vector<int>> partitions;
+
+long factorial(long n) {
+    if (n <= 1) return 1;
+    long result = 1;
+    for (long i = 2; i <= n; ++i) {
+        result *= i;
+    }
+    return result;
+}
+
+vector<vector<long>> generate_partitions(int sum, int nparts) {
+    vector<vector<long>> partitions;
     
     if (nparts == 1) {
         partitions.push_back({int(sum)});
@@ -20,9 +30,9 @@ vector<vector<int>> generate_partitions(int sum, int nparts) {
     }
     
     for (int first = 0; first <= sum; first++) {
-        vector<vector<int>> rest_partitions = generate_partitions(sum - first, nparts - 1);
+        vector<vector<long>> rest_partitions = generate_partitions(sum - first, nparts - 1);
         for (auto &rest : rest_partitions) {
-            vector<int> comp;
+            vector<long> comp;
             comp.push_back(first);
             comp.insert(comp.end(), rest.begin(), rest.end());
             partitions.push_back(comp);
@@ -32,8 +42,8 @@ vector<vector<int>> generate_partitions(int sum, int nparts) {
 }
 
 // Fonction pour trier les partitions selon l'ordre geometrique P_K
-vector<vector<int>> sort_partitions_geometric(vector<vector<int>> partitions, int K) {
-    vector<vector<int>> sorted;
+vector<vector<long>> sort_partitions_geometric(vector<vector<long>> partitions, int K) {
+    vector<vector<long>> sorted;
     
     // 1. SOMMETS (i+j+k=K avec deux coordonnees = 0)
     sorted.push_back({K,0,0});
@@ -43,7 +53,7 @@ vector<vector<int>> sort_partitions_geometric(vector<vector<int>> partitions, in
     // Ordre: arete k=0 (sommet 0→1), puis j=0 (sommet 1→2), puis i=0 (sommet 2→0)
     
     // Arete k=0 (entre sommets i=K et j=K) : decroissant en i
-    vector<vector<int>> edge1, edge2, edge3;
+    vector<vector<long>> edge1, edge2, edge3;
     for (auto &p : partitions) {
         if (p[2] == 0 && p[0] > 0 && p[1] > 0) edge1.push_back(p);
         if (p[1] == 0 && p[0] > 0 && p[2] > 0) edge2.push_back(p);
@@ -51,17 +61,17 @@ vector<vector<int>> sort_partitions_geometric(vector<vector<int>> partitions, in
     }
     
     // Trier arete 1 (k=0): i decroissant
-    sort(edge1.begin(), edge1.end(), [](const vector<int> &a, const vector<int> &b) {
+    sort(edge1.begin(), edge1.end(), [](const vector<long> &a, const vector<long> &b) {
         return a[0] > b[0];
     });
     
     // Trier arete 2 (j=0): i croissant  
-    sort(edge2.begin(), edge2.end(), [](const vector<int> &a, const vector<int> &b) {
+    sort(edge2.begin(), edge2.end(), [](const vector<long> &a, const vector<long> &b) {
         return a[0] < b[0];
     });
     
     // Trier arete 3 (i=0): j decroissant
-    sort(edge3.begin(), edge3.end(), [](const vector<int> &a, const vector<int> &b) {
+    sort(edge3.begin(), edge3.end(), [](const vector<long> &a, const vector<long> &b) {
         return a[1] > b[1];
     });
     
@@ -71,7 +81,7 @@ vector<vector<int>> sort_partitions_geometric(vector<vector<int>> partitions, in
     sorted.insert(sorted.end(), edge1.begin(), edge1.end());
     
     // 3. INTERIEUR (i,j,k  > 0)
-    vector<vector<int>> interior;
+    vector<vector<long>> interior;
     for (auto &p : partitions) {
         if (p[0] > 0 && p[1] > 0 && p[2] > 0) {
             interior.push_back(p);
@@ -84,7 +94,7 @@ vector<vector<int>> sort_partitions_geometric(vector<vector<int>> partitions, in
         return a[1] < b[1];
     });*/
     sort(interior.begin(), interior.end(),
-        [](const vector<int>& a, const vector<int>& b) {
+        [](const vector<long>& a, const vector<long>& b) {
             if (a[2] != b[2]) return a[2] > b[2];   // composante 2 : plus petite d'abord
             if (a[0] != b[0]) return a[0] < b[0];   // composante 0 : croissant
             return a[1] > b[1];                     // composante 1 : croissant
@@ -96,25 +106,25 @@ vector<vector<int>> sort_partitions_geometric(vector<vector<int>> partitions, in
 }
 
 
-void BasisFctPK(int K, vector<vector<int>> &coef,vector<vector<int>> &shift, vector<int> &ff, vector<int> &il,vector<int> &jl,vector<int> &kl){ 
+void BasisFctPK(int K, vector<vector<long>> &coef,vector<vector<long>> &shift, vector<long> &ff, vector<long> &il,vector<long> &jl,vector<long> &kl){ 
     // Silverster formula ~1968 
     // Compute Phi_{i,j,k}(lambda1,lambda2,lambda3) basis functions; while i+j+k=K and lambda are the barycentric coordinates  
 
-    vector<vector<int>> unsortedpartitionK=generate_partitions(K, 3);
-    vector<vector<int>> partitionK=sort_partitions_geometric(unsortedpartitionK,  K);
+    vector<vector<long>> unsortedpartitionK=generate_partitions(K, 3);
+    vector<vector<long>> partitionK=sort_partitions_geometric(unsortedpartitionK,  K);
     int idx=0;
     for (auto &partition : partitionK ){
-        int i = partition[0];
-        int j = partition[1];
-        int k = partition[2];
+        long i = partition[0];
+        long j = partition[1];
+        long k = partition[2];
         if (i+j+k==K){
             int ID=0;
-            cout<<"Point -->"<< idx<<"( "<<i<<" "<<j<<" "<<k<<" )" << endl;
-            int denom=tgamma(i+1)*tgamma(j+1)*tgamma(k+1);
+            long denom=factorial(i)*factorial(j)*factorial(k);
             ff[idx]=denom;
             il[idx]=i;
             jl[idx]=j;
             kl[idx]=k;
+            cout<<denom<<" Point -->"<< idx<<"( "<<i<<" "<<j<<" "<<k<<" )," << "denom= "<< tgamma(i+1)<<" "<<tgamma(j+1)<<" "<<tgamma(k+1)<<" ff= " <<ff[idx]<< endl;
             if(i>0){
                 for (int ii = 0; ii<=i-1;ii++) {
 

@@ -53,8 +53,8 @@ vector<R2> PtConstruction(int k){
     vector<R2> Pt;//(Ndof);
     // sommets
     Pt.push_back(R2(0,0));
-    Pt.push_back(R2(k/k,0));
-    Pt.push_back(R2(0,k/k));
+    Pt.push_back(R2(1.,0));
+    Pt.push_back(R2(0,1.));
     // arrete bas 
     for(int i =0; i<NptPerV;i++) Pt.push_back(R2( double(k-i-1)/k,double(i+1)/k));
     // arrete droite
@@ -123,21 +123,7 @@ void FillDataLagrange(int k, vector<int> &Data, vector<double> &Pi_h_coef ){
     Pi_h_coef.resize(ndof,1.);
 
 }
-// if orientation is <-1 it provides the indices of nodes to be exchanged  (Valable que pour K3 et K4)
-vector<pair<int,int>> Exchangeidx(int k){
-    vector<pair<int,int>> permut;
-    permut.resize(3);
 
-    permut[0].first=3;
-    permut[0].second=3+(k-2);
-    
-    permut[1].first=3+k-1;
-    permut[1].second=3+(2*k-3);
-    
-    permut[2].first=3+2*k-2;
-    permut[2].second=3+(3*k-4);    
-    return permut;
-}
 // Generic de Exchangeidx
 vector<pair<int,int>> ExchangeidxVector(int k){
     int nbrPerm=(k%2)? (k-1) : (k-2); // Number of permutation per axis
