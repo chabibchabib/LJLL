@@ -1,4 +1,3 @@
-load"Element_Pk"
 include "getARGV.idp"
 load"Element_P3"
 load"Element_P4"
@@ -6,6 +5,13 @@ load"GMintegration"
 load"GMintegration3D"
 load"qf11to25"
 load "MUMPS"
+load"Element_Pk"
+
+/*PKLagrange(3);
+func titi = PKLagrange(3);
+func toto = P3;*/
+
+
 real k = getARGV("-waven",3*0.5);
 real c = 1;
 real s= 0; 
@@ -20,17 +26,20 @@ func GyM = -Gym;
 real lambda = 2*pi/k;
 
 /*mesh Th1 = square(1,1);    // global mesh
+Th1=trunc(Th1,x<0.5);
+
 fespace UH(Th1,PK);
 fespace UH1(Th1,P1);
 
-UH  ftest=x^7+y^7;
-Th1=trunc(Th1,1,split=6);
-UH1  ftest1=ftest-(x^7+y^7);
+UH  ftest=1;
+Th1=trunc(Th1,1,split=8);
+UH1  ftest1=ftest;
 plot(ftest);
-plot(ftest1);
+//plot(ftest1);
 cout<<endl;
-//cout<<ftest[]<<endl;
-cout<<ftest1[]<<endl;
+cout<<ftest[]<<endl;
+//cout<<ftest1[]<<endl;
+//fespace UHH(Th1,Pk3);
 
 exit(0);*/
 macro Grad(u) [dx(u),dy(u)] // EOM
@@ -51,7 +60,7 @@ NewMacro Verfimacro(PK)
     Uh ur= real (u);
     Uh VisERr= abs(real(f)-ur);
     plot (ur,fill=1,value=1);
-    plot (VisERr,fill=1,value=1);
+    //plot (VisERr,fill=1,value=1);
 
     cout<<"Error= "<<Err/abs(sqrt( int2d(Th,qft=qf25pT)(f)^2))<<endl;
     cout<<"Npoint(npplo)="<<npplo<<"\t Error(relative)= "<<Err/abs(sqrt( int2d(Th)(f)^2))<<endl;

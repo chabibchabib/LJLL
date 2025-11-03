@@ -97,6 +97,7 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
             }
             
             P_Pi_h[i] = Pt[i];
+            cout<<"PPIH"<<i<<"= "<<P_Pi_h[i]<<endl;
         }        
         assert(P_Pi_h.N( ) == NbDoF);
         assert(pij_alpha.N( ) == kk);
@@ -142,13 +143,14 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
         else{
             int arete=i/(k-2);
             int idxlocal =i%(k-2);
-            if(k-2>2) idxlocal/=2;
+            //if(k-2>2) idxlocal/=2;
+            if(k-2>2) idxlocal/=((k-2)/2);
             indicesIJ[0][i]=(3+2*i+arete+idxlocal);
 
         }
         indicesIJ[1][i]=(1+indicesIJ[0][i]);
         ooo[i]=K.EdgeOrientation(i/KK);
-        cout<<ooo[i]<<" ";
+        cout<<indicesIJ[0][i]<<" ";
     } 
     cout<<"\n";
     for (int i = 0; i < ndf+nbrPerm; ++i) {
@@ -310,12 +312,23 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
 //static  TypeOfFE_PkLagrange PK6(6);
 static  TypeOfFE_PkLagrange PK(6);
 
+static TypeOfFE_PkLagrange ** TabPkLagrange = new TypeOfFE_PkLagrange* [1000];
+const Fem2D::TypeOfFE *GenerateTypeOfFE_PkLagrangeOperator(Stack stack, const long &s){
+  if (TabPkLagrange[s]!=nullptr) {return TabPkLagrange[s];}
+  else{
+    TabPkLagrange[s] = new TypeOfFE_PkLagrange(s);
+    return TabPkLagrange[s];
+  }
+
+}
+
 static void init( ) {
-/*for (int i=0;i<1000; i++) TablePK[i]=nullptr;
+    cout<<"enter"<<endl;
+for (int i=0;i<1000; i++) TabPkLagrange[i]=nullptr;
 
   Global.Add(
-      "PK", "(",
-      new OneOperator1s_< TypeOfFE_PkLagrange ,long>(GenerateTypeOfFE_PkLagrangeOperator)
+      "PKLagrange", "(",
+      new OneOperator1s_< const Fem2D::TypeOfFE* ,long>(GenerateTypeOfFE_PkLagrangeOperator)
   );
   //for (int i=1;i<5;i++)   AddNewFE("P_"+str(i), &PK(i));*/
 

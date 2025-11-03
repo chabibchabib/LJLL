@@ -190,8 +190,13 @@ void BasisFctPK(int K, vector<vector<int>> &coef,vector<vector<int>> &shift, vec
     }
 }
 
+double fct_de_base(int idx, double x , double y, int k){
+    if(idx==0) return k*(1.-x-y);
+    else if(idx==1) return double(k*x);
+    else return double(k*y);
+}
 int main(int argc, char **argv){
-    int PK= 4;
+    int PK= 8;
     int i =1, j=1,k=0;
     int ndof=(PK+1)*(PK+2)*0.5;
     vector<vector<int>> coef;//(3,vector<REAL>(K));
@@ -212,17 +217,65 @@ int main(int argc, char **argv){
     for (int i =0;i<ndof;i++){
         cout<<"{"<<il[i]<<","<<jl[i]<<","<<kl[i]<<"}\t";
     }
-    /*cout<<"\n denom:"<<endl;
+    cout<<"\n denom:"<<endl;
     for (int i =0;i<ndof;i++){
         cout<<"{"<<ff[i]<<","<<ff[i]<<","<<ff[i]<<"}\t";
     }
     cout<<"\nCoef:"<<endl;
     for (int i =0;i<ndof;i++){
-        cout<<"{"<<coef[i][0]<<","<<coef[i][1]<<","<<coef[i][2]<<","<<coef[i][3]<<"}\t";
-    }
+        cout<<"{";
+        for (int j=0; j<PK;j++) {cout<<coef[i][j]; if(j!=PK-1) cout<<",";}
+        cout<<"}\t";    }
     cout<<"\n Shift:"<<endl;
     for (int i =0;i<ndof;i++){
-        cout<<"{"<<shift[i][0]<<","<<shift[i][1]<<","<<shift[i][2]<<","<<shift[i][3]<<"}\t";
-    }*/
+        cout<<"{";
+        for (int j=0; j<PK;j++) {cout<<shift[i][j]; if(j!=PK-1) cout<<",";}
+        cout<<"}\t";
+
+    }
     cout<<endl;
+    /*// Verification
+    for (int i=0; i<ndof;i++){
+        long double prod=1./ff[i];
+        for (int j=0; j<PK;j++) {prod*=fct_de_base(coef[i][j],jl[i],  kl[i],PK)-shift[i][j]; }
+        cout<<"\nNdof= "<< i<<" prod= "<< prod<<endl;
+    }*/
+// Verification
+vector< vector<double> > verif(ndof);
+for (int i = 0; i < ndof; i++) verif[i].resize(ndof,-1);
+for (int i = 0; i < ndof; i++) {
+    for (int idx=0;idx<ndof;idx++){
+        // Coordonnées barycentriques du point i
+            double lambda1 = ( double)il[idx] / PK;
+            double lambda2 = ( double)jl[idx] / PK;
+            double lambda3 = ( double)kl[idx] / PK;
+            
+            double prod = 1.0 / ff[i];
+            
+            for (int j = 0; j < PK; j++) {
+                if (coef[i][j] == -1) break; // Fin des termes valides
+                
+                // Choisir la bonne coordonnée barycentrique
+                double lambda_val;
+                if (coef[i][j] == 0) 
+                    lambda_val = lambda1;
+                else if (coef[i][j] == 1) 
+                    lambda_val = lambda2;
+                else // coef[i][j] == 2
+                    lambda_val = lambda3;
+                
+                prod *= (PK * lambda_val - shift[i][j]);
+            }
+            verif[i][idx]=prod;
+            //cout << "Ndof= " << i << " prod= " << prod << endl;
+        }
+    }
+    double norm=0.;
+    for (int i=0;i<ndof;i++){
+        for (int j=0;j<ndof;j++){ //norm+=
+            if( i==j  && verif[i][j]!=1) cout  << verif[i][j] << endl;
+
+        }
+    }
+    
 }
