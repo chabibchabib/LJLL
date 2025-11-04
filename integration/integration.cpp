@@ -10,7 +10,16 @@
 #include <iomanip>      // std::setprecision
 
 using namespace std;
-
+double factorial(int nbr){
+    if (nbr<=1) return 1.;
+    else{
+        double prod=1.;
+        for (int i=1;i<=nbr; i++){
+            prod*=i;
+        }
+        return prod; 
+    }
+}
 vector<vector<double>> generate_partitions(int sum, int nparts) {
     vector<vector<double>> partitions;
     
@@ -35,7 +44,7 @@ double integration_rule(int n, int s,function<double(const vector<double>&)> f){
     int d = 2*s+1;
     double result =0.;
     for (int i = 0 ; i<s+1; i++){
-        double coef = pow(-1,i)*pow(2,-2*s)*pow(d+n-2*i,d)/(tgamma(i+1)*tgamma(d+n-i+1)); //C=(-1)^i x 2^(-2s) x (d+n-2i)^d/(i! x (d+n-i) !)
+        double coef = pow(-1,i)*pow(2,-2*s)*pow(d+n-2*i,d)/(factorial(i)*factorial(d+n-i)); //C=(-1)^i x 2^(-2s) x (d+n-2i)^d/(i! x (d+n-i) !)
 
         vector<vector<double>> betas =  generate_partitions( s-i, n+1);
 
@@ -67,7 +76,7 @@ double fct (vector<double> x ){
     /*for (auto it = x.begin(); it != x.end() -1; it++) {
         y += pow(*it, 2);
     }*/
-    y =pow(x[0],5)+pow(x[1],2)+2*x[0]*x[1]+pow(x[2],2);
+    y =21* pow(x[0], 1)+ pow(x[0], 2)-3;//+pow(x[1],2)+2*x[0]*x[1]+pow(x[2],2);
    return y;
 }; 
 
@@ -87,7 +96,7 @@ vector<pair<double, vector<double>>> integration_weightspoints(int n, int s){
     vector<pair<double, vector<double>>> data;
     
     for (int i = 0; i < s+1; i++){
-        double coef = pow(-1,i)*pow(2,-2*s)*pow(d+n-2*i,d)/(tgamma(i+1)*tgamma(d+n-i+1));
+        double coef = pow(-1,i)*pow(2,-2*s)*pow(d+n-2*i,d)/(factorial(i)*factorial(d+n-i));
         vector<vector<double>> betas = generate_partitions(s-i, n+1);
         double denom = d+n-2*i;
         
@@ -106,14 +115,14 @@ vector<pair<double, vector<double>>> integration_weightspoints(int n, int s){
 int nbrOfIntgPOints(int n,int s) {
     int nbr=0;
     for (int i=0; i<=s;i++)
-        nbr+=tgamma(n+s-i+1)/(tgamma(s-i+1)*tgamma(n+1));
+        nbr+=factorial(n+s-i)/(factorial(s-i)*factorial(n));
     return nbr;
 }
 int main(int argc,char * argv[] ){
     int n=atoi(argv[1]),s=atoi(argv[2]);
 
     auto f= [] (vector<double> x ){
-    return pow(x[0],5)+pow(x[1],2)+2*x[0]*x[1]+pow(x[2],2);
+    return 1./pow(x[0],1);//+pow(x[1],2)+2*x[0]*x[1]+pow(x[2],2);
     //return 1.;
     //return x[0];
     };

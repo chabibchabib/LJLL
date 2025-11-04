@@ -7,11 +7,6 @@ load"qf11to25"
 load "MUMPS"
 load"Element_Pk"
 
-/*PKLagrange(3);
-func titi = PKLagrange(3);
-func toto = P3;*/
-
-
 real k = getARGV("-waven",3*0.5);
 real c = 1;
 real s= 0; 
@@ -25,14 +20,14 @@ func GyM = -Gym;
 
 real lambda = 2*pi/k;
 
-/*mesh Th1 = square(1,1);    // global mesh
+mesh Th1 = square(1,1);    // global mesh
 Th1=trunc(Th1,x<0.5);
 
 fespace UH(Th1,PK);
 fespace UH1(Th1,P1);
 
 UH  ftest=1;
-Th1=trunc(Th1,1,split=8);
+Th1=trunc(Th1,1,split=9);
 UH1  ftest1=ftest;
 plot(ftest);
 //plot(ftest1);
@@ -41,10 +36,10 @@ cout<<ftest[]<<endl;
 //cout<<ftest1[]<<endl;
 //fespace UHH(Th1,Pk3);
 
-exit(0);*/
+//exit(0);
 macro Grad(u) [dx(u),dy(u)] // EOM
 NewMacro Verfimacro(PK)
-    int npplo =10;
+    int npplo =5;
     mesh Th = square(npplo,npplo);    // global mesh
     fespace Uh(Th,PK);
     Uh <complex> u,v;

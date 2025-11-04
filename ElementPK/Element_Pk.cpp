@@ -310,7 +310,7 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
 //static  TypeOfFE_PkLagrange PK4(4);
 //static  TypeOfFE_PkLagrange PK5(5);
 //static  TypeOfFE_PkLagrange PK6(6);
-static  TypeOfFE_PkLagrange PK(6);
+static  TypeOfFE_PkLagrange PK(7);
 
 static TypeOfFE_PkLagrange ** TabPkLagrange = new TypeOfFE_PkLagrange* [1000];
 const Fem2D::TypeOfFE *GenerateTypeOfFE_PkLagrangeOperator(Stack stack, const long &s){
@@ -323,7 +323,6 @@ const Fem2D::TypeOfFE *GenerateTypeOfFE_PkLagrangeOperator(Stack stack, const lo
 }
 
 static void init( ) {
-    cout<<"enter"<<endl;
 for (int i=0;i<1000; i++) TabPkLagrange[i]=nullptr;
 
   Global.Add(
