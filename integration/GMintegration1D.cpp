@@ -79,7 +79,7 @@ vector<pair<double, vector<double>>> integration_weightspoints(int n, int s){
 static QuadratureFormular1d ** TabQuadrFormula = new QuadratureFormular1d* [1000];
 
 const QuadratureFormular1d *GenerateQuadratureFormularForOperator(Stack stack, const long &s){
-  if (TabQuadrFormula[s]!=nullptr) {return TabQuadrFormula[s];}
+  if (TabQuadrFormula[s]!=nullptr) {  return TabQuadrFormula[s];}
   else{
     int n=1;
     vector<pair<double, vector<double>>> Vec = integration_weightspoints( n,s);
@@ -98,8 +98,7 @@ const QuadratureFormular1d *GenerateQuadratureFormularForOperator(Stack stack, c
 #include "lex.hpp"
 extern mylex *zzzfff;
 static void Load_Init( ) {
-
-  for (int i=0;i<10; i++) TabQuadrFormula[i]=nullptr;
+  for (int i=0;i<1000; i++) TabQuadrFormula[i]=nullptr;
   Global.Add(
       "GMQuadrature1D", "(",
       new OneOperator1s_<const QuadratureFormular1d*,long>(GenerateQuadratureFormularForOperator)

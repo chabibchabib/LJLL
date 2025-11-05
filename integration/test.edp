@@ -1,0 +1,9 @@
+load"GMintegration1D"
+//load "msh3" 
+
+int NN = 10; // nombre d'intervalles
+meshL Th = segment(NN, [x, 0]); // création du maillage 1D sur [0,1]
+func f = x^15; // fonction à intégrer
+real integral = int1d(Th,qfe=GMQuadrature1D(15))(f); // intégration sur le maillage 1D
+//cout << "Intégrale de f sur le segment = " << integral << endl;
+cout<<"Result:"<<integral<<endl;
