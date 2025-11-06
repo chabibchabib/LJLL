@@ -16,14 +16,15 @@ namespace Fem2D {
 class TypeOfFE_PkLagrange : public TypeOfFE {
 
     private:
-    static vector<int> PrepareData(int PK) {
+    //static int * pdata;
+    static int * PrepareData(int PK) {
         cout<<"\nSTART P"<<PK<<"\n";
         int ndof = (PK + 2) * (PK + 1) / 2;
-        vector<int> data(5*ndof+3,0);
+        static vector<int> data(5*ndof+3,0);
         vector<double> dummy_pi_coef;
         // Remplir data ici
         FillDataLagrange(PK, data, dummy_pi_coef);
-        return data;
+        return data.data();
     }
     public:
     int k ;
@@ -36,7 +37,7 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
      vector<long> il;//[ndf];
      vector<long> jl;//[ndf];
      vector<long> kl;//[ndf];
-    TypeOfFE_PkLagrange( int PK ) : TypeOfFE((PK+1)*(PK+2)/2, 1, PrepareData(PK).data(), PK, PK, (PK+1)*(PK+2)/2 +((PK%2)? (PK-1)*3 : (PK-2)*3), (PK+1)*(PK+2)/2, 0) {
+    TypeOfFE_PkLagrange( int PK ) :  TypeOfFE((PK+1)*(PK+2)/2, 1, PrepareData( PK), PK, PK, (PK+1)*(PK+2)/2 +((PK%2)? (PK-1)*3 : (PK-2)*3), (PK+1)*(PK+2)/2, 0) {
         k=PK;
         ndf = (k + 2) * (k + 1) / 2;
         nn.resize(ndf);
@@ -163,7 +164,7 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
             v[indicesIJ[0][i]] = 0;
         }
     }
-
+        cout<<"END OOO V\n";
     }
 
 };
@@ -235,6 +236,7 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
     val = 0;
     
     if (whatd[op_id]) {
+        cout<<" Evaluate fct"<<endl;
         RN_ f0(val('.', 0, op_id));
         
         for (int df = 0; df < ndf; df++) {
@@ -244,11 +246,11 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
                 f *= L[nn[df][i]] - aa[df][i];
             }
             f0[pdf] = f;
-            //cout<<df<<" \n F="<<f<<endl;
         }
     }
     
     if (whatd[op_dx] || whatd[op_dy] || whatd[op_dxx] || whatd[op_dyy] || whatd[op_dxy]) {
+        cout<<" Evaluate derivatives"<<endl;
         R2 D[] = {K.H(0) * k, K.H(1) * k, K.H(2) * k};
         if (whatd[op_dx] || whatd[op_dy]) {
             for (int df = 0; df < ndf; df++) {
@@ -271,9 +273,11 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
                     val(pdf, 0, op_dy) = fy;
                 }
             }
+        cout<<"END\n";    
         }
         
         if (whatd[op_dyy] || whatd[op_dxy] || whatd[op_dxx]) {
+            cout<<" Evaluate derivatives ^2"<<endl;
             for (int df = 0; df < ndf; df++) {
                 int pdf = p[df];
                 R fx = 0., fy = 0., f = 1. / ff[df];
@@ -310,7 +314,7 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
 //static  TypeOfFE_PkLagrange PK4(4);
 //static  TypeOfFE_PkLagrange PK5(5);
 //static  TypeOfFE_PkLagrange PK6(6);
-static  TypeOfFE_PkLagrange PK(7);
+static  TypeOfFE_PkLagrange PK(21);
 
 static TypeOfFE_PkLagrange ** TabPkLagrange = new TypeOfFE_PkLagrange* [1000];
 const Fem2D::TypeOfFE *GenerateTypeOfFE_PkLagrangeOperator(Stack stack, const long &s){
@@ -325,10 +329,10 @@ const Fem2D::TypeOfFE *GenerateTypeOfFE_PkLagrangeOperator(Stack stack, const lo
 static void init( ) {
 for (int i=0;i<1000; i++) TabPkLagrange[i]=nullptr;
 
-  Global.Add(
+  /*Global.Add(
       "PKLagrange", "(",
       new OneOperator1s_< const Fem2D::TypeOfFE* ,long>(GenerateTypeOfFE_PkLagrangeOperator)
-  );
+  );*/
   //for (int i=1;i<5;i++)   AddNewFE("P_"+str(i), &PK(i));*/
 
 /*AddNewFE("PK3", &PK3);

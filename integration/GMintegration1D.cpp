@@ -14,10 +14,10 @@ using namespace Fem2D;
 
 #include<vector>
 
-double factorial(int nbr){
+long double factorial(int nbr){
     if (nbr<=1) return 1.;
     else{
-        double prod=1.;
+        long double prod=1.;
         for (int i=1;i<=nbr; i++){
             prod*=i;
         }
@@ -25,18 +25,29 @@ double factorial(int nbr){
     }
 }
 
-vector<vector<double>> generate_partitions(int sum, int nparts) {
-    vector<vector<double>> partitions;
+long double Logfactorial(int nbr){
+    if (nbr<=1) return 0.;
+    else{
+        long double sum=0.;
+        for (int i=1;i<=nbr; i++){
+            sum+=log((long double)(i));
+        }
+        return sum; 
+    }
+}
+
+vector<vector<long double>> generate_partitions(int sum, int nparts) {
+    vector<vector<long double>> partitions;
     
     if (nparts == 1) {
-        partitions.push_back({double(sum)});
+        partitions.push_back({(long double)(sum)});
         return partitions;
     }
     
     for (int first = 0; first <= sum; first++) {
-        vector<vector<double>> rest_partitions = generate_partitions(sum - first, nparts - 1);
+        vector<vector<long double>> rest_partitions = generate_partitions(sum - first, nparts - 1);
         for (auto &rest : rest_partitions) {
-            vector<double> comp;
+            vector<long double> comp;
             comp.push_back(first);
             comp.insert(comp.end(), rest.begin(), rest.end());
             partitions.push_back(comp);
@@ -45,17 +56,27 @@ vector<vector<double>> generate_partitions(int sum, int nparts) {
     return partitions;
 }
 
-vector<pair<double, vector<double>>> integration_weightspoints(int n, int s){
+vector<pair<long double, vector<long double>>> integration_weightspoints(int n, int s){
     int d = 2*s+1;
-    vector<pair<double, vector<double>>> data;
+    vector<pair<long double, vector<long double>>> data;
     
     for (int i = 0; i < s+1; i++){
-        double coef = pow(-1,i)*pow(2,-2*s)*pow(d+n-2*i,d)/(factorial(i)*factorial(d+n-i));
-        vector<vector<double>> betas = generate_partitions(s-i, n+1);
-        double denom = d+n-2*i;
+        /*long double coef = pow(-1.,(long double)(i));
+        coef*=exp(d*log((long double)(d+n-2*i)));
+
+        long double denom1 = Logfactorial(i);
+        long double denom2 = Logfactorial(d+n-i);
+        denom1=exp(denom1);
+        denom2=exp(denom2);
+        coef/=denom1;
+        coef/=denom2;*/
+
+        long double coef = pow(-1.,(long double)(i))*pow((long double)(2),(long double)(-2*s))*pow((long double)(d+n-2*i),(long double)(d))/(factorial(i)*factorial(d+n-i));
+        vector<vector<long double>> betas = generate_partitions(s-i, n+1);
+        long double denom = d+n-2*i;
         
         for (const auto & beta_orig : betas){
-            vector<double> beta;
+            vector<long double> beta;
             for (auto x : beta_orig){
                 beta.push_back((2*x + 1)/denom);
             }
@@ -82,7 +103,7 @@ const QuadratureFormular1d *GenerateQuadratureFormularForOperator(Stack stack, c
   if (TabQuadrFormula[s]!=nullptr) {  return TabQuadrFormula[s];}
   else{
     int n=1;
-    vector<pair<double, vector<double>>> Vec = integration_weightspoints( n,s);
+    vector<pair<long double, vector<long double>>> Vec = integration_weightspoints( n,s);
     int NbrP=Vec.size();
      QuadratureFormular1dPoint *Tab = new QuadratureFormular1dPoint [NbrP];
     for(int i=0; i<NbrP; i++ ){

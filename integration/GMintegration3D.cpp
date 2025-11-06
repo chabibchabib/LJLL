@@ -82,7 +82,7 @@ static void Load_Init( ) {
 
   for (int i=0;i<1000; i++) TabQuadrFormula[i]=nullptr;
   Global.Add(
-      "GMQuadrature", "(",
+      "GMQuadrature2D", "(",
       new OneOperator1s_<const PQF3*,long>(GenerateQuadratureFormularForOperator)
   );
 
