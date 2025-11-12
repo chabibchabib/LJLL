@@ -42,7 +42,7 @@ void NumInternPoint2(int k,vector<R2> &Pt ){
     for (int i =k-2;i>=1;i--){
             for (int j =1;j<=k-2-i+1;j++){
                 Pt.push_back(R2(double(k-1-i-(j-1))/k,double(i)/k));
-                cout<<"("<<j<<","<<k-1-i-(j-1)<<","<<i<<")";
+                //cout<<"("<<j<<","<<k-1-i-(j-1)<<","<<i<<")";
             }
         }
 }
@@ -67,7 +67,9 @@ vector<R2> PtConstruction(int k){
 }
 
 // Remplir le tableau data
-void FillDataLagrange(int k, vector<int> &Data, vector<double> &Pi_h_coef ){
+//void FillDataLagrange(int k, vector<int> &Data, vector<double> &Pi_h_coef ){
+void FillDataLagrange(int k, vector<int> &Data ){
+
     int ndof= (k+1)*(k+2)*0.5;
     Data.resize(5*ndof+3,0);
     // First row(the support number  of the node of the df)
@@ -120,7 +122,7 @@ void FillDataLagrange(int k, vector<int> &Data, vector<double> &Pi_h_coef ){
     Data[5*ndof+2]=ndof;
     /*Data[5*ndof+1]=0;
     Data[5*ndof]=0;*/
-    Pi_h_coef.resize(ndof,1.);
+    //Pi_h_coef.resize(ndof,1.);
 
 }
 

@@ -124,7 +124,7 @@ void BasisFctPK(int K, vector<vector<long>> &coef,vector<vector<long>> &shift, v
             il[idx]=i;
             jl[idx]=j;
             kl[idx]=k;
-            cout<<denom<<" Point -->"<< idx<<"( "<<i<<" "<<j<<" "<<k<<" )," << "denom= "<< tgamma(i+1)<<" "<<tgamma(j+1)<<" "<<tgamma(k+1)<<" ff= " <<ff[idx]<< endl;
+            //cout<<denom<<" Point -->"<< idx<<"( "<<i<<" "<<j<<" "<<k<<" )," << "denom= "<< tgamma(i+1)<<" "<<tgamma(j+1)<<" "<<tgamma(k+1)<<" ff= " <<ff[idx]<< endl;
             if(i>0){
                 for (int ii = 0; ii<=i-1;ii++) {
 

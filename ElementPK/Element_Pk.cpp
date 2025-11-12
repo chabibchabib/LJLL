@@ -18,18 +18,19 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
     private:
     //static int * pdata;
     static int * PrepareData(int PK) {
-        cout<<"\nSTART P"<<PK<<"\n";
+        //cout<<"\nSTART P"<<PK<<"\n";
         int ndof = (PK + 2) * (PK + 1) / 2;
         static vector<int> data(5*ndof+3,0);
-        vector<double> dummy_pi_coef;
+        //vector<double> dummy_pi_coef;
         // Remplir data ici
-        FillDataLagrange(PK, data, dummy_pi_coef);
+        //FillDataLagrange(PK, data, dummy_pi_coef);
+        FillDataLagrange(PK, data);
         return data.data();
     }
     public:
     int k ;
     int ndf;
-     vector<int> Data;
+     //vector<int> Data;
      vector<double> Pi_h_coef;
      vector<vector<long>> nn;//[ndf][k];
      vector<vector<long>>aa;//[ndf][k];
@@ -51,7 +52,8 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
         jl.resize(ndf,-1);
         kl.resize(ndf,-1);
         // Fill Data Lagrange
-        FillDataLagrange( k, Data, Pi_h_coef );
+        //FillDataLagrange( k, Data, Pi_h_coef );
+        Pi_h_coef.resize(ndf,1.);
 
         //Fill ff,il,jl,kl,nn,aa
         BasisFctPK(k, nn,aa, ff, il,jl,kl);
@@ -59,7 +61,7 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
             //R2(2 / 3., 1 / 3.), R2(1 / 3., 2 / 3.), R2(0 / 3., 2 / 3.),
             //R2(0 / 3., 1 / 3.), R2(1 / 3., 0 / 3.), R2(2 / 3., 0 / 3.),
             //R2(1 / 3., 1 / 3.)}; *
-        cout<<"\nil";
+        /*cout<<"\nil";
         cout<<endl;
         for (auto elm : il) cout<<elm<<" ";
         cout<<endl;
@@ -77,18 +79,18 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
         cout<<endl;
         cout<<"ff\n";        
         for (auto elm : ff) { cout<<elm<<" ";}
-        cout<<endl;
+        cout<<endl;*/
         // 3,4,5,6,7,8
         vector<int> other(ndf,0);//[ndf] = {-1, -1, -1, 4, 3, 6, 5, 8, 7, -1}; // 
         FillOther(other, k,  ndf);
-        cout<<"Other";        
+        /*cout<<"Other";        
         cout<<endl;
         for (auto elm : other)  cout<<elm<<" ";
         cout<<endl;
         cout<<"Data";        
         cout<<endl;
         for (auto elm : Data)  cout<<elm<<" ";
-        cout<<endl;
+        cout<<endl;*/
         int kk = 0;
 
         for (int i = 0; i < NbDoF; i++) {
@@ -98,7 +100,7 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
             }
             
             P_Pi_h[i] = Pt[i];
-            cout<<"PPIH"<<i<<"= "<<P_Pi_h[i]<<endl;
+            //cout<<"PPIH"<<i<<"= "<<P_Pi_h[i]<<endl;
         }        
         assert(P_Pi_h.N( ) == NbDoF);
         assert(pij_alpha.N( ) == kk);
@@ -137,7 +139,7 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
     int nbrPerm=(k%2)? (k-1)*3 : (k-2)*3; // Number of permutation
     vector<vector<int>> indicesIJ(2, vector<int>(nbrPerm,0)); // IJ indices
     vector<int> ooo(nbrPerm,0);
-    cout<<"OOO\n";
+    //cout<<"OOO\n";
     int KK = (k%2)? (k-1) : (k-2);
     for (int i=0;i<nbrPerm;i++){
         if(k%2==1)         indicesIJ[0][i]=(3+2*i);
@@ -151,9 +153,9 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
         }
         indicesIJ[1][i]=(1+indicesIJ[0][i]);
         ooo[i]=K.EdgeOrientation(i/KK);
-        cout<<indicesIJ[0][i]<<" ";
+        //cout<<indicesIJ[0][i]<<" ";
     } 
-    cout<<"\n";
+    //cout<<"\n";
     for (int i = 0; i < ndf+nbrPerm; ++i) {
         v[i] = 1;
     }
@@ -164,7 +166,7 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
             v[indicesIJ[0][i]] = 0;
         }
     }
-        cout<<"END OOO V\n";
+        //cout<<"END OOO V\n";
     }
 
 };
@@ -236,7 +238,6 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
     val = 0;
     
     if (whatd[op_id]) {
-        cout<<" Evaluate fct"<<endl;
         RN_ f0(val('.', 0, op_id));
         
         for (int df = 0; df < ndf; df++) {
@@ -250,7 +251,6 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
     }
     
     if (whatd[op_dx] || whatd[op_dy] || whatd[op_dxx] || whatd[op_dyy] || whatd[op_dxy]) {
-        cout<<" Evaluate derivatives"<<endl;
         R2 D[] = {K.H(0) * k, K.H(1) * k, K.H(2) * k};
         if (whatd[op_dx] || whatd[op_dy]) {
             for (int df = 0; df < ndf; df++) {
@@ -273,11 +273,10 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
                     val(pdf, 0, op_dy) = fy;
                 }
             }
-        cout<<"END\n";    
+        //cout<<"END\n";    
         }
         
         if (whatd[op_dyy] || whatd[op_dxy] || whatd[op_dxx]) {
-            cout<<" Evaluate derivatives ^2"<<endl;
             for (int df = 0; df < ndf; df++) {
                 int pdf = p[df];
                 R fx = 0., fy = 0., f = 1. / ff[df];
@@ -314,7 +313,7 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
 //static  TypeOfFE_PkLagrange PK4(4);
 //static  TypeOfFE_PkLagrange PK5(5);
 //static  TypeOfFE_PkLagrange PK6(6);
-static  TypeOfFE_PkLagrange PK(21);
+static  TypeOfFE_PkLagrange PK(12);
 
 static TypeOfFE_PkLagrange ** TabPkLagrange = new TypeOfFE_PkLagrange* [1000];
 const Fem2D::TypeOfFE *GenerateTypeOfFE_PkLagrangeOperator(Stack stack, const long &s){
