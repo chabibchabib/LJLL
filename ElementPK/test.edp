@@ -6,7 +6,7 @@ load"GMintegration"
 load"GMintegration3D"*/
 load"qf11to25"
 load "MUMPS"
-load"Element_Pk"
+load"Element_PkLagrange"
 
 real k = getARGV("-waven",3*0.5);
 real c = 1;
@@ -24,7 +24,7 @@ real lambda = 2*pi/k;
 /*mesh Th1 = square(1,1);    // global mesh
 Th1=trunc(Th1,x<0.5);
 
-fespace UH(Th1,PK);
+fespace UH(Th1,PKLagrange);
 fespace UH1(Th1,P1);
 
 UH  ftest=1;
@@ -64,4 +64,4 @@ NewMacro Verfimacro(PK)
 
 EndMacro
 
-Verfimacro(PK);
+Verfimacro(PKLagrange);
