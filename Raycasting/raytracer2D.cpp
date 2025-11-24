@@ -17,25 +17,29 @@ void raytracer<dim>::getNormal(edge AB, vec2 normale){
 } 
 
 template<int dim>
-void raytracer<dim>::intessectionpoint(ray r, edge AB,vec2 point ){
+bool raytracer<dim>::intessectionpoint(ray r, edge AB,vec2 point ){
     //Crammer's rule
     real ABx = (AB.B[0]-AB.A[0]), ABy= (AB.B[1]-AB.A[1]), AOx=(r.origin[0]-AB.A[0]),AOy=(r.origin[1]-AB.A[1]);
 
     real det=-ABx*r.dir[1] + ABy*r.dir[0];
-    assert(abs(det)> 1e-12);
+    //assert(abs(det)> 1e-12);
+    if(abs(det)< 1e-12) return false;
     det=1/det;
     real s= det*(r.dir[0]*AOy - r.dir[1]*AOx );
     //cout<<"s="<<s<<"det="<< 1/det<<endl;
-    assert(s>=0 && s<=1); // appartient au segment?
+    //assert(s>=0 && s<=1); // appartient au segment?
+    if(s< 1e-12 || s>1) return false;
+
     real t= det*(ABx*AOy - ABy*AOx );
-    assert(t>=1e-12); // appartient au faisceau?
+    //assert(t>=1e-12); // appartient au faisceau?
+    if(t< 1e-12 ) return false;
 
     point[0]= r.origin[0]+ t*r.dir[0];
     point[1]= r.origin[1]+ t*r.dir[1];
     //cout<<"Test ="<<AB.A[0]+s*(AB.B[0]-AB.A[0])<<","<<AB.A[1]+s*(AB.B[1]-AB.A[1])<<endl;
     assert(abs(AB.A[0]+s*(AB.B[0]-AB.A[0])-point[0])<1e-12);
     assert(abs(AB.A[1]+s*(AB.B[1]-AB.A[1])-point[1])<1e-12);
-
+    return true;
 }
 
 template<int dim>
@@ -53,7 +57,29 @@ void raytracer<dim>::reflection(ray &r, edge AB ){
 
     }
 
+template<int dim>
+void raytracer<dim>::trappedOrNot(ray &r){
+    vector<real> params;
+    vector<real> idx;
+    int i =0;
+    for (auto &E: edges){
+        vec2 pt;
+        i++;
+        if(intessectionpoint( r,  E, pt )){
+            real d = (!r.dir[0]) ?  r.dir[0]: r.dir[1];
+            real o = (d==r.dir[0]) ?  r.origin[0]: r.origin[1];
+            real coord = (d==r.dir[0]) ?  pt[0]: pt[1];
+            idx.push_back(i);
+            params.push_back((coord-o)/d);
+        };
+    }
 
+    sort(idx.begin(), idx.end(), [&](size_t i1, size_t i2) {
+        return params[i1] < params[i2];  // ordre croissant
+    });
+    
+    reflection( r,  edges[0] );
+}
 int main(){
     domain omega(0,6,0,6); // domaine carree
     vec2 A={0,0}, B={1,0};

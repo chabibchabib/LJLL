@@ -70,9 +70,9 @@ class raytracer {
     public: 
     raytracer(real xm,real xM, real ym,real yM,vector<edge> egdList): omega(xm,xM,ym,yM), edges(egdList){};
     void getNormal(edge AB, vec2 normale);
-    void intessectionpoint(ray r, edge AB,vec2 point );
+    bool intessectionpoint(ray r, edge AB,vec2 point );
     void reflection(ray &r, edge AB );
-
+    void trappedOrNot(ray &r); // Trapped ray ?
 
 };
 
