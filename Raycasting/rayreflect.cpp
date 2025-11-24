@@ -161,6 +161,11 @@ int main(){
     coutpoint("P0", Rec.P0);
     coutpoint("P1", Rec.P1);
     coutpoint("P2", Rec.P2);
+    ray<2> rp=Rec.reflection( r, pt );
+    cout<<"Ray Refcelted:\n";
+    coutpoint("Origine", rp.origin);
+    coutpoint("Direction", rp.dir);
+
 
     return 0;
 }
