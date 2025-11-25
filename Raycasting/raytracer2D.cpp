@@ -26,24 +26,26 @@ bool raytracer<dim>::intessectionpoint(ray r, edge AB,vec2 point ){
     if(abs(det)< 1e-5) return false;
     det=1/det;
     real s= det*(r.dir[0]*AOy - r.dir[1]*AOx );
-    cout<<"s="<<s<<"det="<< 1/det<<endl;
+    //cout<<"s="<<s<<"det="<< 1/det<<endl;
     //assert(s>=0 && s<=1); // appartient au segment?
-    if(s< 1e-12 || s>1) return false;
+    if(s< 0 || s>1) return false;
 
     real t= det*(ABx*AOy - ABy*AOx );
+    //cout<<"t="<<t<<endl;
     //assert(t>=1e-12); // appartient au faisceau?
-    if(t< 1e-5 ) return false;
+    if(t<= 0 ) return false;
 
     point[0]= r.origin[0]+ t*r.dir[0];
     point[1]= r.origin[1]+ t*r.dir[1];
-    cout<<"Test ="<<AB.A[0]+s*(AB.B[0]-AB.A[0])<<","<<AB.A[1]+s*(AB.B[1]-AB.A[1])<<endl;
+    /*cout<<"Test ="<<AB.A[0]+s*(AB.B[0]-AB.A[0])<<","<<AB.A[1]+s*(AB.B[1]-AB.A[1])<<" Edge {("<<AB.A[0]
+    <<","<<AB.A[1]<<"),("<<AB.B[0]<<","<<AB.B[1]<<")}"<<endl;*/
     assert(abs(AB.A[0]+s*(AB.B[0]-AB.A[0])-point[0])<1e-12);
     assert(abs(AB.A[1]+s*(AB.B[1]-AB.A[1])-point[1])<1e-12);
     return true;
 }
 
 template<int dim>
-void raytracer<dim>::reflection(ray &r, edge AB ){
+void raytracer<dim>::reflection(ray &r, edge AB){
         vec2 normale;
         getNormal(AB,normale);
         orientNormalForRay(  r,  normale);
@@ -61,12 +63,13 @@ template<int dim>
 void raytracer<dim>::trappedOrNot(ray &r, int & hit,int hitmax){
     hit=0.;
     while(hit<hitmax){
-        cout<<"\nr="<<r.origin[0]<<","<<r.origin[1]<<endl;
+        cout<<"\norigin r="<<r.origin[0]<<","<<r.origin[1]<<endl;
 
         vector<real> params;
         vector<real> idx;
         int i=0;
         for (auto &E: edges){
+            cout<<"edge" <<i<<"\n";
             vec2 pt;
             if(intessectionpoint( r,  E, pt )){
                 real d = (r.dir[0]!=0) ?  r.dir[0]: r.dir[1];
@@ -74,17 +77,19 @@ void raytracer<dim>::trappedOrNot(ray &r, int & hit,int hitmax){
                 real coord = (d==r.dir[0]) ?  pt[0]: pt[1];
                 idx.push_back(i);
                 params.push_back((coord-o)/d);
+                cout<<"Intersection oui"<<endl;
             };
             i++;
+
         }
         cout<<"params.empty()? "<<params.size()<<" "<<params.empty()<<endl;
         if(!params.empty()){
 
-            sort(idx.begin(), idx.end(), [&](size_t i1, size_t i2) {
+            sort(idx.begin(), idx.end(),  [&](size_t i1, size_t i2) {
                 return params[i1] < params[i2];  // ordre croissant
             });
 
-            reflection( r,  edges[idx[0]] );
+            reflection( r,  edges[idx[0]]);
             r.normaliseD();
             if(r.origin[0]<omega.xmin ||r.origin[0]>omega.xmax || r.origin[1]<omega.ymin ||r.origin[1]>omega.ymax  ) break;
             hit++;
@@ -108,11 +113,12 @@ int main(){
     raytracer<2> Rt(0,6,0,6,edgeList);
     vec2 normal;
     Rt.getNormal(E,normal);
-    vec2 O={3,2}, dir={0.5,0.25};
+    vec2 O={5,2}, dir={0.5,0.25};
     ray r(O,dir);
     r.normaliseD();
     int hit;
-    Rt.trappedOrNot(r,  hit,1000);
+    int hitmax =1000;
+    Rt.trappedOrNot(r,  hit,hitmax);
     cout<<"HIT=" <<hit<<endl;
     /*orientNormalForRay( r, normal);
     coutvec("normal", normal);

@@ -72,7 +72,7 @@ class raytracer {
     raytracer(real xm,real xM, real ym,real yM,vector<edge> egdList): omega(xm,xM,ym,yM), edges(egdList){};
     void getNormal(edge AB, vec2 normale);
     bool intessectionpoint(ray r, edge AB,vec2 point );
-    void reflection(ray &r, edge AB );
+    void reflection(ray &r, edge AB);
     void trappedOrNot(ray &r, int & hit,int hitmax=10); // Trapped ray ?
 
 };
