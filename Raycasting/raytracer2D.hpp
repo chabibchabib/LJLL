@@ -2,6 +2,7 @@
 #include<vector>
 #include<cassert>
 #include<cmath>
+#include <algorithm>
 using namespace std;
 typedef double real; 
 typedef double vec2[2] ;
@@ -72,7 +73,7 @@ class raytracer {
     void getNormal(edge AB, vec2 normale);
     bool intessectionpoint(ray r, edge AB,vec2 point );
     void reflection(ray &r, edge AB );
-    void trappedOrNot(ray &r); // Trapped ray ?
+    void trappedOrNot(ray &r, int & hit,int hitmax=10); // Trapped ray ?
 
 };
 
