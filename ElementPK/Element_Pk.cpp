@@ -2,6 +2,7 @@
 //#include "AddNewFE.h"
 #include "polynomial.hpp"
 #include "utils.hpp"
+#include "AddNewFE.h"
 
 using namespace std;
 // Attention probleme de numerotation des inconnues

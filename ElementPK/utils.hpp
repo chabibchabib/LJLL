@@ -1,4 +1,3 @@
-#include "AddNewFE.h"
 #include "ff++.hpp"
 #include <cmath>
 #include <iostream>
@@ -8,8 +7,8 @@ using namespace std;
 
 void NumInternPoint(int k, vector<R2> &Pt) {
     /*Numbering of interior points
-   index i is associated with the coordinate λ3 and j with λ2
-   therefore the coordinate for λ1 is k − (i + j). We iterate only
+   index i is associated with the coordinate lambda3 and j with lambda2
+   therefore the coordinate for lambda1 is k − (i + j). We iterate only
    between 1 and k − 2 to avoid the edge nodes
    NB: We start at the vertex node, then move down to the next row,
    numbering from right to left, and continue this pattern for the following rows
@@ -22,30 +21,28 @@ void NumInternPoint(int k, vector<R2> &Pt) {
     }
 }
 
-// Constuction des coordonnees de points (TO DO: ajouter les points de l'interieur PB? Reste à savoir comment numeroter
-// par convention)
+//Construction of point coordinates
 vector<R2> PtConstruction(int k) {
     int NptPerV = k - 1;
     vector<R2> Pt; //(Ndof);
-    // sommets
+    // vertices
     Pt.push_back(R2(0, 0));
     Pt.push_back(R2(1., 0));
     Pt.push_back(R2(0, 1.));
-    // arrete bas
+    // bottom edge
     for (int i = 0; i < NptPerV; i++)
         Pt.push_back(R2(double(k - i - 1) / k, double(i + 1) / k));
-    // arrete droite
+    // right edge
     for (int i = 0; i < NptPerV; i++)
         Pt.push_back(R2(0 / k, double(k - i - 1) / k));
-    // arrete gauche
+    // left edge
     for (int i = 0; i < NptPerV; i++)
         Pt.push_back(R2(double(i + 1) / k, 0. / k));
-    // Interieur de l'element
+    // Interior of the element
     NumInternPoint(k, Pt);
     return Pt;
 }
 
-// void FillDataLagrange(int k, vector<int> &Data, vector<double> &Pi_h_coef ){
 void FillDataLagrange(int k, vector<int> &Data) {
     /* Fill Data array in PKlagrange element (see P3 or P4
     for more details)
@@ -129,7 +126,7 @@ void FillOther(vector<int> &other, int PK, int Ndof) {
     /*Used to fill Other table in PK
     The function creates a permutation array other
      that symmetrically renumbers the internal points on the edges for a
-     mesh element of order PK(see P3 or P4 for more details)
+     mesh element of order PK(see Element_P3 or P4 files for more details)
     */
     for (int i = 0; i < Ndof; i++)
         other[i] = i;

@@ -1,6 +1,8 @@
 #include "polynomial.hpp"
 #include "utils.hpp"
+#include "AddNewFE.h"
 
+//This file is strongly inspired by the files elementsP3 and p4.
 using namespace std;
 // Attention probleme de numerotation des inconnues
 // -------------------------------------------------
@@ -25,18 +27,19 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
     }
 
   public:
-    int k;
-    int ndf;
-    // vector<int> Data;
+    int k; // The degree
+    int ndf; // Number of DOfs
     vector<double> Pi_h_coef;
-    // Polynomial parameters(Basis fcts)
+    // Polynomial parameters(Basis fcts):
+    //nn for the barycentric function, aa for the shifts, and ff for the denominator
     vector<vector<long>> nn; //[ndf][k];
     vector<vector<long>> aa; //[ndf][k];
     vector<long> ff;         //[ndf];
-    // Coordinates
+    // Points coordinates
     vector<long> il; //[ndf];
     vector<long> jl; //[ndf];
     vector<long> kl; //[ndf];
+    // Constuctor
     TypeOfFE_PkLagrange(int PK)
         : TypeOfFE((PK + 1) * (PK + 2) / 2, 1, PrepareData(PK), PK, PK,
                    (PK + 1) * (PK + 2) / 2 + ((PK % 2) ? (PK - 1) * 3 : (PK - 2) * 3), (PK + 1) * (PK + 2) / 2, 0) {
@@ -59,6 +62,7 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
         // Fill ff,il,jl,kl,nn,aa
         BasisFctPK(k, nn, aa, ff, il, jl, kl);
         vector<R2> Pt = PtConstruction(k);
+        // 
         vector<int> other(ndf, 0); //[ndf] = {-1, -1, -1, 4, 3, 6, 5, 8, 7, -1}; in P3//
         FillOther(other, k, ndf);
 
@@ -71,7 +75,6 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
             }
 
             P_Pi_h[i] = Pt[i];
-            // cout<<"PPIH"<<i<<"= "<<P_Pi_h[i]<<endl;
         }
         assert(P_Pi_h.N() == NbDoF);
         assert(pij_alpha.N() == kk);
@@ -84,7 +87,6 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
         int nbrPerm = (k % 2) ? (k - 1) * 3 : (k - 2) * 3;         // Number of permutation
         vector<vector<int>> indicesIJ(2, vector<int>(nbrPerm, 0)); // IJ indices
         vector<int> ooo(nbrPerm, 0);
-        // cout<<"OOO\n";
         int KK = (k % 2) ? (k - 1) : (k - 2);
         for (int i = 0; i < nbrPerm; i++) {
             if (k % 2 == 1)
@@ -92,7 +94,6 @@ class TypeOfFE_PkLagrange : public TypeOfFE {
             else {
                 int arete = i / (k - 2);
                 int idxlocal = i % (k - 2);
-                // if(k-2>2) idxlocal/=2;
                 if (k - 2 > 2)
                     idxlocal /= ((k - 2) / 2);
                 indicesIJ[0][i] = (3 + 2 * i + arete + idxlocal);
@@ -133,12 +134,10 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
     for (int i = 0; i < 3; i++) {
         if (K.EdgeOrientation(i) < 0) {
             for (int j = i * nbrPermAxis / 2; j < (i + 1) * nbrPermAxis / 2; j++) {
-                // cout<<"("<<ExId[j].first<<","<<ExId[j].second<<") ";
                 Exchange(p[ExId[j].first], p[ExId[j].second]);
             }
         }
     }
-    // cout<<endl;
     val = 0;
 
     if (whatd[op_id]) {
@@ -212,7 +211,7 @@ void TypeOfFE_PkLagrange::FB(const bool *whatd, const Mesh &, const Triangle &K,
     }
 }
 
-static TypeOfFE_PkLagrange PKLagrange(12);
+static TypeOfFE_PkLagrange PKLagrange(9);
 
 static void init() {
 
