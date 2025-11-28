@@ -1,11 +1,11 @@
 load"GMintegration1D"
-//load "msh3" 
 
-int NN = 10; // nombre d'intervalles
-meshL Th = segment(NN, [x, 0]); // création du maillage 1D sur [0,1]
-int k =2;
-func f = x^k; // fonction à intégrer
-real integral = int1d(Th,qfe=GMQuadrature1D(10))(f); // intégration sur le maillage 1D
+int NN = 10; //  number of intervals
+meshL Th = segment(NN, [x, 0]); // creation of the 1D mesh over [0,1]
+int k =50;
+func f = x^k; //  function to be integrated
+real integral = int1d(Th,qfe=GMQuadrature1D(14))(f); // intégration sur le maillage 1D
 //cout << "Intégrale de f sur le segment = " << integral << endl;
 cout.precision(20);cout<<"Result:"<<integral<<endl;
-cout.precision(20);cout<<"Error:"<<integral-1/(k+1)<<endl;
+cout.precision(20);cout<<"Error:"<<abs(integral-1./(k+1))<<endl;
+cout<<"k= "<<k<<" |intergral"<<integral<<" |Exact="<<1./(k+1)<<endl;

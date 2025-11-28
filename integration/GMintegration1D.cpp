@@ -61,7 +61,7 @@ vector<vector<long double>> generate_partitions(int sum, int nparts) {
 vector<pair<long double, vector<long double>>> integration_weightspoints(int n, int s) {
     int d = 2 * s + 1;
     vector<pair<long double, vector<long double>>> data;
-
+    long double signe =1.;
     for (int i = 0; i < s + 1; i++) {
         /*long double coef = pow(-1.,(long double)(i));
         coef*=exp(d*log((long double)(d+n-2*i)));
@@ -72,9 +72,23 @@ vector<pair<long double, vector<long double>>> integration_weightspoints(int n, 
         denom2=exp(denom2);
         coef/=denom1;
         coef/=denom2;*/
+        long double dn_2i=d+n-2*i;
+        long double coef = signe;
+        int j_hi = max(n, max(d, d + n - i));
+        for(int j = 1; j <= j_hi; j++)
+        {
+        long double rj= j;
+        if(j <= n) { coef *= rj; }
+        if(j <= d) { coef *= dn_2i; }
+        if(j <= 2 * s) { coef /= 2.0; }
+        if(j <= i) { coef /= rj; }
+        if(j <= d + n - i) { coef /= rj; }
+        }
+        signe = - signe;
 
-        long double coef = pow(-1., (long double)(i)) * pow((long double)(2), (long double)(-2 * s)) *
-                           pow((long double)(d + n - 2 * i), (long double)(d)) / (factorial(i) * factorial(d + n - i));
+
+        /*long double coef = pow(-1., (long double)(i)) * pow((long double)(2), (long double)(-2 * s)) *
+                           pow((long double)(d + n - 2 * i), (long double)(d)) / (factorial(i) * factorial(d + n - i));*/
         vector<vector<long double>> betas = generate_partitions(s - i, n + 1);
         long double denom = d + n - 2 * i;
 
