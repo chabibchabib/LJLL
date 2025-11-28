@@ -1,18 +1,18 @@
-#include "AFunction.hpp"
-#include "error.hpp"
 #include <fstream>
 #include <iostream>
 #include <math.h>
 #include <stdlib.h>
+#include <vector>
+#include "AFunction.hpp"
+#include "error.hpp"
+
+#include "RNM.hpp"
+#include "rgraph.hpp"
+#include "fem.hpp"
+#include "QuadratureFormular.hpp"
+using namespace Fem2D;
 using namespace std;
 
-#include "QuadratureFormular.hpp"
-#include "RNM.hpp"
-#include "fem.hpp"
-#include "rgraph.hpp"
-using namespace Fem2D;
-
-#include <vector>
 
 long double factorial(int nbr) {
     if (nbr <= 1)

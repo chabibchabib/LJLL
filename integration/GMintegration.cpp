@@ -1,18 +1,21 @@
-#include "AFunction.hpp"
-#include "error.hpp"
 #include <fstream>
 #include <iostream>
 #include <math.h>
 #include <stdlib.h>
-using namespace std;
+#include <vector>
+
+#include "error.hpp"
+#include "AFunction.hpp"
+
+#include "RNM.hpp"
+#include "rgraph.hpp"
+#include "fem.hpp"
 
 #include "QuadratureFormular.hpp"
-#include "RNM.hpp"
-#include "fem.hpp"
-#include "rgraph.hpp"
-using namespace Fem2D;
 
-#include <vector>
+using namespace Fem2D;
+using namespace std;
+
 
 vector<vector<double>> generate_partitions(int sum, int nparts) {
     vector<vector<double>> partitions;
