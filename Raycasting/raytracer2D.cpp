@@ -113,7 +113,7 @@ int main(){
     raytracer<2> Rt(0,6,0,6,edgeList);
     vec2 normal;
     Rt.getNormal(E,normal);
-    vec2 O={5,2}, dir={0.5,0.25};
+    vec2 O={3,2}, dir={0.5,0.25};
     ray r(O,dir);
     r.normaliseD();
     int hit;

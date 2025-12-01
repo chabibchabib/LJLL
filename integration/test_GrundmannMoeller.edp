@@ -1,11 +1,13 @@
-load"GMintegration1D"
+load"GrundmannMoeller"
 
+// 1D verification
 int NN = 10; //  number of intervals
 meshL Th = segment(NN, [x, 0]); // creation of the 1D mesh over [0,1]
 int k =50;
 func f = x^k; //  function to be integrated
-real integral = int1d(Th,qfe=GMQuadrature1D(14))(f); // intégration sur le maillage 1D
-//cout << "Intégrale de f sur le segment = " << integral << endl;
+real integral = int1d(Th,qfe=GMQuadrature1D(14))(f); // integration over 1D mesh
 cout.precision(20);cout<<"Result:"<<integral<<endl;
 cout.precision(20);cout<<"Error:"<<abs(integral-1./(k+1))<<endl;
 cout<<"k= "<<k<<" |intergral"<<integral<<" |Exact="<<1./(k+1)<<endl;
+
+// 2D verification
