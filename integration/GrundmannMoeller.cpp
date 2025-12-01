@@ -121,6 +121,7 @@ const QuadratureFormular *GenerateQuadratureFormularForOperator2(Stack stack, co
 }*/
 
 
+
 typedef GQuadraturePoint<R1> PQP1;
 typedef GQuadratureFormular<R1> PQF1;
 static PQF1 **TabQuadrFormula1 = new PQF1 *[1000];
@@ -186,6 +187,47 @@ const PQF3 *GenerateQuadratureFormularForOperator3(Stack stack, const long &s) {
     }
 }
 
+template<typename Ri>
+const GQuadratureFormular<Ri> *GenerateQuadratureFormularForOperatorRi(Stack stack, const long &s) {
+    if  constexpr ( (std::is_same<Ri, R1>::value)){
+        if( TabQuadrFormula1[s] != nullptr) 
+        return TabQuadrFormula1[s];
+
+    } 
+    else if constexpr( (std::is_same<Ri, R2>::value) ) {
+        if(TabQuadrFormula2[s] != nullptr)
+           return TabQuadrFormula2[s];
+    }
+    else if constexpr( (std::is_same<Ri, R3>::value)){if  ( TabQuadrFormula3[s] != nullptr )  return TabQuadrFormula3[s];} 
+
+    int n = std::is_same<Ri, R1>::value ? 1 : (std::is_same<Ri, R2>::value ? 2 : 3);
+
+    auto Vec = integration_weightspoints(n, s);
+    int NbrP = Vec.size();
+    GQuadraturePoint<Ri> *Tab = new GQuadraturePoint<Ri>[NbrP];
+    for (int i = 0; i < NbrP; i++) {
+        if  constexpr (std::is_same<Ri, R1>::value) Tab[i] = GQuadraturePoint<R1>(R1(Vec[i].second[0]), Vec[i].first * factorial(n ));
+        else if constexpr (std::is_same<Ri, R2>::value) Tab[i] = GQuadraturePoint<R2>(R2(Vec[i].second[0], Vec[i].second[1]), Vec[i].first );
+        else if constexpr (std::is_same<Ri, R3>::value) Tab[i] = GQuadraturePoint<R3>(R3(Vec[i].second[0], Vec[i].second[1], Vec[i].second[2]), Vec[i].first );
+
+    }
+        
+    if constexpr (std::is_same<Ri, R1>::value){
+        TabQuadrFormula1[s] = new GQuadratureFormular<R1>(s, NbrP, Tab);
+        return TabQuadrFormula1[s];
+    }
+    else if constexpr(std::is_same<Ri, R2>::value){
+        TabQuadrFormula2[s] = new GQuadratureFormular<R2>(s, NbrP, Tab);
+        return TabQuadrFormula2[s];
+    } 
+    else if constexpr(std::is_same<Ri, R3>::value){
+        TabQuadrFormula3[s] = new GQuadratureFormular<R3>(s, NbrP, Tab);
+        return TabQuadrFormula3[s];
+
+    }
+}
+
+
 #include "lex.hpp"
 extern mylex *zzzfff;
 static void Load_Init() {
@@ -198,9 +240,13 @@ static void Load_Init() {
     }
     //Global.Add("GMQuadrature1D", "(", new OneOperator1s_<const QuadratureFormular1d *, long>(GenerateQuadratureFormularForOperator));
     //Global.Add("GMQuadrature2D", "(", new OneOperator1s_<const QuadratureFormular *, long>(GenerateQuadratureFormularForOperator2));
-    Global.Add("GMQuadrature1D", "(", new OneOperator1s_<const PQF1 *, long>(GenerateQuadratureFormularForOperator1));
+    /*Global.Add("GMQuadrature1D", "(", new OneOperator1s_<const PQF1 *, long>(GenerateQuadratureFormularForOperator1));
     Global.Add("GMQuadrature2D", "(", new OneOperator1s_<const PQF2 *, long>(GenerateQuadratureFormularForOperator2));
-    Global.Add("GMQuadrature3D", "(", new OneOperator1s_<const PQF3 *, long>(GenerateQuadratureFormularForOperator3));
+    Global.Add("GMQuadrature3D", "(", new OneOperator1s_<const PQF3 *, long>(GenerateQuadratureFormularForOperator3));*/
+
+    Global.Add("GMQuadrature1D", "(", new OneOperator1s_<const GQuadratureFormular<R1> *, long>(GenerateQuadratureFormularForOperatorRi<R1>));
+    Global.Add("GMQuadrature2D", "(", new OneOperator1s_<const GQuadratureFormular<R2> *, long>(GenerateQuadratureFormularForOperatorRi<R2>));
+    Global.Add("GMQuadrature3D", "(", new OneOperator1s_<const GQuadratureFormular<R3> *, long>(GenerateQuadratureFormularForOperatorRi<R3>));
 
 }
 
