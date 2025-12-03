@@ -1,0 +1,190 @@
+\documentclass[8pt, xcolor=table,aspectratio=169]{beamer}
+
+\input{header}
+
+\newif\ifbackup
+\backupfalse
+
+\newif\ifDGslide
+\DGslidetrue
+
+\setbeamertemplate{section in toc}[sections numbered]
+%% Initialize a custom counter for tracking the section numbers
+
+% Customize the table of contents spacing
+%\setbeamertemplate{section in toc}[] % Remove numbers and add ball for sections
+%\setbeamertemplate{subsection in toc}[default] % Default style for subsections
+
+% Adjust spacing between sections and subsections
+\setlength{\leftskip}{0pt} % Set left margin for TOC
+\setlength{\rightskip}{0pt} % Set right margin for TOC
+\setlength{\parskip}{2mm} % Space between paragraphs in TOC (sections and subsections)
+
+% Define colors for active and inactive sections
+\definecolor{activecolor}{rgb}{1,1,0} % yellow
+\definecolor{inactivecolor}{rgb}{0.6, 0.6, 0.6} % equivalent to black!40
+
+\setbeamertemplate{section in toc shaded}[default][100]
+
+% Use \AtBeginSection to customize the TOC slide
+\AtBeginSection[]{
+    % Change the background color for the TOC slide
+    \setbeamercolor{background canvas}{bg=colorStruct} % Set TOC background color
+    \setbeamertemplate{footline}{} % Suppress footline (including frame number)
+    \begin{frame}[noframenumbering]
+      \frametitle{Outline}
+      \setbeamercolor{section in toc shaded}{fg=inactivecolor} % Inactive color for shaded sections
+      \setbeamercolor{section in toc}{fg=activecolor} % Active color for current section
+      \tableofcontents[currentsection, hideothersubsections] % Show current section with hidden subsections
+    \end{frame}
+    \setbeamertemplate{footline}{\axelfootline} % Reset the footline
+    % Reset colors to default after TOC slide
+    \setbeamercolor{background canvas}{bg=} % Reset background color
+    \setbeamercolor{section in toc}{fg=black} % Reset TOC section color to default
+    \setbeamercolor{subsection in toc}{fg=black} % Reset TOC subsection color to default
+}
+
+\newcommand{\fluxfigure}{
+       \begin{tikzpicture}[xscale=1,yscale=1]
+        %\filldraw[color=black, fill=black!10, thick] (0,0) ellipse (1.3 and 0.6);
+        \draw[fill=black!5,thick] (0,0) -- (1,0) -- (1.5,0.7) -- (0.5,0.7) -- cycle;
+        \draw[thick] (0.5,0.7) -- (1,0);
+        \draw[-latex, color=black, thick] (0.6,0.55) -- (0.95,0.80);
+        %\draw (0.70,0.12) node {\color{black!50}\footnotesize$K$};
+        %\draw (1.03,0.3) node {\color{black!50}\footnotesize$K'$};
+        \draw (0.95,0.9) node {\color{black}\scriptsize$\mathbf{n}_{K,F}$};
+        \draw (0.70,0.2) node {\scriptsize$F$};
+        \draw (0.35,0.15) node {\color{black!75}\footnotesize$K$};
+        \draw (1.16,0.53) node {\color{black!75}\footnotesize$K'$};
+        \draw[-latex, color=black, thick] (0.80,-0.45) -- (1.50, 0.05);
+        \draw[latex-, color=colorTrans, thick] (0.90,-0.65) -- (1.60,-0.15);
+        \draw (1.85, 0.17) node {\color{black}$\scriptsize g_{K,F}^{\oplus}$};
+        \draw (2.05,-0.75) node
+          {\color{colorTrans}$\scriptsize g_{K,F}^{\ominus}\color{black}\ \ (=g_{K',F}^{\oplus})$};
+      \end{tikzpicture}
+    }
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{00_title.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Motivation}
+    \begin{center}
+    \textbf{Finite element} solution of \textbf{time-harmonic wave propagation problems}
+  \end{center}
+
+    \fcolorbox{black}{black!7}{\begin{minipage}{50mm}
+        \centering
+        \vspace{3mm}
+        \textbf{\color{colorStruct}Helmholtz problem:} \\ \vspace{3mm}
+        $
+          \left\{\;
+          \begin{aligned}
+             & -\Delta {\color{colorVol}p} - \kappa^2 {\color{colorVol}p} = s
+             &
+             & \text{in $\Omega$}
+            \\
+             & \text{Boundary conditions}
+             &
+             & \text{on $\partial\Omega$}
+          \end{aligned}
+          \right.
+        % $ \\ \vspace{3mm}
+        % $
+        %   \Rightarrow
+        %   \quad
+        %   \fbox{\hspace{1mm}$\mathbf{\matalg{A}{\color{colorVol}\vecalg{x}} = \vecalg{b}}$\hspace{1mm}}
+        $
+        \vspace{3mm}
+        
+        \textbf{{\color{colorStruct}Finite element error:}}
+        \vspace{3mm}
+
+        $ \lVert {\color{colorVol}p} - {\color{colorVol}p_h}\lVert  _{H^1} \leq C_1(\kappa h)^p + C_2\kappa^{(p+1)}h^p$
+      \end{minipage}}
+    \hfill
+    \begin{minipage}{35mm}
+      \begin{center}
+        {\small\color{black!50} Finite element mesh} \vspace{1mm}
+
+        \includegraphics[height=30mm]{figures/intro/turbofan_mesh.png}
+      \end{center}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{35mm}
+      \begin{center}
+        {\small\color{black!50} Numerical field} \vspace{1mm}
+
+        \includegraphics[height=30mm]{figures/intro/turbofan_a2500.png}
+      \end{center}
+    \end{minipage}
+ %\vspace{3mm}
+
+  {
+    %\small
+    \begin{align}
+      \begin{aligned}
+        % & \text{Complicated material coefficients $\bmu, \bvepsilon$}
+        %\\
+         & \text{High frequency {\small(large $\kappa$)}}
+        \\
+         & \text{Phenomena close to resonance}
+        \\
+        % & \text{Good accuracy}
+      \end{aligned}
+      \ \ \
+      \leadsto \ \ \ \text{Low approximation quality} \ \ \ \leadsto
+      \left\{\ \begin{aligned}
+                  & \text{Fine mesh {\small(small $h$)}}
+                 \\
+                  & \text{High-order basis functions {\small(large $p$)}}
+                 %\\
+                  %& \text{Large unstructured sparse system / Many DOFs}
+                 %\\
+                  %& \textbf{\color{ubuntured}Standard direct/iterative solvers are slow}
+               \end{aligned}\right.
+    \end{align}
+  }
+
+% Dans le cadre de la méthode des éléments finis appliquée, par exemple, à l’équation
+%  d’onde de type Helmholtz, l’erreur numérique peut se dégrader de manière significative.
+%   Cette détérioration est bien décrite par une inégalité classique qui sépare l’erreur 
+%   totale en deux contributions :
+% 1-l’erreur d’approximation, liée à la capacité de l’espace discret à représenter la 
+% solution exacte, 
+% 2-l’erreur de pollution, spécifique aux problèmes oscillatoires et qui 
+% augmente avec le nombre d’ondes résolues.
+% Pour atténuer cette erreur, une première approche consiste à raffiner le maillage. 
+% Bien que ce procédé soit efficace, il peut devenir extrêmement coûteux en termes de 
+% mémoire et de temps de calcul, car le raffinement doit compenser la croissance de 
+% l’erreur de pollution, qui croît généralement avec un facteur en kh ou k^2h, où k est 
+% le nombre d’onde.
+% Une alternative plus performante consiste à augmenter l’ordre d’interpolation, 
+% c’est-à-dire à utiliser des éléments finis d’ordre élevé (augmentation du paramètre  p). 
+% Cette stratégie est souvent plus efficace que le simple raffinement du maillage : elle 
+% permet de mieux capturer l’oscillation de la solution avec beaucoup moins d’éléments, 
+% réduit l’impact de l’erreur de pollution, et améliore la précision globale pour un coût 
+% numérique comparable, voire inférieur. En pratique, les méthodes à ordre élevé 
+% constituent donc une approche plus adaptée pour les problèmes oscillatoires de 
+% type Helmholtz.
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Conclusion}{}
+    \begin{figure}
+        
+    %    \begin{center}        
+         \resizebox{0.5\textwidth}{!}{%
+    \input{figures/tikz/element_p6_Lagrange.tikz}
+         }
+    %    \end{center}
+    \caption{Fnite element $P_6$}
+    \end{figure}
+\end{frame}
+
+\end{document}

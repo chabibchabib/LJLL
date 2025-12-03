@@ -9,7 +9,7 @@ int NN = 10;                        //  number of intervals
 meshL Th1D = segment(NN, [ x, 0 ]); // creation of the 1D mesh over [0,1]
 int kk = 2;
 func f1D = x ^ kk;                                           //  function to be integrated
-real integral1D = int1d(Th1D, qfe = GMQuadrature1D(8))(f1D); // integration over 1D mesh
+real integral1D = int1d(Th1D, qfe = GMQuadrature1D(40))(f1D); // integration over 1D mesh
 cout.precision(20);
 cout << "Result 1D:" << integral1D << endl;
 cout.precision(20);
@@ -49,7 +49,7 @@ real lambda3D = 2 * pi / k;
 int npplo = 4;
 mesh3 Th3D = cube(npplo * 1. / lambda3D, npplo * 1. / lambda3D, npplo * 1. / lambda3D); // global mesh
 real Val3Dex = real(int3d(Th3D, qfV = qfVp7)(f3D));
-real Val3Dapp = real(int3d(Th3D, qfV = GMQuadrature3D(10))(f3D));
+real Val3Dapp = real(int3d(Th3D, qfV = GMQuadrature3D(9))(f3D));
 cout.precision(20);
 cout << "Result 3D: " << Val3Dex << endl;
 cout.precision(20);

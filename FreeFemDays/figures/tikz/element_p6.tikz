@@ -1,0 +1,74 @@
+\tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,655); %set diagram left start at 0, and has height of 655
+
+%Shape: Triangle [id:dp8443546316655559] 
+\draw   (157,6) -- (307,306) -- (7,306) -- cycle ;
+%Shape: Circle [id:dp3089448204753097] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (304,305.5) .. controls (304,304.12) and (305.12,303) .. (306.5,303) .. controls (307.88,303) and (309,304.12) .. (309,305.5) .. controls (309,306.88) and (307.88,308) .. (306.5,308) .. controls (305.12,308) and (304,306.88) .. (304,305.5) -- cycle ;
+%Shape: Circle [id:dp6476187441665205] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (5,305.5) .. controls (5,304.12) and (6.12,303) .. (7.5,303) .. controls (8.88,303) and (10,304.12) .. (10,305.5) .. controls (10,306.88) and (8.88,308) .. (7.5,308) .. controls (6.12,308) and (5,306.88) .. (5,305.5) -- cycle ;
+%Shape: Circle [id:dp15504060747186] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (54,305.5) .. controls (54,304.12) and (55.12,303) .. (56.5,303) .. controls (57.88,303) and (59,304.12) .. (59,305.5) .. controls (59,306.88) and (57.88,308) .. (56.5,308) .. controls (55.12,308) and (54,306.88) .. (54,305.5) -- cycle ;
+%Shape: Circle [id:dp7183523465253822] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (104,305.5) .. controls (104,304.12) and (105.12,303) .. (106.5,303) .. controls (107.88,303) and (109,304.12) .. (109,305.5) .. controls (109,306.88) and (107.88,308) .. (106.5,308) .. controls (105.12,308) and (104,306.88) .. (104,305.5) -- cycle ;
+%Shape: Circle [id:dp8942220548663429] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (154,305.5) .. controls (154,304.12) and (155.12,303) .. (156.5,303) .. controls (157.88,303) and (159,304.12) .. (159,305.5) .. controls (159,306.88) and (157.88,308) .. (156.5,308) .. controls (155.12,308) and (154,306.88) .. (154,305.5) -- cycle ;
+%Shape: Circle [id:dp8068154415010002] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (204,305.5) .. controls (204,304.12) and (205.12,303) .. (206.5,303) .. controls (207.88,303) and (209,304.12) .. (209,305.5) .. controls (209,306.88) and (207.88,308) .. (206.5,308) .. controls (205.12,308) and (204,306.88) .. (204,305.5) -- cycle ;
+%Shape: Circle [id:dp03956620878091732] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (254,305.5) .. controls (254,304.12) and (255.12,303) .. (256.5,303) .. controls (257.88,303) and (259,304.12) .. (259,305.5) .. controls (259,306.88) and (257.88,308) .. (256.5,308) .. controls (255.12,308) and (254,306.88) .. (254,305.5) -- cycle ;
+%Shape: Circle [id:dp2650520254331402] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (155,7.5) .. controls (155,6.12) and (156.12,5) .. (157.5,5) .. controls (158.88,5) and (160,6.12) .. (160,7.5) .. controls (160,8.88) and (158.88,10) .. (157.5,10) .. controls (156.12,10) and (155,8.88) .. (155,7.5) -- cycle ;
+%Shape: Circle [id:dp096580036499749] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (30,255.5) .. controls (30,254.12) and (31.12,253) .. (32.5,253) .. controls (33.88,253) and (35,254.12) .. (35,255.5) .. controls (35,256.88) and (33.88,258) .. (32.5,258) .. controls (31.12,258) and (30,256.88) .. (30,255.5) -- cycle ;
+%Shape: Circle [id:dp1538406604076844] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (80,255.5) .. controls (80,254.12) and (81.12,253) .. (82.5,253) .. controls (83.88,253) and (85,254.12) .. (85,255.5) .. controls (85,256.88) and (83.88,258) .. (82.5,258) .. controls (81.12,258) and (80,256.88) .. (80,255.5) -- cycle ;
+%Shape: Circle [id:dp3806405249902739] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (130,255.5) .. controls (130,254.12) and (131.12,253) .. (132.5,253) .. controls (133.88,253) and (135,254.12) .. (135,255.5) .. controls (135,256.88) and (133.88,258) .. (132.5,258) .. controls (131.12,258) and (130,256.88) .. (130,255.5) -- cycle ;
+%Shape: Circle [id:dp9152454302491104] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (180,255.5) .. controls (180,254.12) and (181.12,253) .. (182.5,253) .. controls (183.88,253) and (185,254.12) .. (185,255.5) .. controls (185,256.88) and (183.88,258) .. (182.5,258) .. controls (181.12,258) and (180,256.88) .. (180,255.5) -- cycle ;
+%Shape: Circle [id:dp10794088250639133] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (230,255.5) .. controls (230,254.12) and (231.12,253) .. (232.5,253) .. controls (233.88,253) and (235,254.12) .. (235,255.5) .. controls (235,256.88) and (233.88,258) .. (232.5,258) .. controls (231.12,258) and (230,256.88) .. (230,255.5) -- cycle ;
+%Shape: Circle [id:dp008235977505846592] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (280,255.5) .. controls (280,254.12) and (281.12,253) .. (282.5,253) .. controls (283.88,253) and (285,254.12) .. (285,255.5) .. controls (285,256.88) and (283.88,258) .. (282.5,258) .. controls (281.12,258) and (280,256.88) .. (280,255.5) -- cycle ;
+%Shape: Circle [id:dp5598439248542048] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (54,205.5) .. controls (54,204.12) and (55.12,203) .. (56.5,203) .. controls (57.88,203) and (59,204.12) .. (59,205.5) .. controls (59,206.88) and (57.88,208) .. (56.5,208) .. controls (55.12,208) and (54,206.88) .. (54,205.5) -- cycle ;
+%Shape: Circle [id:dp0009666377353212408] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (79,155.5) .. controls (79,154.12) and (80.12,153) .. (81.5,153) .. controls (82.88,153) and (84,154.12) .. (84,155.5) .. controls (84,156.88) and (82.88,158) .. (81.5,158) .. controls (80.12,158) and (79,156.88) .. (79,155.5) -- cycle ;
+%Shape: Circle [id:dp09375662668365847] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (104,105.5) .. controls (104,104.12) and (105.12,103) .. (106.5,103) .. controls (107.88,103) and (109,104.12) .. (109,105.5) .. controls (109,106.88) and (107.88,108) .. (106.5,108) .. controls (105.12,108) and (104,106.88) .. (104,105.5) -- cycle ;
+%Shape: Circle [id:dp2921194515195933] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (129,55.5) .. controls (129,54.12) and (130.12,53) .. (131.5,53) .. controls (132.88,53) and (134,54.12) .. (134,55.5) .. controls (134,56.88) and (132.88,58) .. (131.5,58) .. controls (130.12,58) and (129,56.88) .. (129,55.5) -- cycle ;
+%Shape: Circle [id:dp5177987902097042] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (104,205.5) .. controls (104,204.12) and (105.12,203) .. (106.5,203) .. controls (107.88,203) and (109,204.12) .. (109,205.5) .. controls (109,206.88) and (107.88,208) .. (106.5,208) .. controls (105.12,208) and (104,206.88) .. (104,205.5) -- cycle ;
+%Shape: Circle [id:dp2103585866558363] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (154,205.5) .. controls (154,204.12) and (155.12,203) .. (156.5,203) .. controls (157.88,203) and (159,204.12) .. (159,205.5) .. controls (159,206.88) and (157.88,208) .. (156.5,208) .. controls (155.12,208) and (154,206.88) .. (154,205.5) -- cycle ;
+%Shape: Circle [id:dp4127028068150649] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (204,205.5) .. controls (204,204.12) and (205.12,203) .. (206.5,203) .. controls (207.88,203) and (209,204.12) .. (209,205.5) .. controls (209,206.88) and (207.88,208) .. (206.5,208) .. controls (205.12,208) and (204,206.88) .. (204,205.5) -- cycle ;
+%Shape: Circle [id:dp4468719158762956] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (254,205.5) .. controls (254,204.12) and (255.12,203) .. (256.5,203) .. controls (257.88,203) and (259,204.12) .. (259,205.5) .. controls (259,206.88) and (257.88,208) .. (256.5,208) .. controls (255.12,208) and (254,206.88) .. (254,205.5) -- cycle ;
+%Shape: Circle [id:dp5901081707518209] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (129,155.5) .. controls (129,154.12) and (130.12,153) .. (131.5,153) .. controls (132.88,153) and (134,154.12) .. (134,155.5) .. controls (134,156.88) and (132.88,158) .. (131.5,158) .. controls (130.12,158) and (129,156.88) .. (129,155.5) -- cycle ;
+%Shape: Circle [id:dp6173673512577598] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (179,155.5) .. controls (179,154.12) and (180.12,153) .. (181.5,153) .. controls (182.88,153) and (184,154.12) .. (184,155.5) .. controls (184,156.88) and (182.88,158) .. (181.5,158) .. controls (180.12,158) and (179,156.88) .. (179,155.5) -- cycle ;
+%Shape: Circle [id:dp482237583690897] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (229,155.5) .. controls (229,154.12) and (230.12,153) .. (231.5,153) .. controls (232.88,153) and (234,154.12) .. (234,155.5) .. controls (234,156.88) and (232.88,158) .. (231.5,158) .. controls (230.12,158) and (229,156.88) .. (229,155.5) -- cycle ;
+%Shape: Circle [id:dp7212351210947443] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (154,105.5) .. controls (154,104.12) and (155.12,103) .. (156.5,103) .. controls (157.88,103) and (159,104.12) .. (159,105.5) .. controls (159,106.88) and (157.88,108) .. (156.5,108) .. controls (155.12,108) and (154,106.88) .. (154,105.5) -- cycle ;
+%Shape: Circle [id:dp1135643390858625] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (204,105.5) .. controls (204,104.12) and (205.12,103) .. (206.5,103) .. controls (207.88,103) and (209,104.12) .. (209,105.5) .. controls (209,106.88) and (207.88,108) .. (206.5,108) .. controls (205.12,108) and (204,106.88) .. (204,105.5) -- cycle ;
+%Shape: Circle [id:dp648278539333971] 
+\draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (179,55.5) .. controls (179,54.12) and (180.12,53) .. (181.5,53) .. controls (182.88,53) and (184,54.12) .. (184,55.5) .. controls (184,56.88) and (182.88,58) .. (181.5,58) .. controls (180.12,58) and (179,56.88) .. (179,55.5) -- cycle ;
+%Straight Lines [id:da7802056415335669] 
+%\draw [color={rgb, 255:red, 255; green, 10; blue, 10 }  ,draw opacity=1 ]   (39.57,172.09) -- (125.57,340.09) ;
+%Straight Lines [id:da09919562478903499] 
+%\draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ]   (-0.43,306.76) -- (321.57,306.09) ;
+%Straight Lines [id:da680728636895904] 
+%\draw [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ]   (56.91,158.09) -- (56.91,336.76) ;
+
+
+
+
+\end{tikzpicture}

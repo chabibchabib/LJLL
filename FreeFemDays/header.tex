@@ -1,0 +1,529 @@
+
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{helvet}
+\usepackage{comment}
+\usepackage{bm}
+
+\usefonttheme[onlymath]{serif}
+
+\usepackage{setspace}
+\usepackage{tikz}
+\usepackage{subcaption}
+\usetikzlibrary{math}
+\usetikzlibrary{calc}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{positioning, fit, shapes.geometric, calc}
+\usetikzlibrary{decorations.pathreplacing}
+
+\usepackage{adjustbox}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\pgfplotsset{every axis/.append style={
+      label style={font=\small},
+      tick label style={font=\small},
+      legend style={font=\small\sf, row sep=-2pt},
+      legend cell align={left}
+    }
+}
+
+\def\centerarc[#1](#2)(#3:#4:#5)% Syntax: [draw options] (center) (initial angle:final angle:radius)
+{ \draw[#1] ($(#2)+({#5*cos(#3)},{#5*sin(#3)})$) arc (#3:#4:#5); }
+
+%\usepgfplotslibrary{external}
+%\tikzexternalize[prefix=./fig/]
+%\tikzexternalenable
+
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{mathtools}
+
+\usepackage[absolute,showboxes,overlay]{textpos} %showboxes,overlay
+\TPshowboxestrue            % affiche le contour des textblocks
+\TPshowboxesfalse           % fait disparaitre le contour des textblocks
+\textblockorigin{2mm}{8mm}  % origine des positions pour placer les textblocks
+
+\usepackage{xcolor,colortbl,color}
+\usepackage{framed}
+\usepackage{mdframed}
+
+\newtheorem{proposition}{Proposition}[theorem]
+
+\mathtoolsset{showonlyrefs}
+
+\usepackage{graphics}
+\usepackage[pdf]{pstricks}
+\usepackage{graphicx}
+\usepackage{pstricks-add}
+\usepackage{pst-node}
+\usepackage{pst-plot}
+\usepackage{pst-math}
+\usepackage{pst-coil}
+\usepackage{pst-grad}
+
+% For checking draft
+\usepackage{ifdraft}
+% Backup slide numbers
+\usepackage{appendixnumberbeamer}
+
+% Box
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+%Algorithm
+%\usepackage[lined,boxed]{algorithm2e}
+\usepackage[boxed]{algorithm2e}
+%Multirow
+\usepackage{multirow}
+
+%Itemize space
+\usepackage{enumitem}
+%\setlist[itemize]{label=\textbullet}
+\setlist[itemize,1]{label=\scalebox{1.5}{\textbullet}}  % 1.5 = 150% de taille
+%\setlist[itemize,2]{label=\scalebox{1.2}{\textbullet}}  % 1.5 = 150% de taille
+\setlist[itemize,2]{label=\scalebox{1.2}{\(\circ\)}}
+\usepackage{listings}
+
+%----------------------------------------------------
+% Colors
+%----------------------------------------------------
+
+\definecolor{colorField}{rgb}{0.2,0.6,0.2}
+\definecolor{colorNumTra}{rgb}{1,0.5,0}
+% \definecolor{colorOp}{rgb}{1,0.1,0.1}
+
+\definecolor{darkrose}{rgb}{0.7,0,0.4}
+\definecolor{darkblue}{rgb}{0.2,0.2,0.7}
+\definecolor{darkorange}{rgb}{0.85,0.3,0.03}
+
+\definecolor{main}{rgb}{0.25,0.35,0.55}
+\definecolor{colorStruct}{rgb}{0.15,0.15,0.45}
+%\definecolor{main}{rgb}{0.25,0.35,0.55}
+%\definecolor{colorStruct}{rgb}{0.2,0.3,0.5}
+\definecolor{colorStructLight}{rgb}{0.1,0.2,0.5}
+
+\definecolor{lightlightlightgray}{rgb}{0.93,0.93,0.93}
+\definecolor{lightlightgray}{rgb}{0.8,0.8,0.8}
+\definecolor{lightgray}{rgb}{0.6,0.6,0.6}
+\definecolor{darkgray}{rgb}{0.4,0.4,0.4}
+\definecolor{darkdarkgray}{rgb}{0.2,0.2,0.2}
+
+\definecolor{ubuntuorange}{rgb}{1,0.388235294,0.035294118}
+\definecolor{ubuntuyellow}{rgb}{1,0.709803922,0.082352941}
+\definecolor{ubuntured}{rgb}{0.788235294,0,0.08627451}
+\definecolor{lightred}{rgb}{1,0.8,0.8}
+\definecolor{lightred}{rgb}{1,0.85,0.7}
+\definecolor{darkgreen}{rgb}{0.1,0.5,0.1}
+\definecolor{ulggreen}{rgb}{0,0.286274509803922,0.309803921568627}
+\definecolor{lightgreen}{rgb}{0.85,0.9,0.85}
+\definecolor{lightyellow}{rgb}{1,0.8,0.5}
+\definecolor{lightlightyellow}{rgb}{1,0.95,0.7}
+\definecolor{bordeaux}{rgb}{0.686274509803922,0.149019607843137,0.149019607843137}
+\definecolor{mainTOC}{rgb}{0.788235294,0,0.08627451}
+\definecolor{myTeal}{HTML}{008080}
+\definecolor{myReddish}{HTML}{d40000}
+\definecolor{myGold}{HTML}{d4aa00}
+
+%Used in GPU arch figure
+\definecolor{gpumemorycolor}{HTML}{9013FE}
+\definecolor{sharedmemorycolor}{HTML}{9B9B9B}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\colorlet{colorTrans}{myReddish}
+\colorlet{colorVol}{myTeal}
+\colorlet{colorOp}{myGold}
+
+\definecolor{lightblue}{rgb}{0.9,0.95,0.98}
+
+%----------------------------------------------------
+% Beamer
+%----------------------------------------------------
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{frametitle}{fg=white,bg=colorStruct}
+
+\newcommand{\axelfootline}{\begin{flushright}{\color{darkgray}\small\insertframenumber/\inserttotalframenumber}\;\;\;\;\end{flushright}}
+\setbeamertemplate{footline}{\axelfootline}
+\setbeamercolor{button}{bg=main,fg=white}
+\setbeamertemplate{itemize items}[bullet]
+\setbeamercolor{itemize item}{fg=main}
+\setbeamertemplate{itemize subitem}[circle]
+\setbeamercolor{itemize subitem}{fg=main}
+\setbeamertemplate{itemize/enumerate body begin}{\normalsize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\normalsize}
+\setbeamerfont{item}{size=\normalsize}
+\setbeamerfont{subitem}{size=\normalsize}
+\def\myframetitle#1#2{\frametitle{#2 \hspace{0pt plus 1 filll} {\small\color{yellow}[\:#1\:]\!\!\!} }}
+
+\setbeamercolor{block title}{fg=white,bg=colorStruct!70!white}
+\setbeamerfont{block title}{size=\normalsize}
+\setbeamercolor{block body}{fg=black,bg=lightlightlightgray}
+\setbeamertemplate{blocks}[shadow=false]
+%\setbeamertemplate{blocks}[rounded][shadow=true]
+
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{itemize subitem}{$\circ$}
+
+% ---------
+% Symbols
+% ---------
+
+% Scalar valued versions
+\newcommand{\matalg}[1]{\mathsf{#1}}
+\newcommand{\vecalg}[1]{\mathsf{#1}}
+
+% Vector valued versions
+\newcommand{\matalgvv}[1]{\mathbf{\mathsf{#1}}}
+\newcommand{\vecalgvv}[1]{\mathbf{\mathsf{#1}}}
+
+
+\newcommand{\prodV}[2]{({\textstyle{#1}},{\textstyle{#2}})}
+\newcommand{\prodS}[2]{\langle{\textstyle{#1}},{\textstyle{#2}}\rangle}
+
+\newcommand{\PPs}{\mathbb{P}}
+\newcommand{\PPv}{\pmb{\mathbb{P}}}
+
+%% Miscellaneous
+\renewcommand{\Re}{\operatorname{Re}}
+\renewcommand{\Im}{\operatorname{Im}}
+
+\newcommand{\im}{\imath}
+\renewcommand{\i}{\im}
+
+%% Differential operator
+\newcommand{\grad}{\boldsymbol \nabla}
+\renewcommand{\div}{\grad \cdot}
+\newcommand{\curl}{\grad \times}
+
+%% Bold uppercases
+\newcommand{\BA}{\mathbf{A}}
+\newcommand{\BB}{\mathbf{B}}
+\newcommand{\BC}{\mathbf{C}}
+\newcommand{\BD}{\mathbf{D}}
+\newcommand{\BE}{\mathbf{E}}
+\newcommand{\BF}{\mathbf{F}}
+\newcommand{\BG}{\mathbf{G}}
+\newcommand{\BH}{\mathbf{H}}
+\newcommand{\BI}{\mathbf{I}}
+\newcommand{\BJ}{\mathbf{J}}
+\newcommand{\BK}{\mathbf{K}}
+\newcommand{\BL}{\mathbf{L}}
+\newcommand{\BM}{\mathbf{M}}
+\newcommand{\BN}{\mathbf{N}}
+\newcommand{\BO}{\mathbf{O}}
+\newcommand{\BP}{\mathbf{P}}
+\newcommand{\BQ}{\mathbf{Q}}
+\newcommand{\BR}{\mathbf{R}}
+\newcommand{\BS}{\mathbf{S}}
+\newcommand{\BT}{\mathbf{T}}
+\newcommand{\BU}{\mathbf{U}}
+\newcommand{\BV}{\mathbf{V}}
+\newcommand{\BW}{\mathbf{W}}
+\newcommand{\BX}{\mathbf{X}}
+\newcommand{\BY}{\mathbf{Y}}
+\newcommand{\BZ}{\mathbf{Z}}
+
+%% Bold lowercases
+\newcommand{\vectort}[1]{\bm{#1}}
+\newcommand{\ba}{\vectort{a}}
+\newcommand{\bb}{\vectort{b}}
+\newcommand{\bc}{\vectort{c}}
+\newcommand{\bd}{\vectort{d}}
+\newcommand{\be}{\vectort{e}}
+\renewcommand{\bf}{\vectort{f}}
+\newcommand{\bg}{\vectort{g}}
+\newcommand{\bh}{\vectort{h}}
+\newcommand{\bi}{\vectort{i}}
+\newcommand{\bj}{\vectort{j}}
+\newcommand{\bk}{\vectort{k}}
+\newcommand{\bl}{\vectort{l}}
+\newcommand{\bbm}{\vectort{m}} % avoid collision with bm
+\newcommand{\bn}{\vectort{n}}
+\newcommand{\bo}{\vectort{o}}
+\newcommand{\bp}{\vectort{p}}
+\newcommand{\bq}{\vectort{q}}
+\newcommand{\br}{\vectort{r}}
+\newcommand{\bs}{\vectort{s}}
+\newcommand{\bt}{\vectort{t}}
+\newcommand{\bu}{\vectort{u}}
+\newcommand{\bv}{\vectort{v}}
+\newcommand{\bw}{\vectort{w}}
+\newcommand{\bx}{\vectort{x}}
+\newcommand{\by}{\vectort{y}}
+\newcommand{\bz}{\vectort{z}}
+\newcommand{\bzero}{\mathbf{0}}
+\newcommand{\bphi}{\boldsymbol{\phi}}
+
+%% Curly uppercases
+\newcommand{\CA}{\mathcal{A}}
+\newcommand{\CB}{\mathcal{B}}
+\newcommand{\CC}{\mathcal{C}}
+\newcommand{\CD}{\mathcal{D}}
+\newcommand{\CE}{\mathcal{E}}
+\newcommand{\CF}{\mathcal{F}}
+\newcommand{\CG}{\mathcal{G}}
+\newcommand{\CH}{\mathcal{H}}
+\newcommand{\CI}{\mathcal{I}}
+\newcommand{\CJ}{\mathcal{J}}
+\newcommand{\CK}{\mathcal{K}}
+\newcommand{\CL}{\mathcal{L}}
+\newcommand{\CM}{\mathcal{M}}
+\newcommand{\CN}{\mathcal{N}}
+\newcommand{\CO}{\mathcal{O}}
+\newcommand{\CP}{\mathcal{P}}
+\newcommand{\CQ}{\mathcal{Q}}
+\newcommand{\CR}{\mathcal{R}}
+\newcommand{\CS}{\mathcal{S}}
+\newcommand{\CT}{\mathcal{T}}
+\newcommand{\CU}{\mathcal{U}}
+\newcommand{\CV}{\mathcal{V}}
+\newcommand{\CW}{\mathcal{W}}
+\newcommand{\CX}{\mathcal{X}}
+\newcommand{\CY}{\mathcal{Y}}
+\newcommand{\CZ}{\mathcal{Z}}
+
+%% Caligraphic uppercases
+\newcommand{\LA}{\mathscr{A}}
+\newcommand{\LB}{\mathscr{B}}
+\newcommand{\LC}{\mathscr{C}}
+\newcommand{\LD}{\mathscr{D}}
+\newcommand{\LE}{\mathscr{E}}
+\newcommand{\LF}{\mathscr{F}}
+\newcommand{\LG}{\mathscr{G}}
+\newcommand{\LH}{\mathscr{H}}
+\newcommand{\LI}{\mathscr{I}}
+\newcommand{\LJ}{\mathscr{J}}
+\newcommand{\LK}{\mathscr{K}}
+\newcommand{\LL}{\mathscr{L}}
+\newcommand{\LM}{\mathscr{M}}
+\newcommand{\LN}{\mathscr{N}}
+\newcommand{\LO}{\mathscr{O}}
+\newcommand{\LP}{\mathscr{P}}
+\newcommand{\LQ}{\mathscr{Q}}
+\newcommand{\LR}{\mathscr{R}}
+\newcommand{\LS}{\mathscr{S}}
+\newcommand{\LT}{\mathscr{T}}
+\newcommand{\LU}{\mathscr{U}}
+\newcommand{\LV}{\mathscr{V}}
+\newcommand{\LW}{\mathscr{W}}
+\newcommand{\LX}{\mathscr{X}}
+\newcommand{\LY}{\mathscr{Y}}
+\newcommand{\LZ}{\mathscr{Z}}
+
+%% Caligraphic uppercases
+\newcommand{\tp}{\textup{\textrm{p}}}
+\newcommand{\TA}{\textup{\textrm{A}}}
+\newcommand{\TB}{\textup{\textrm{B}}}
+\newcommand{\TC}{\textup{\textrm{C}}}
+\newcommand{\TD}{\textup{\textrm{D}}}
+\newcommand{\TE}{\textup{\textrm{E}}}
+\newcommand{\TF}{\textup{\textrm{F}}}
+\newcommand{\TG}{\textup{\textrm{G}}}
+%\newcommand{\TH}{\textup{\textrm{H}}}
+\newcommand{\TI}{\textup{\textrm{I}}}
+\newcommand{\TJ}{\textup{\textrm{J}}}
+\newcommand{\TK}{\textup{\textrm{K}}}
+\newcommand{\TL}{\textup{\textrm{L}}}
+\newcommand{\TM}{\textup{\textrm{M}}}
+\newcommand{\TN}{\textup{\textrm{N}}}
+\newcommand{\TO}{\textup{\textrm{O}}}
+\newcommand{\TP}{\textup{\textrm{P}}}
+\newcommand{\TQ}{\textup{\textrm{Q}}}
+\newcommand{\TR}{\textup{\textrm{R}}}
+\newcommand{\TS}{\textup{\textrm{S}}}
+\newcommand{\TT}{\textup{\textrm{T}}}
+\newcommand{\TU}{\textup{\textrm{U}}}
+\newcommand{\TV}{\textup{\textrm{V}}}
+\newcommand{\TW}{\textup{\textrm{W}}}
+\newcommand{\TX}{\textup{\textrm{X}}}
+\newcommand{\TY}{\textup{\textrm{Y}}}
+\newcommand{\TZ}{\textup{\textrm{Z}}}
+
+%% Bold curly uppercases
+\newcommand{\BCA}{\boldsymbol{\CA}}
+\newcommand{\BCB}{\boldsymbol{\CB}}
+\newcommand{\BCC}{\boldsymbol{\CC}}
+\newcommand{\BCD}{\boldsymbol{\CD}}
+\newcommand{\BCE}{\boldsymbol{\CE}}
+\newcommand{\BCF}{\boldsymbol{\CF}}
+\newcommand{\BCG}{\boldsymbol{\CG}}
+\newcommand{\BCH}{\boldsymbol{\CH}}
+\newcommand{\BCI}{\boldsymbol{\CI}}
+\newcommand{\BCJ}{\boldsymbol{\CJ}}
+\newcommand{\BCK}{\boldsymbol{\CK}}
+\newcommand{\BCL}{\boldsymbol{\CL}}
+\newcommand{\BCM}{\boldsymbol{\CM}}
+\newcommand{\BCN}{\boldsymbol{\CN}}
+\newcommand{\BCO}{\boldsymbol{\CO}}
+\newcommand{\BCP}{\boldsymbol{\CP}}
+\newcommand{\BCQ}{\boldsymbol{\CQ}}
+\newcommand{\BCR}{\boldsymbol{\CR}}
+\newcommand{\BCS}{\boldsymbol{\CS}}
+\newcommand{\BCT}{\boldsymbol{\CT}}
+\newcommand{\BCU}{\boldsymbol{\CU}}
+\newcommand{\BCV}{\boldsymbol{\CV}}
+\newcommand{\BCW}{\boldsymbol{\CW}}
+\newcommand{\BCX}{\boldsymbol{\CX}}
+\newcommand{\BCY}{\boldsymbol{\CY}}
+\newcommand{\BCZ}{\boldsymbol{\CZ}}
+
+%% Bold caligraphic uppercases
+\newcommand{\BLA}{\pmb{\LA}}
+\newcommand{\BLB}{\pmb{\LB}}
+\newcommand{\BLC}{\pmb{\LC}}
+\newcommand{\BLD}{\pmb{\LD}}
+\newcommand{\BLE}{\pmb{\LE}}
+\newcommand{\BLF}{\pmb{\LF}}
+\newcommand{\BLG}{\pmb{\LG}}
+\newcommand{\BLH}{\pmb{\LH}}
+\newcommand{\BLI}{\pmb{\LI}}
+\newcommand{\BLJ}{\pmb{\LJ}}
+\newcommand{\BLK}{\pmb{\LK}}
+\newcommand{\BLL}{\pmb{\LL}}
+\newcommand{\BLM}{\pmb{\LM}}
+\newcommand{\BLN}{\pmb{\LN}}
+\newcommand{\BLO}{\pmb{\LO}}
+\newcommand{\BLP}{\pmb{\LP}}
+\newcommand{\BLQ}{\pmb{\LQ}}
+\newcommand{\BLR}{\pmb{\LR}}
+\newcommand{\BLS}{\pmb{\LS}}
+\newcommand{\BLT}{\pmb{\LT}}
+\newcommand{\BLU}{\pmb{\LU}}
+\newcommand{\BLV}{\pmb{\LV}}
+\newcommand{\BLW}{\pmb{\LW}}
+\newcommand{\BLX}{\pmb{\LX}}
+\newcommand{\BLY}{\pmb{\LY}}
+\newcommand{\BLZ}{\pmb{\LZ}}
+
+%% Bold text-up
+\newcommand{\BTA}{\pmb{\TA}}
+\newcommand{\BTB}{\pmb{\TB}}
+\newcommand{\BTC}{\pmb{\TC}}
+\newcommand{\BTD}{\pmb{\TD}}
+\newcommand{\BTE}{\pmb{\TE}}
+\newcommand{\BTF}{\pmb{\TF}}
+\newcommand{\BTG}{\pmb{\TG}}
+%\newcommand{\BTH}{\pmb{\TH}}
+\newcommand{\BTI}{\pmb{\TI}}
+\newcommand{\BTJ}{\pmb{\TJ}}
+\newcommand{\BTK}{\pmb{\TK}}
+\newcommand{\BTL}{\pmb{\TL}}
+\newcommand{\BTM}{\pmb{\TM}}
+\newcommand{\BTN}{\pmb{\TN}}
+\newcommand{\BTO}{\pmb{\TO}}
+\newcommand{\BTP}{\pmb{\TP}}
+\newcommand{\BTQ}{\pmb{\TQ}}
+\newcommand{\BTR}{\pmb{\TR}}
+\newcommand{\BTS}{\pmb{\TS}}
+\newcommand{\BTT}{\pmb{\TT}}
+\newcommand{\BTU}{\pmb{\TU}}
+\newcommand{\BTV}{\pmb{\TV}}
+\newcommand{\BTW}{\pmb{\TW}}
+\newcommand{\BTX}{\pmb{\TX}}
+\newcommand{\BTY}{\pmb{\TY}}
+\newcommand{\BTZ}{\pmb{\TZ}}
+
+%% Matlab style
+\newcommand{\MA}{\matalg{A}}
+\newcommand{\MB}{\matalg{B}}
+\newcommand{\MC}{\matalg{C}}
+\newcommand{\MD}{\matalg{D}}
+\newcommand{\ME}{\matalg{E}}
+\newcommand{\MF}{\matalg{F}}
+\newcommand{\MG}{\matalg{G}}
+\newcommand{\MH}{\matalg{H}}
+\newcommand{\MI}{\matalg{I}}
+\newcommand{\MJ}{\matalg{J}}
+\newcommand{\MK}{\matalg{K}}
+\newcommand{\ML}{\matalg{L}}
+\newcommand{\MM}{\matalg{M}}
+\newcommand{\MN}{\matalg{N}}
+\newcommand{\MO}{\matalg{O}}
+\newcommand{\MP}{\matalg{P}}
+\newcommand{\MQ}{\matalg{Q}}
+\newcommand{\MR}{\matalg{R}}
+\newcommand{\MS}{\matalg{S}}
+\newcommand{\MT}{\matalg{T}}
+\newcommand{\MU}{\matalg{U}}
+\newcommand{\MV}{\matalg{V}}
+\newcommand{\MW}{\matalg{W}}
+\newcommand{\MX}{\matalg{X}}
+\newcommand{\MY}{\matalg{Y}}
+\newcommand{\MZ}{\matalg{Z}}
+\newcommand{\MPi}{\matalg{\Pi}}
+
+% \newcommand{\ma}{\matalg{a}}
+\newcommand{\mb}{\matalg{b}}
+\newcommand{\mc}{\matalg{c}}
+\newcommand{\md}{\matalg{d}}
+\newcommand{\me}{\matalg{e}}
+\newcommand{\mf}{\matalg{f}}
+\newcommand{\mg}{\matalg{g}}
+\newcommand{\mh}{\matalg{h}}
+% \newcommand{\mi}{\matalg{i}}
+% \newcommand{\mj}{\matalg{j}}
+% \newcommand{\mk}{\matalg{k}}
+% \newcommand{\ml}{\matalg{l}}
+% \newcommand{\mm}{\matalg{m}}
+% \newcommand{\mn}{\matalg{n}}
+% \newcommand{\mo}{\matalg{o}}
+\newcommand{\mmp}{\matalg{p}}
+\newcommand{\mq}{\matalg{q}}
+\newcommand{\mr}{\matalg{r}}
+\newcommand{\ms}{\matalg{s}}
+\newcommand{\mt}{\matalg{t}}
+%\newcommand{\mu}{\matalg{u}}
+\newcommand{\mv}{\matalg{v}}
+\newcommand{\mw}{\matalg{w}}
+\newcommand{\mx}{\matalg{x}}
+\newcommand{\my}{\matalg{y}}
+\newcommand{\mz}{\matalg{z}}
+
+% Greek
+\newcommand{\bpi}{\boldsymbol{\pi}}
+\newcommand{\bmu}{\boldsymbol{\mu}}
+\newcommand{\bvepsilon}{\boldsymbol{\varepsilon}}
+\newcommand{\bxi}{\boldsymbol{\xi}}
+\newcommand{\bgamma}{\mathsf{\gamma}}
+\newcommand{\BPi}{\mathbf{\Pi}}
+\newcommand{\BTPi}{\mathbf{\mathsf{\Pi}}}
+
+% rmsub
+\newcommand{\rmsub}[1]{_{\mathrm{#1}}}
+\newcommand{\rmsup}[1]{^{\mathrm{#1}}}
+
+\newcommand{\mycolorbar}[3]{%
+  \begin{tikzpicture}[rotate=0]
+		\begin{axis}[
+			hide axis,
+			scale only axis,
+			height=0pt,
+			width=0pt,
+			colormap/jet,
+			colorbar horizontal,
+			point meta min=#1,
+			point meta max=#2,
+			colorbar style={
+				width=#3\linewidth,
+				height=2mm,
+				rotate=0,
+				title=,
+				xtick={#1,#2},
+				xtick style={draw=none},
+				axis line style={draw=none},
+				xticklabel style={xshift=0pt,yshift=0pt},
+				title style={xshift=2.5cm,yshift=3.2cm},
+				%xmode=auto,
+			}
+			]
+		\end{axis}
+  \end{tikzpicture}%
+}
+\newcommand{\surface}[1]{\textcolor{colorTrans}{#1}}
+\newcommand{\volume}[1]{\textcolor{myTeal}{#1}}
+\definecolor{pythonorange}{RGB}{255,127,0}
+\definecolor{pythongreen}{RGB}{0,153,0}
+\definecolor{pythonblue}{RGB}{0,0,180}
+\captionsetup[figure]{labelformat=empty}

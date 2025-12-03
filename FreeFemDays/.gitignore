@@ -1,0 +1,9 @@
+*.log
+*.toc
+main*.gz
+*.snm
+*.out
+*.nav
+*.fls
+*.latexmk
+*.aux
