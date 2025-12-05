@@ -175,16 +175,34 @@
 % type Helmholtz.
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Polynomial basis}
-      \begin{figure}
+\begin{frame}[fragile]{Polynomial basis}
+  \begin{minipage}{60mm}
+          \begin{figure}
         
     %    \begin{center}        
-         \resizebox{0.5\textwidth}{!}{%
+         \resizebox{\textwidth}{!}{%
     \input{figures/tikz/element_p6_Lagrange.tikz}
          }
     %    \end{center}
-    \caption{Finite element $P_6$}
+    %\caption{Finite element $P_6$}
+
+
     \end{figure}
+\uncover<1>{
+  \vspace{-1cm}
+  Let $\textcolor[RGB]{255,0,0}{i},\textcolor[RGB]{63,117,5}{j}$, and $\textcolor[RGB]{74,144,226}{k}$ be the barycentric 
+coordinates, 
+and $\textcolor[RGB]{255,0,0}{\lambda_0}, \textcolor[RGB]{63,117,5}{\lambda_1}, \textcolor[RGB]{74,144,226}{\lambda_2}$ be the barycentric basis functions.
+}
+\end{minipage}
+\hspace{0.001cm}
+\begin{minipage}{60mm}
+  \uncover<5>{
+  \vspace{0.1cm}
+ \verbatiminput{cpp_codes/test.cpp}
+  }
+\end{minipage}
+
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

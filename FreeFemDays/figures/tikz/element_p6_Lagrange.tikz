@@ -63,58 +63,43 @@
 \draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (258,260.5) .. controls (258,259.12) and (259.12,258) .. (260.5,258) .. controls (261.88,258) and (263,259.12) .. (263,260.5) .. controls (263,261.88) and (261.88,263) .. (260.5,263) .. controls (259.12,263) and (258,261.88) .. (258,260.5) -- cycle ;
 %Shape: Circle [id:dp31509796736095785] 
 \draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (208,260.5) .. controls (208,259.12) and (209.12,258) .. (210.5,258) .. controls (211.88,258) and (213,259.12) .. (213,260.5) .. controls (213,261.88) and (211.88,263) .. (210.5,263) .. controls (209.12,263) and (208,261.88) .. (208,260.5) -- cycle ;
-
-%Straight Lines [id:da5219724951314709] 
-
-% Text Node (i,j,k)
+%Straight Lines [id:da3778233038926707] 
+%Straight Lines [id:da6120425479001842] 
+%Straight Lines [id:da6690519736816598]
+% Text Node
 \draw (90,219.4) node [anchor=north west][inner sep=0.75pt]    {$(\textcolor[rgb]{1,0.04,0.04}{i} ,\textcolor[rgb]{0.25,0.46,0.02}{j} ,\textcolor[rgb]{0.29,0.56,0.89}{k})$};
-% Text Node 
-\draw (9,347.4) node [anchor=north west][inner sep=0.75pt]  [font=\footnotesize]  {$\textcolor[rgb]{1,0.04,0.04}{i} +\textcolor[rgb]{0.29,0.56,0.89}{j} +\textcolor[rgb]{0.25,0.46,0.02}{k} =6$};
-% Text Node
-% Text Node
-%\draw (9,367.4) node [anchor=north west][inner sep=0.75pt]  [font=\footnotesize,color={rgb, 255:red, 255; green, 10; blue, 10 }  ,opacity=1 ]  {$L_{1} =\ \underset{l< i}{\upPi }( \lambda _{1} -l)$};
-% Text Node
-%\draw (9,416.4) node [anchor=north west][inner sep=0.75pt]  [font=\footnotesize,color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$L_{3} =\ \underset{l< k}{\upPi }( \lambda _{3} -l)$};
-% Text Node
-%\draw (9,391.4) node [anchor=north west][inner sep=0.75pt]  [font=\footnotesize,color={rgb, 255:red, 65; green, 117; blue, 5 }  ,opacity=1 ]  {$L_{2} =\ \underset{l< j}{\upPi }( \lambda _{2} -l)$};
+\draw (122,340) node [anchor=north west][inner sep=0.75pt]    {$\textcolor[rgb]{1,0.04,0.04}{i} +\textcolor[rgb]{0.29,0.56,0.89}{j} +\textcolor[rgb]{0.25,0.46,0.02}{k} =6$};
+
 
 \uncover<2,5>{
-\draw (13,334.27) node [anchor=north west][inner sep=0.75pt]  [font=\tiny]  {$\textcolor[rgb]{1,0.04,0.04}{\lambda _{1} =6}$};
-\draw (72,334.3) node [anchor=north west][inner sep=0.75pt]  [font=\tiny]  {$\textcolor[rgb]{1,0.04,0.04}{\lambda }\textcolor[rgb]{1,0.04,0.04}{_{1}}\textcolor[rgb]{1,0.04,0.04}{=5}$};
-\draw (122,334.3) node [anchor=north west][inner sep=0.75pt]  [font=\tiny]  {$\textcolor[rgb]{1,0.04,0.04}{\lambda }\textcolor[rgb]{1,0.04,0.04}{_{1}}\textcolor[rgb]{1,0.04,0.04}{=4}$};
-\draw (172,334.3) node [anchor=north west][inner sep=0.75pt]  [font=\tiny]  {$\textcolor[rgb]{1,0.04,0.04}{\lambda }\textcolor[rgb]{1,0.04,0.04}{_{1}}\textcolor[rgb]{1,0.04,0.04}{=3}$};
+\draw [color={rgb, 255:red, 255; green, 10; blue, 10 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (10,10) -- (321.27,320.85) ;
+\draw [color={rgb, 255:red, 255; green, 10; blue, 10 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (7.77,57.76) -- (267.77,317.85) ;
+\draw (310.5,325.3) node [anchor=north west][inner sep=0.75pt]    {$\textcolor[rgb]{1,0.04,0.04}{\lambda }\textcolor[rgb]{1,0.04,0.04}{_{0}}\textcolor[rgb]{1,0.04,0.04}{=0}$};
+\draw (258.5,325.3) node [anchor=north west][inner sep=0.75pt]    {$\textcolor[rgb]{1,0.04,0.04}{\lambda }\textcolor[rgb]{1,0.04,0.04}{_{0}}\textcolor[rgb]{1,0.04,0.04}{=1}$};
 
-\draw [color={rgb, 255:red, 255; green, 10; blue, 10 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (1.68,154.26) -- (178.18,330.26) ;
-\draw [color={rgb, 255:red, 255; green, 10; blue, 10 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (-1.32,200.26) -- (130.18,329.76) ;
-\draw [color={rgb, 255:red, 255; green, 10; blue, 10 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (1.18,252.26) -- (81.68,330.8) ;
-\draw [color={rgb, 255:red, 255; green, 10; blue, 10 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (-0.82,295.76) -- (26.68,330.3) ;
-
+\draw (9,360) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 255; green, 10; blue, 10 }  ,opacity=1 ]  {$L_{0} =\ \underset{l< i}{\Pi }( \lambda _{0} -l)$};
+ 
 }
-\uncover<3,5> 
-{
-% Text Node lambdas 2
-\draw (151,132.9) node [anchor=north west][inner sep=0.75pt]  [font=\tiny,color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$\textcolor[rgb]{0.25,0.46,0.02}{\lambda _{2} =3}$};
-\draw (297,281.9) node [anchor=north west][inner sep=0.75pt]  [font=\tiny,color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$\textcolor[rgb]{0.25,0.46,0.02}{\lambda }\textcolor[rgb]{0.25,0.46,0.02}{_{2}}\textcolor[rgb]{0.25,0.46,0.02}{=6}$};
-\draw (246.5,230.4) node [anchor=north west][inner sep=0.75pt]  [font=\tiny,color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$\textcolor[rgb]{0.25,0.46,0.02}{\lambda }\textcolor[rgb]{0.25,0.46,0.02}{_{2}}\textcolor[rgb]{0.25,0.46,0.02}{=5}$};
-\draw (197.5,165.4) node [anchor=north west][inner sep=0.75pt]  [font=\tiny,color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$\textcolor[rgb]{0.25,0.46,0.02}{\lambda }\textcolor[rgb]{0.25,0.46,0.02}{_{2}}\textcolor[rgb]{0.25,0.46,0.02}{=4}$};
+\uncover<3,5>{
+\draw [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (61.27,44.03) -- (59.9,280.04) -- (59.87,324.26) ;
+\draw [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (9.77,5.53) -- (10.3,277.07) -- (10.27,321.3) ;
+\draw (2,325.3) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$\textcolor[rgb]{0.25,0.46,0.02}{\lambda }\textcolor[rgb]{0.25,0.46,0.02}{_{1}}\textcolor[rgb]{0.25,0.46,0.02}{=0}$};
+\draw (47,325.3) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$\textcolor[rgb]{0.25,0.46,0.02}{\lambda }\textcolor[rgb]{0.25,0.46,0.02}{_{1}}\textcolor[rgb]{0.25,0.46,0.02}{=1}$};
 
-\draw [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (160.68,144.76) -- (160.68,324.26) ;
-\draw [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (210.5,173.25) -- (211.18,320.26) ;
-\draw [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (259.68,242.26) -- (260.18,320.26) ;
-\draw [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (310.68,292.76) -- (310.18,319.26) ;
-
+\draw (122,360) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,opacity=1 ]  {$L_{1} =\ \underset{l< j}{\Pi }( \lambda _{1} -l)$};
 
 }
 
-\uncover<4,5>{
-\draw (44,7.79) node [anchor=north west][inner sep=0.75pt]  [font=\tiny,color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$\textcolor[rgb]{0.29,0.56,0.89}{\lambda _{3} =6}$};
-\draw (95.5,56.4) node [anchor=north west][inner sep=0.75pt]  [font=\tiny,color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$\textcolor[rgb]{0.29,0.56,0.89}{\lambda }\textcolor[rgb]{0.29,0.56,0.89}{_{3}}\textcolor[rgb]{0.29,0.56,0.89}{=5}$};
-\draw (144.5,104.4) node [anchor=north west][inner sep=0.75pt]  [font=\tiny,color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$\textcolor[rgb]{0.29,0.56,0.89}{\lambda }\textcolor[rgb]{0.29,0.56,0.89}{_{3}}\textcolor[rgb]{0.29,0.56,0.89}{=4}$};
-\draw (179.5,154.9) node [anchor=north west][inner sep=0.75pt]  [font=\tiny,color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$\textcolor[rgb]{0.29,0.56,0.89}{\lambda }\textcolor[rgb]{0.29,0.56,0.89}{_{3}}\textcolor[rgb]{0.29,0.56,0.89}{=3}$};
-\draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (2.68,60.26) -- (89.18,59.76) ;
-\draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (-0.32,110.76) -- (141.68,110.26) ;
-\draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (0.18,160.76) -- (177.18,159.76) ;
-\draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (1.68,9.76) -- (39.68,10.26) ;
+\uncover<4,5>{ 
+\draw (282,256.9) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$\textcolor[rgb]{0.29,0.56,0.89}{\lambda }\textcolor[rgb]{0.29,0.56,0.89}{_{2}}\textcolor[rgb]{0.29,0.56,0.89}{=1}$};
+\draw (331.5,307.9) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$\textcolor[rgb]{0.29,0.56,0.89}{\lambda }\textcolor[rgb]{0.29,0.56,0.89}{_{2}}\textcolor[rgb]{0.29,0.56,0.89}{=0}$};
+\draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (10.5,310.5) -- (329.27,310.66) ;
+\draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ] [dash pattern={on 4.5pt off 4.5pt}]  (8,260.5) -- (279.77,260.16) ;
+\draw (235,360) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$L_{2} =\ \underset{l< k}{\Pi }( \lambda _{2} -l)$};
 
+}
+
+\uncover<5>{
+    \draw (122,385) node [anchor=north west][inner sep=0.75pt]    {$\displaystyle L=\frac{1}{\textcolor[rgb]{1,0.04,0.04}{i!}\textcolor[rgb]{0.25,0.46,0.02}{j!}\textcolor[rgb]{0.29,0.56,0.89}{k!}}\textcolor[rgb]{1,0.04,0.04}{L_{0}} \times \textcolor[rgb]{0.25,0.46,0.02}{L_{1}} \times \textcolor[rgb]{0.29,0.56,0.89}{L_{2}}$};
 }
 \end{tikzpicture}
