@@ -175,7 +175,7 @@
 % type Helmholtz.
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Polynomial basis}
+\begin{frame}[fragile]{Shape functions}
   \begin{minipage}{60mm}
           \begin{figure}
         
@@ -190,9 +190,10 @@
     \end{figure}
 \uncover<1>{
   \vspace{-1cm}
-  Let $\textcolor[RGB]{255,0,0}{i},\textcolor[RGB]{63,117,5}{j}$, and $\textcolor[RGB]{74,144,226}{k}$ be the barycentric 
-coordinates, 
-and $\textcolor[RGB]{255,0,0}{\lambda_0}, \textcolor[RGB]{63,117,5}{\lambda_1}, \textcolor[RGB]{74,144,226}{\lambda_2}$ be the barycentric basis functions.
+  Let $\textcolor[RGB]{255,0,0}{i},\textcolor[RGB]{63,117,5}{j}$, 
+  and $\textcolor[RGB]{74,144,226}{k}$ be the barycentric coordinates
+  of a given node.
+%and $\textcolor[RGB]{255,0,0}{\lambda_0}, \textcolor[RGB]{63,117,5}{\lambda_1}, \textcolor[RGB]{74,144,226}{\lambda_2}$ be the barycentric basis functions.
 }
 \end{minipage}
 \hspace{0.001cm}
@@ -204,8 +205,32 @@ and $\textcolor[RGB]{255,0,0}{\lambda_0}, \textcolor[RGB]{63,117,5}{\lambda_1}, 
 \end{minipage}
 
 \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Numerotation \texttt{FreeFem++}}
+
+
+
+\begin{minipage}{60mm}
+          \begin{figure}
+        
+         \resizebox{\textwidth}{!}{%
+    \input{figures/tikz/numerotation.tikz}
+         }
+    \end{figure}
+\end{minipage}
+\quad
+\begin{minipage}{60mm}
+  \begin{itemize}
+    \item The vertices are numbered 0, 1, 2
+    \item The nodes of the edges are numbered from 3 to 5
+    \item The internal nodes keep the number 6
+    \uncover<2> {
+    \item Internal points are ordered from top to bottom and from left to right
+    }
+  \end{itemize}
+\end{minipage}
+\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
