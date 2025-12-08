@@ -215,23 +215,131 @@
           \begin{figure}
         
          \resizebox{\textwidth}{!}{%
-    \input{figures/tikz/numerotation.tikz}
+    \input{figures/tikz/numerotation_p4.tikz}
          }
     \end{figure}
 \end{minipage}
-\quad
-\begin{minipage}{60mm}
-  \begin{itemize}
-    \item The vertices are numbered 0, 1, 2
-    \item The nodes of the edges are numbered from 3 to 5
-    \item The internal nodes keep the number 6
-    \uncover<2> {
-    \item Internal points are ordered from top to bottom and from left to right
-    }
-  \end{itemize}
+\hspace{0.1cm}
+\begin{minipage}{70mm}
+ \verbatiminput{cpp_codes/data_table.cpp}
+  % \begin{itemize}
+    % \item The vertices are numbered 0, 1, 2
+    % \item The nodes of the edges are numbered from 3 to 5
+    % \item The internal nodes keep the number 6
+    % \uncover<2> {
+    % \item Internal points are ordered from top to bottom and from left to right
+    % }
+  % \end{itemize}
 \end{minipage}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Qudaratures}
+  \begin{block}{Grundmann-Möller quadrature formula}
+    Let $s\in \mathbb{N}$, $d=2s+1$, and $n\in\mathbb{N} $ a given dimension. Then:
+    $$I_n(f)=\displaystyle \underset{i=0}{\sum^s} (-1)^i 2^{-2s}\frac{(d+n-2i)^d}{i!(d+n-i)!}
+    \underset{\begin{subarray}{c}|\bm{\beta}|=s-i \\ \beta_0 \ge \dots \ge \beta_n\end{subarray}}{\sum} \sum f \left 
+    (\frac{2\beta _1+1}{d+n-2i}
+    ,\dots,\frac{2\beta_n+1}{d+n-2i}\right ) $$
+  \quad is an invariant integration formula of degree $d$ for the function $f$ on an $n$-simplex,
+    
+  \quad where: $\bm{\beta}=(\beta _0,\beta _1,\dots, \beta _n)$, and $|\bm{\beta}|= \beta_0+\beta_1+\cdots +\beta_n$
+\end{block}
+  \uncover<2>{
+  \begin{minipage}{80mm}
+    GM formula:
+    \begin{itemize}[label=$\square$]
+      \item is capable of handling any arbitrary polynomial order
+      \item is exact for polynomials of degree $d$
+      \item is easily adaptable to any spatial dimension $n$
+      \item does not guarantee that all weights are positive
+      \item is prone to computational overflow issues
+      \item is prone to numerical stability issues 
+    \end{itemize}
+  \end{minipage}
+  \quad
+  \begin{minipage}{80mm}
+    \vspace{0.5cm}
+    \begin{itemize}[label={}]
+      \item \textbf{\textcolor{blue}{\huge \checkmark}}
+      \item \textbf{\textcolor{blue}{\huge \checkmark}}
+      \item \textbf{\textcolor{blue}{\huge \checkmark}}
+      \item \textbf{\textcolor{red}{\huge X}}
+      \item \textbf{\textcolor{red}{\huge X}}
+      \item \textbf{\textcolor{red}{\huge X}}
+    \end{itemize}
+    
+  \end{minipage}
+  }
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Validation}
+  
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Lagrange FE in \texttt{FreeFem++}}
+  \begin{minipage}{70mm}
+ \verbatiminput{cpp_codes/Element_P4.cpp}
+  \end{minipage}
+\uncover<2>{
+  \begin{tikzpicture}[remember picture, overlay]
+      % Place the whole diagram 2cm from top-left
+      \node at (current page.north west) [xshift=10cm, yshift=-2.1cm] {
+          \begin{tikzpicture}
+              \draw[color=blue][->, thick] (0,0) -- (1,0) ;
+              \node at (1.7,0) {\textcolor{blue}{\# DOF =15}};
+          \end{tikzpicture}
+      };
+
+      \node at (current page.north west) [xshift=10cm, yshift=-1.8cm] {
+      \begin{tikzpicture}
+          \draw[color=blue][->, thick] (0,0) -- (1,0) ;
+          \node at (2.2,0) {\textcolor{blue}{Interpolation order}};
+      \end{tikzpicture}
+      };
+
+      \node at (current page.north west) [xshift=9.6cm, yshift=-2.5cm] {
+      \begin{tikzpicture}
+          \draw[color=blue][->, thick] (0,0) -- (1,0) ;
+          \node at (1.8,0) {\textcolor{blue}{Data table}};
+      \end{tikzpicture}
+      };
+
+      \node at (current page.north west) [xshift=9.8cm, yshift=-3.45cm] {
+      \begin{tikzpicture}
+          \draw[decorate,color=blue, decoration={brace, amplitude=10pt, mirror}]
+          (0,1) -- (0,1.8)  node[midway,right=3mm]{Shape functions: $\displaystyle \Phi _i =\overset{3}{\underset{j=0}{\Pi }} \frac{1}{\texttt{ff[i]}}
+          \left (\lambda _{\texttt{nn[i][j]}}-\texttt{aa[i][j]}\right ) $ \texttt{.hpp}};
+      \end{tikzpicture}
+      };
+
+      \node at (current page.north west) [xshift=7.7cm, yshift=-4.5cm] {
+      \begin{tikzpicture}
+          \draw[decorate,color=blue, decoration={brace, amplitude=10pt, mirror}]
+          (0,1) -- (0,1.8)  node[midway,right=3mm]{Nodes barycentric coordinates \texttt{.hpp}};
+      \end{tikzpicture}
+      };
+
+  \end{tikzpicture}
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Lagrange FE in \texttt{FreeFem++}}
+  \VerbatimInput[firstline=14,lastline=14]{cpp_codes/Element_P4.cpp}
+  \begin{center}
+\begin{tabular}{ c c c }
+ Argument & Value $P_4$ & Value $P_4$ \\ 
+ \hline\\
+ \# dof & \texttt{15} & $\displaystyle\frac{(k+1)(k+2)}{2}$ \\  
+ cell7 & \texttt{1} & cell9  \\
+ Data table & \texttt{Data} & \texttt{Data}  \\  
+ Interpolation order  & \texttt{4} & $k$  \\  
+ cell7 & \texttt{15+6} & cell9  \\  
+ cell7 & \texttt{15} & cell9  \\  
+ cell7 & \texttt{0} & to fill  \\  
+
+\end{tabular}
+\end{center}
+\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{Conclusion}{}

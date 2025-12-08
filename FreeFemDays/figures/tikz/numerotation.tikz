@@ -5,13 +5,11 @@
 \begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
 %uncomment if require: \path (0,587); %set diagram left start at 0, and has height of 587
 
-%Shape: Right Triangle [id:dp6641432405519955] 
+%Shape: Right Triangle 
 \draw   (52,30) -- (352,330) -- (52,330) -- cycle ;
-%Shape: Circle [id:dp49897872265730925] 
+%Shape: Sommets 
 \draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (50,30.5) .. controls (50,29.12) and (51.12,28) .. (52.5,28) .. controls (53.88,28) and (55,29.12) .. (55,30.5) .. controls (55,31.88) and (53.88,33) .. (52.5,33) .. controls (51.12,33) and (50,31.88) .. (50,30.5) -- cycle ;
-%Shape: Circle [id:dp22513329056235631] 
 \draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (50,330.5) .. controls (50,329.12) and (51.12,328) .. (52.5,328) .. controls (53.88,328) and (55,329.12) .. (55,330.5) .. controls (55,331.88) and (53.88,333) .. (52.5,333) .. controls (51.12,333) and (50,331.88) .. (50,330.5) -- cycle ;
-%Shape: Circle [id:dp6738214392115136] 
 \draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (349,330.5) .. controls (349,329.12) and (350.12,328) .. (351.5,328) .. controls (352.88,328) and (354,329.12) .. (354,330.5) .. controls (354,331.88) and (352.88,333) .. (351.5,333) .. controls (350.12,333) and (349,331.88) .. (349,330.5) -- cycle ;
 %Shape: Circle [id:dp43027305416000583] 
 \draw  [color={rgb, 255:red, 245; green, 166; blue, 35 }  ,draw opacity=1 ][fill={rgb, 255:red, 245; green, 166; blue, 35 }  ,fill opacity=1 ] (150,330.5) .. controls (150,329.12) and (151.12,328) .. (152.5,328) .. controls (153.88,328) and (155,329.12) .. (155,330.5) .. controls (155,331.88) and (153.88,333) .. (152.5,333) .. controls (151.12,333) and (150,331.88) .. (150,330.5) -- cycle ;
