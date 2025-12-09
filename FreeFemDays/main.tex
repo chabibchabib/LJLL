@@ -71,9 +71,6 @@
 \input{00_title.tex}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Motivation}
     \begin{center}
     \textbf{Finite element} solution of \textbf{time-harmonic wave propagation problems}
@@ -86,7 +83,7 @@
         $
           \left\{\;
           \begin{aligned}
-             & -\Delta {\color{colorVol}p} - \kappa^2 {\color{colorVol}p} = s
+             & -\Delta {\color{colorVol}p} - \omega^2 {\color{colorVol}p} = s
              &
              & \text{in $\Omega$}
             \\
@@ -106,7 +103,7 @@
         \textbf{{\color{colorStruct}Finite element error:}}
         \vspace{3mm}
 
-        $ \lVert {\color{colorVol}p} - {\color{colorVol}p_h}\lVert  _{H^1} \leq C_1(\kappa h)^p + C_2\kappa^{(p+1)}h^p$
+        $ \lVert {\color{colorVol}p} - {\color{colorVol}p_h}\lVert  _{H^1} \leq C_1(\omega h)^k + C_2\omega^{(k+1)}h^k$
       \end{minipage}}
     \hfill
     \begin{minipage}{35mm}
@@ -132,18 +129,17 @@
       \begin{aligned}
         % & \text{Complicated material coefficients $\bmu, \bvepsilon$}
         %\\
-         & \text{High frequency {\small(large $\kappa$)}}
+         & \text{High frequency {\small(large $\omega$)}}
         \\
          & \text{Phenomena close to resonance}
         \\
         % & \text{Good accuracy}
       \end{aligned}
-      \ \ \
-      \leadsto \ \ \ \text{Low approximation quality} \ \ \ \leadsto
+      \ \ \ \leadsto
       \left\{\ \begin{aligned}
-                  & \text{Fine mesh {\small(small $h$)}}
+                  & \text{Fine mesh {\small(small $h$)}} \quad \uncover<2>{\textcolor{blue}{\large \checkmark}}
                  \\
-                  & \text{High-order basis functions {\small(large $p$)}}
+                  & \text{High-order basis functions {\small(large $k$)}} \quad \uncover<2>{\textcolor{red}{{\text{X Limited to } P_4} }  }
                  %\\
                   %& \text{Large unstructured sparse system / Many DOFs}
                  %\\
@@ -166,7 +162,7 @@
 % l’erreur de pollution, qui croît généralement avec un facteur en kh ou k^2h, où k est 
 % le nombre d’onde.
 % Une alternative plus performante consiste à augmenter l’ordre d’interpolation, 
-% c’est-à-dire à utiliser des éléments finis d’ordre élevé (augmentation du paramètre  p). 
+% c’est-à-dire à utiliser des éléments finis d’ordre élevé (augmentation du paramètre p). 
 % Cette stratégie est souvent plus efficace que le simple raffinement du maillage : elle 
 % permet de mieux capturer l’oscillation de la solution avec beaucoup moins d’éléments, 
 % réduit l’impact de l’erreur de pollution, et améliore la précision globale pour un coût 
@@ -174,6 +170,110 @@
 % constituent donc une approche plus adaptée pour les problèmes oscillatoires de 
 % type Helmholtz.
 \end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Lagrange FE in \texttt{FreeFem++} I}
+  \vspace{0.5cm}
+  \begin{minipage}{70mm}
+ \verbatiminput{cpp_codes/Element_P4.cpp}
+  \end{minipage}
+\uncover<2>{
+  \begin{tikzpicture}[remember picture, overlay]
+      % Place the whole diagram 2cm from top-left
+      \node at (current page.north west) [xshift=9.8cm, yshift=-2.5cm] {
+          \begin{tikzpicture}
+              \draw[color=blue][->, thick] (0,0) -- (1,0) ;
+              \node at (1.7,0) {\textcolor{blue}{\# DOF =15}};
+          \end{tikzpicture}
+      };
+
+      \node at (current page.north west) [xshift=6.8cm, yshift=-2.15cm] {
+      \begin{tikzpicture}
+          \draw[color=blue][->, thick] (0,0) -- (1,0) ;
+          \node at (2.2,0) {\textcolor{blue}{Interpolation order}};
+      \end{tikzpicture}
+      };
+
+      \node at (current page.north west) [xshift=6.6cm, yshift=-2.82cm] {
+      \begin{tikzpicture}
+          \draw[color=blue][->, thick] (0,0) -- (1,0) ;
+          \node at (2.5,0) {\textcolor{blue}{Topological information}};
+      \end{tikzpicture}
+      };
+
+      \node at (current page.north west) [xshift=9.8cm, yshift=-3.85cm] {
+      \begin{tikzpicture}
+          \draw[decorate,color=blue, decoration={brace, amplitude=10pt, mirror}]
+          (0,1) -- (0,1.8)  node[midway,right=3mm]{Shape functions: $\displaystyle \Phi _i =\overset{3}{\underset{j=0}{\Pi }} \frac{1}{\texttt{ff[i]}}
+          \left (\lambda _{\texttt{nn[i][j]}}-\texttt{aa[i][j]}\right ) $ \texttt{.hpp}};
+      \end{tikzpicture}
+      };
+
+      \node at (current page.north west) [xshift=7.7cm, yshift=-4.85cm] {
+      \begin{tikzpicture}
+          \draw[decorate,color=blue, decoration={brace, amplitude=10pt, mirror}]
+          (0,1) -- (0,1.8)  node[midway,right=3mm]{Nodes barycentric coordinates \texttt{.hpp}};
+      \end{tikzpicture}
+      };
+
+      \node at (current page.north west) [xshift=8.5cm, yshift=-5.8cm] {
+      \begin{tikzpicture}
+          \draw [color=blue,decorate,decoration={amplitude=10mm}](0.4,0) rectangle (6.8,0.5);
+        %\node at (8,0.25) {\textcolor{blue}{}};
+        \end{tikzpicture}
+      };
+  \end{tikzpicture}
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Lagrange FE in \texttt{FreeFem++} II}
+  \VerbatimInput[firstline=14,lastline=14]{cpp_codes/Element_P4.cpp}
+  \begin{center}
+\begin{tabular}{ c c c }
+ Argument & Value $P_4$ & Value $P_k$ \\ 
+ \hline\\
+ \# dof & \texttt{15} & $\displaystyle\frac{(k+1)(k+2)}{2}$ \\  
+ Dimension of the function space & \texttt{1} & \texttt{1}  \\
+ Array containing topological information & \texttt{Data} & \texttt{Data}  \\  
+ Number of subdivisions for plotting  & \texttt{4} & $k$  \\  
+ Number of component sub-finite elements & \texttt{1} & \texttt{1}  \\  
+ nombre de dof + dof permutation non sym sur aretes & \texttt{15+6} & cell9  \\  
+ Number of interpolation points & \texttt{15} & $\displaystyle\frac{(k+1)(k+2)}{2}$  \\  
+ dof dont on a la connaissance avant  & \texttt{0} & \texttt{0}  \\  
+
+\end{tabular}
+\end{center}
+\begin{itemize}
+  \item 1: scalar function space(not vector field).
+  \item Data: Numbering and relationship between DOFs and nodes.
+  \item 4: To visualize the element, it's subdivided into $k$ sub-elements.
+  \item The 15 points where functions are evaluated to construct the interpolant.
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Lagrange FE in \texttt{FreeFem++} III}
+\begin{minipage}{60mm}
+          \begin{figure}
+        
+         \resizebox{\textwidth}{!}{%
+    \input{figures/tikz/numerotation_p4.tikz}
+         }
+    \end{figure}
+\end{minipage}
+\hspace{0.1cm}
+\begin{minipage}{70mm}
+ \verbatiminput{cpp_codes/data_table.cpp}
+  % \begin{itemize}
+    % \item The vertices are numbered 0, 1, 2
+    % \item The nodes of the edges are numbered from 3 to 5
+    % \item The internal nodes keep the number 6
+    % \uncover<2> {
+    % \item Internal points are ordered from top to bottom and from left to right
+    % }
+  % \end{itemize}
+\end{minipage}
+\end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile]{Shape functions}
   \begin{minipage}{60mm}
@@ -205,35 +305,27 @@
 \end{minipage}
 
 \end{frame}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Numerotation \texttt{FreeFem++}}
+\begin{frame}{Adding the FE in \texttt{FreeFem++}}
+  \vspace{0.5cm}
+  \begin{itemize}[label=$\square$, itemsep=5mm]
+    \item Declaration of a subclass \texttt{TypeOfFE\_PkLagrange} of \texttt{TypeOfFE}
+    \item Dynamic allocation of arrays depending on the interpolation order
+    \item Arrays are filled on the fly during the creation of the object.
+  \uncover<2->{  
+    \item \textbf{Once the attributes are filled, the elements can be added to the DSL using:}
+    \verbatiminput{cpp_codes/init_dsl.cpp}
+  }
 
+  \uncover<3>{  
+    \vspace{0.5 cm}
+    \begin{center}\textbf{Integrating polynomials of arbitrary order?}\end{center}
+  }
+  \end{itemize}
 
-
-\begin{minipage}{60mm}
-          \begin{figure}
-        
-         \resizebox{\textwidth}{!}{%
-    \input{figures/tikz/numerotation_p4.tikz}
-         }
-    \end{figure}
-\end{minipage}
-\hspace{0.1cm}
-\begin{minipage}{70mm}
- \verbatiminput{cpp_codes/data_table.cpp}
-  % \begin{itemize}
-    % \item The vertices are numbered 0, 1, 2
-    % \item The nodes of the edges are numbered from 3 to 5
-    % \item The internal nodes keep the number 6
-    % \uncover<2> {
-    % \item Internal points are ordered from top to bottom and from left to right
-    % }
-  % \end{itemize}
-\end{minipage}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Qudaratures}
+\begin{frame}{Quadrature Formula}
   \begin{block}{Grundmann-Möller quadrature formula}
     Let $s\in \mathbb{N}$, $d=2s+1$, and $n\in\mathbb{N} $ a given dimension. Then:
     $$I_n(f)=\displaystyle \underset{i=0}{\sum^s} (-1)^i 2^{-2s}\frac{(d+n-2i)^d}{i!(d+n-i)!}
@@ -244,9 +336,11 @@
     
   \quad where: $\bm{\beta}=(\beta _0,\beta _1,\dots, \beta _n)$, and $|\bm{\beta}|= \beta_0+\beta_1+\cdots +\beta_n$
 \end{block}
+    \uncover<2>{GM formula:}
+\begin{center}
+  
   \uncover<2>{
-  \begin{minipage}{80mm}
-    GM formula:
+  \begin{minipage}{100mm}
     \begin{itemize}[label=$\square$]
       \item is capable of handling any arbitrary polynomial order
       \item is exact for polynomials of degree $d$
@@ -257,92 +351,47 @@
     \end{itemize}
   \end{minipage}
   \quad
-  \begin{minipage}{80mm}
-    \vspace{0.5cm}
+  \begin{minipage}{10mm}
+    %\vspace{0.1cm}
     \begin{itemize}[label={}]
-      \item \textbf{\textcolor{blue}{\huge \checkmark}}
-      \item \textbf{\textcolor{blue}{\huge \checkmark}}
-      \item \textbf{\textcolor{blue}{\huge \checkmark}}
-      \item \textbf{\textcolor{red}{\huge X}}
-      \item \textbf{\textcolor{red}{\huge X}}
-      \item \textbf{\textcolor{red}{\huge X}}
+      \item \textbf{\textcolor{blue}{\Large \checkmark}}
+      \item \textbf{\textcolor{blue}{\Large \checkmark}}
+      \item \textbf{\textcolor{blue}{\Large \checkmark}}
+      \item \textbf{\textcolor{red}{\Large X}}
+      \item \textbf{\textcolor{red}{\Large X}}
+      \item \textbf{\textcolor{red}{\Large X}}
     \end{itemize}
     
   \end{minipage}
   }
+\end{center}
+
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{frame}{Validation}
   
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Lagrange FE in \texttt{FreeFem++}}
-  \begin{minipage}{70mm}
- \verbatiminput{cpp_codes/Element_P4.cpp}
-  \end{minipage}
-\uncover<2>{
-  \begin{tikzpicture}[remember picture, overlay]
-      % Place the whole diagram 2cm from top-left
-      \node at (current page.north west) [xshift=10cm, yshift=-2.1cm] {
-          \begin{tikzpicture}
-              \draw[color=blue][->, thick] (0,0) -- (1,0) ;
-              \node at (1.7,0) {\textcolor{blue}{\# DOF =15}};
-          \end{tikzpicture}
-      };
-
-      \node at (current page.north west) [xshift=10cm, yshift=-1.8cm] {
-      \begin{tikzpicture}
-          \draw[color=blue][->, thick] (0,0) -- (1,0) ;
-          \node at (2.2,0) {\textcolor{blue}{Interpolation order}};
-      \end{tikzpicture}
-      };
-
-      \node at (current page.north west) [xshift=9.6cm, yshift=-2.5cm] {
-      \begin{tikzpicture}
-          \draw[color=blue][->, thick] (0,0) -- (1,0) ;
-          \node at (1.8,0) {\textcolor{blue}{Data table}};
-      \end{tikzpicture}
-      };
-
-      \node at (current page.north west) [xshift=9.8cm, yshift=-3.45cm] {
-      \begin{tikzpicture}
-          \draw[decorate,color=blue, decoration={brace, amplitude=10pt, mirror}]
-          (0,1) -- (0,1.8)  node[midway,right=3mm]{Shape functions: $\displaystyle \Phi _i =\overset{3}{\underset{j=0}{\Pi }} \frac{1}{\texttt{ff[i]}}
-          \left (\lambda _{\texttt{nn[i][j]}}-\texttt{aa[i][j]}\right ) $ \texttt{.hpp}};
-      \end{tikzpicture}
-      };
-
-      \node at (current page.north west) [xshift=7.7cm, yshift=-4.5cm] {
-      \begin{tikzpicture}
-          \draw[decorate,color=blue, decoration={brace, amplitude=10pt, mirror}]
-          (0,1) -- (0,1.8)  node[midway,right=3mm]{Nodes barycentric coordinates \texttt{.hpp}};
-      \end{tikzpicture}
-      };
-
-  \end{tikzpicture}
-}
-\end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Lagrange FE in \texttt{FreeFem++}}
-  \VerbatimInput[firstline=14,lastline=14]{cpp_codes/Element_P4.cpp}
-  \begin{center}
-\begin{tabular}{ c c c }
- Argument & Value $P_4$ & Value $P_4$ \\ 
- \hline\\
- \# dof & \texttt{15} & $\displaystyle\frac{(k+1)(k+2)}{2}$ \\  
- cell7 & \texttt{1} & cell9  \\
- Data table & \texttt{Data} & \texttt{Data}  \\  
- Interpolation order  & \texttt{4} & $k$  \\  
- cell7 & \texttt{15+6} & cell9  \\  
- cell7 & \texttt{15} & cell9  \\  
- cell7 & \texttt{0} & to fill  \\  
-
-\end{tabular}
-\end{center}
-\end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \begin{frame}{Conclusion}{}
+  %\vspace{2cm}
+  \begin{center}
+    
+  \begin{itemize}[label={},itemsep=2em]
+    \item \textcolor{blue}{\Large\textbf{\underline{Conclusion:}}}
+    \begin{itemize}[label=$\square$,itemsep=1em]
+      \item Analysis of the existing 2D  Lagrange finite elements
+      \item Design of a generic 2D $P_k$  element inspired by existing elements
+      \item Development of associated quadrature formulas
+    \end{itemize}
+    \item \textcolor{blue}{\Large\textbf{\underline{Outlooks:}}}
+      \begin{itemize}[label=$\square$,itemsep=1em]
+      \item More rigorous verification of convergence
+      \item Addressing numerical instability in quadrature formulas
+      \item Extension to the case of 3D Lagrange
+      \end{itemize}
+  \end{itemize}
+  \end{center}
 
 \end{frame}
 

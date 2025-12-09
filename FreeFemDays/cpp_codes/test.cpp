@@ -1,5 +1,5 @@
-void BasisFctPK(int , vector<vector<long>> &lambdas, 
-        vector<vector<long>> &shift, 
+void BasisFctPK(int , vector<vector<long>> &nn, 
+        vector<vector<long>> &aa, 
         vector<long> &ff) {
     int idx = 0;
     for (auto &coordinate : coordinate_list) {
@@ -12,8 +12,8 @@ void BasisFctPK(int , vector<vector<long>> &lambdas,
                     *factorial(k);
             if (i > 0) {
                 for (int ii = 0; ii < i ; ii++) {
-                    lambdas[idx][ID] = 0;
-                    shift[idx][ID] = ii;
+                    nn[idx][ID] = 0;
+                    aa[idx][ID] = ii;
                     ID++;
                 }
             }
