@@ -1,7 +1,56 @@
+
+P=1
+Npoint(npplo)=10	 Error(relative)= 0.000631858
+Npoint(npplo)=20	 Error(relative)= 0.000158332
+Npoint(npplo)=30	 Error(relative)= 7.04006e-05
+Npoint(npplo)=40	 Error(relative)= 3.96064e-05
+Npoint(npplo)=50	 Error(relative)= 2.53499e-05
+Npoint(npplo)=60	 Error(relative)= 1.76048e-05
+Npoint(npplo)=70	 Error(relative)= 1.29344e-05
+Npoint(npplo)=80	 Error(relative)= 9.90308e-06
+Npoint(npplo)=90	 Error(relative)= 7.82474e-06
+Npoint(npplo)=100	 Error(relative)= 6.33809e-06
+P=2
+Npoint(npplo)=10	 Error(relative)= 3.62132e-07
+Npoint(npplo)=20	 Error(relative)= 2.30666e-08
+Npoint(npplo)=30	 Error(relative)= 4.57494e-09
+Npoint(npplo)=40	 Error(relative)= 1.4498e-09
+Npoint(npplo)=50	 Error(relative)= 5.94367e-10
+Npoint(npplo)=60	 Error(relative)= 2.86867e-10
+Npoint(npplo)=70	 Error(relative)= 1.55125e-10
+Npoint(npplo)=80	 Error(relative)= 9.0911e-11
+Npoint(npplo)=90	 Error(relative)= 5.71591e-11
+Npoint(npplo)=100	 Error(relative)= 3.79158e-11
+P=3
+Npoint(npplo)=10	 Error(relative)= 7.90932e-09
+Npoint(npplo)=20	 Error(relative)= 4.60539e-10
+Npoint(npplo)=30	 Error(relative)= 8.967e-11
+Npoint(npplo)=40	 Error(relative)= 2.81413e-11
+Npoint(npplo)=50	 Error(relative)= 1.15786e-11
+Npoint(npplo)=60	 Error(relative)= 5.8169e-12
+Npoint(npplo)=70	 Error(relative)= 3.04825e-12
+Npoint(npplo)=80	 Error(relative)= 1.66193e-12
+Npoint(npplo)=90	 Error(relative)= 8.11624e-13
+Npoint(npplo)=100	 Error(relative)= 9.82849e-13
 P=4
-P=4
-P=4
-P=4
-P=4
-P=4
-P=4
+Npoint(npplo)=10	 Error(relative)= 1.40753e-13
+Npoint(npplo)=20	 Error(relative)= 1.39469e-13
+Npoint(npplo)=30	 Error(relative)= 1.89147e-13
+Npoint(npplo)=40	 Error(relative)= 3.51559e-13
+Npoint(npplo)=50	 Error(relative)= 4.41418e-13
+Npoint(npplo)=60	 Error(relative)= 1.15744e-13
+Npoint(npplo)=70	 Error(relative)= 2.64052e-13
+Npoint(npplo)=80	 Error(relative)= 5.16395e-13
+Npoint(npplo)=90	 Error(relative)= 2.52786e-13
+Npoint(npplo)=100	 Error(relative)= 1.54765e-12
+P=5
+Npoint(npplo)=10	 Error(relative)= 1.54624e-13
+Npoint(npplo)=20	 Error(relative)= 1.73054e-13
+Npoint(npplo)=30	 Error(relative)= 3.04644e-16
+Npoint(npplo)=40	 Error(relative)= 7.78723e-13
+Npoint(npplo)=50	 Error(relative)= 3.04079e-13
+Npoint(npplo)=60	 Error(relative)= 6.57265e-13
+Npoint(npplo)=70	 Error(relative)= 1.0067e-12
+Npoint(npplo)=80	 Error(relative)= 1.19044e-12
+Npoint(npplo)=90	 Error(relative)= 1.70309e-12
+Npoint(npplo)=100	 Error(relative)= 5.95207e-13
