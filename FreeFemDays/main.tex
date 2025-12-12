@@ -369,9 +369,41 @@
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Validation}
-  
+\begin{frame}{Benchmark}
+
+%------------------------------------------
+% Colonne de gauche
+%------------------------------------------
+\begin{minipage}[h]{0.46\textwidth}
+  %\vspace{-1.3cm}
+    \begin{block}{Poisson problem}
+    $\left\{
+        \begin{aligned}
+        -\Delta u &= (5\pi)^2 \sin(5\pi x)\sin(5\pi y) 
+            && \text{in } \Omega=(0,1)^2, \\
+        u &= 0
+            && \text{on }\partial\Omega .
+        \end{aligned}
+    \right.$
+    \end{block}
+    \begin{figure}
+         \centering
+    \includegraphics[width=\textwidth]{convergencePk/solution.pdf}
+    \captionof{figure}{Exact solution}
+
+    \end{figure}
+\end{minipage}
+\hspace{0.1cm}
+%------------------------------------------
+% Colonne de droite
+%------------------------------------------
+\begin{minipage}[h]{0.50\textwidth}
+  \vspace{0.3cm}
+    \includegraphics[width=\textwidth]{convergencePk/Poisson_2DC_sanspente.pdf}
+\end{minipage}
+
 \end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Conclusion}{}
   %\vspace{2cm}

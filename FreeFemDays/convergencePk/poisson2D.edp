@@ -4,12 +4,12 @@ load "Element_P4"
 load"Element_PkLagrange"
 load"qf11to25"
 //load "MUMPS"
-
-func uex=sin(x)*sin(y);
-func f =2*sin(x)*sin(y);
+int cst=5;
+func uex=sin(cst*pi*x)*sin(cst*pi*y);
+func f =2*cst^2*pi^2*sin(cst*pi*x)*sin(cst*pi*y);
 macro Grad(u) [dx(u),dy(u)] // EOM
 NewMacro Verfimacro(Pp,fileArg)
-for (int npplo =10; npplo<=100; npplo+=10){
+for (int npplo =1; npplo<=64; npplo*=2){
     mesh Th = square(npplo,npplo);    // global mesh
     fespace Uh(Th,Pp);
     Uh u,v;
@@ -17,15 +17,14 @@ for (int npplo =10; npplo<=100; npplo+=10){
     solve  pph(u,v) =
     int2d(Th,qforder=25)(Grad(u)'*Grad(v))
     -int2d(Th,qforder=25)(f*v)//;
-        + on(1,2,3,4, u = uex);
+        + on(1,2,3,4, u = 0);
     real Err= abs(sqrt( int2d(Th,qforder=25)(u-uex)^2));
     real ErrR= abs(sqrt( int2d(Th,qforder=25)(uex)^2));
     //Uh ur= real (u);
-    plot (u,fill=1,value=1);
     cout<<"Error= "<<Err/ErrR<<endl;
-    fileArg<<"Npoint(npplo)="<<npplo<<"\t Error(relative)= "<<Err/abs(sqrt( int2d(Th,qforder=25)(f)^2))<<endl;
-
-
+    fileArg<<"Npoint(npplo)="<<npplo<<"\t Error(relative)= "<<Err/ErrR<<endl;
+    if (npplo==64)
+    plot (u,fill=1,value=1,pdf="solution.pdf");
 }
 EndMacro
 
@@ -41,8 +40,18 @@ outfile<<"P="<<3<<endl;
 Verfimacro(P3,outfile)}
 {ofstream outfile("Poisson_2D.txt", append);
 outfile<<"P="<<4<<endl;
-Verfimacro(P4,outfile)}*/
+Verfimacro(P4,outfile)}
 
+{ofstream outfile("Poisson_2D.txt", append);
+outfile<<"P="<<5<<endl;
+Verfimacro(PKLagrange5,outfile)}
+{ofstream outfile("Poisson_2D.txt", append);
+outfile<<"P="<<6<<endl;
+Verfimacro(PKLagrange6,outfile)}
+{ofstream outfile("Poisson_2D.txt", append);*/
+/*{ofstream outfile("Poisson_2D.txt", append);
+outfile<<"P="<<7<<endl;
+Verfimacro(PKLagrange7,outfile)}*/
 {ofstream outfile("Poisson_2D.txt", append);
 outfile<<"P="<<5<<endl;
 Verfimacro(PKLagrange5,outfile)}
