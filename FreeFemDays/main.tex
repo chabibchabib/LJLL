@@ -103,7 +103,9 @@
         \textbf{{\color{colorStruct}Finite element error:}}
         \vspace{3mm}
 
-        $ \lVert {\color{colorVol}p} - {\color{colorVol}p_h}\lVert  _{H^1} \leq C_1(\omega h)^k + C_2\omega^{(k+1)}h^k$
+        %$ \lVert {\color{colorVol}p} - {\color{colorVol}p_h}\lVert  _{H^1} \leq C_1(\omega h)^k + C_2\omega^{(k+1)}h^k$
+        $ \lVert {\color{colorVol}p} - {\color{colorVol}p_h}\lVert  _{H^1} \leq C_\omega h^k\lVert {\color{colorVol}p}\lVert_{H^{k+1}}$
+
       \end{minipage}}
     \hfill
     \begin{minipage}{35mm}
