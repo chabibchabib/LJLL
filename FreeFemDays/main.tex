@@ -224,6 +224,7 @@
         \end{tikzpicture}
       };
   \end{tikzpicture}
+
 }
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -234,22 +235,22 @@
  Argument & Value $P_4$ & Value $P_k$ \\ 
  \hline\\
  \# dof & \texttt{15} & $\displaystyle\frac{(k+1)(k+2)}{2}$ \\  
- Dimension of the function space & \texttt{1} & \texttt{1}  \\
+ Dimension FE & \texttt{1} & \texttt{1}  \\
  Array containing topological information & \texttt{Data} & \texttt{Data}  \\  
  Number of subdivisions for plotting  & \texttt{4} & $k$  \\  
  Number of component sub-finite elements & \texttt{1} & \texttt{1}  \\  
  nombre de dof + dof permutation non sym sur aretes & \texttt{15+6} & cell9  \\  
  Number of interpolation points & \texttt{15} & $\displaystyle\frac{(k+1)(k+2)}{2}$  \\  
- dof dont on a la connaissance avant  & \texttt{0} & \texttt{0}  \\  
+ Interpolation weights array  & \texttt{0} & \texttt{0}  \\  
 
 \end{tabular}
 \end{center}
-\begin{itemize}
-  \item 1: scalar function space(not vector field).
-  \item Data: Numbering and relationship between DOFs and nodes.
-  \item 4: To visualize the element, it's subdivided into $k$ sub-elements.
-  \item The 15 points where functions are evaluated to construct the interpolant.
-\end{itemize}
+% \begin{itemize}
+  % \item 1: scalar function space(not vector field).
+  % \item Data: Numbering and relationship between DOFs and nodes.
+  % \item 4: To visualize the element, it's subdivided into $k$ sub-elements.
+  % \item The 15 points where functions are evaluated to construct the interpolant.
+% \end{itemize}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
