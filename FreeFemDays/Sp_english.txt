@@ -1,0 +1,52 @@
+To motivate the use of arbitrary-order Pk finite elements, let us consider the example of the Helmholtz equation, a fundamental PDE that appears in many domains (acoustics, electromagnetics, seismics). 
+ Convergence for Helmholtz becomes delicate when considering high frequency or near resonance. In this regime, the problem is ill-conditioned and the solution is very sensitive to numerical errors. 
+ I show here an a priori error estimate, where we can see that at fixed frequency w, there are essentially two ways to improve
+  accuracy: either refine the mesh, i.e., decrease h, or increase the polynomial order k of the finite elements. However, increasing the order k offers a much more efficient convergence gain, 
+  potentially exponential. Moreover, mesh refinement is always possible thanks to FreeFem meshers. On the other hand, the use of arbitrary-order finite elements is not always available: in FreeFem, 
+  for example, the polynomial order is limited to 4. It is precisely this observation that motivates the interest and objective of this presentation.
+-------------------------------------------------------------
+To understand how to add new classical Lagrange elements, we drew strong inspiration from existing files corresponding to P3 and P4 elements. Xe took here the exemple of the P4 for example. 
+The FE is implemented as a class inheriting from TPE, which is the base class for finite elements. This class has as attributes the interpolation order k as well as the number 
+ of degrees of freedom associated with the element. A Data array contains several topological information, which we will explain later. The Pi_h_coef array is used to assign weights to integration 
+ points. In the case of Lagrange elements, these weights are equal to 1 at every point; this array is therefore not used. We also have three arrays describing the shape functions associated with the 
+ element, assuming that each shape function at point i is written as... where lambda represents the barycentric coordinates, s are the shifts and ff a normalization factor specific to the element. 
+ Finally, the arrays i, j, k contain the coordinates of the corresponding nodal points. The constructor of the child class begins by calling that of the parent class, whose arguments and role we will 
+ now detail.
+-------------------------------------------------------------
+The constructor of the finite element class takes several arguments, which we explain in this table, also showing how they generalize to a kth-order element. The first argument corresponds to the number 
+of degrees of freedom (DOF). The second is used to designate the dimension of the element, and equals 1 when the element is scalar. The Data array that we have already presented and whose content we will
+ describe subsequently. An argument related to display, namely the number of subdivisions for display which will be equal to k. An argument where we must specify the number of DOF plus the number of DOF 
+ with non-symmetric permutations on the edges, which equals 15+6 for P4 and the number of DOF + 3k-1 if k is odd and 3k-2 otherwise. We must also specify the number of integration points and finally the
+  last argument is a pointer used to specify the weights given to the integration points, and will therefore be null in our case.
+As you can see, the call to the parent class constructor for finite elements is direct and simple, except for the Data array whose content and structure require special attention.
+-------------------------------------------------------------
+We will now show what this array looks like for a P4 element, in order to get an idea of its structure and easily generalize to arbitrary-order elements. The data array contains several pieces of 
+information: first, the topological support number of the DOF node; by default, vertices are numbered 0, 1, 2, edges 3, 4, 5, and internal points 6. The second information to provide is the local 
+number of the DOF in the support; vertex nodes always take 0, and then we see a succession of 0, 1, 2 in this case. The third line [continues similarly]. The fourth line is used to specify the number 
+of the finite element from which the DOF originates; in our case it is 0. Next, we specify the DOF number in the sub-elements. Subsequently, for each vector component, we specify which sub-FE to use.
+We then provide the number of the first degree of freedom, as well as their total number.
+-------------------------------------------------------------
+Once the topological information is complete, we move on to the arrays containing information about the shape functions. The objective here is to construct generic formulas capable of providing 
+shape functions for any polynomial order. To show you how such a formula can be derived, we propose the example of a P6 finite element. Consider a node defined by its barycentric coordinates i, j, k
+ where i+j+k=6. We begin by eliminating nodes located on edges for which the barycentric coordinate lambda0 is less than i. Once this step is completed, we proceed in the same manner for lambda1 and 
+ lambda2. We then multiply by the normalization factor i!j!k! to obtain the normalized shape function. The implementation remains simple and has been encapsulated in the function we present here... 
+ I have shown here the loop corresponding to lambda0.
+-------------------------------------------------------------
+Once these attributes are filled, we have all the necessary elements to define our TypeOfFE_Lagrange class which inherits from the TypeOfFE class. The size of its attributes depends on the 
+interpolation order and will be initialized dynamically on the fly. It now remains to interface this class so that it can be used in the DSL. To do this, we will declare a static object and add it 
+to the list of known finite elements using the AddNewFE operator.
+-------------------------------------------------------------
+Our finite element is now ready for use. However, one problem remains: integration becomes increasingly complex as the polynomial order increases. In FreeFem, the maximum degree of polynomials that 
+can be integrated is limited to 25, which fully justifies the interest in proposing generic integration formulas to handle higher orders. We then became interested in Grundmann-Moller
+ integration formulas, which propose a "magic" integration formula presented here, capable of adapting to any polynomial degree d and any dimension n. This method has both advantages and disadvantages. 
+ Some aspects require caution: the weights are not always positive, the coefficients are expressed in terms of factorials and powers, which can easily lead to numerical instabilities. One must therefore 
+ be vigilant when using this quadrature formula for high orders.
+-------------------------------------------------------------
+To validate our implementation, we tested a reference case: 2D Poisson with Dirichlet boundary conditions. In this figure, we show the exact solution, while in this one, we represent the relative error 
+in L2 norm as a function of the number of points and for different orders. We observe that the error decreases when the order increases, but beyond a certain order, such as P5, we reach machine precision.
+ In this case, higher orders may give less accurate results, which can be explained by numerical instability problems related, for example, to the conditioning of the matrix.
+-------------------------------------------------------------
+To conclude this presentation, we summarize the essential points. We have designed a generic 2D PK element, directly inspired by already existing elements. We then developed the associated quadrature 
+formulas to make this element operational, but these require special attention, as they are not always perfectly accurate. For the future, several directions remain to be explored: first, a more 
+rigorous verification of convergence; next, the management of numerical instabilities in quadrature formulas; and finally, the extension of this approach to 3D Lagrange elements, which would open the 
+way to more complex simulations.
