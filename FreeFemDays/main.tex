@@ -202,10 +202,10 @@
       \end{tikzpicture}
       };
 
-      \node at (current page.north west) [xshift=9cm, yshift=-3.15cm] {
+      \node at (current page.north west) [xshift=9.2cm, yshift=-3.15cm] {
       \begin{tikzpicture}
           \draw[color=blue][->, thick] (0,0) -- (1,0) ;
-          \node at (3.9,0) {\textcolor{blue}{Interpolation weights Not needed for Lagrange}};
+          \node at (4.3,0) {\textcolor{blue}{Used to construct normal Not needed for Lagrange}};
       \end{tikzpicture}
       };
 
@@ -248,7 +248,7 @@
  Number of component sub-finite elements & \texttt{1} & \texttt{1}  \\  
  \# dof+ non-symmetric permutation of dofs on edges & \texttt{15+6} & \# dof+ $3\times ( (k \% 2) ? (k- 1) : (k - 2)) $  \\  
  Number of interpolation points & \texttt{15} & $\displaystyle\frac{(k+1)(k+2)}{2}$  \\  
- Interpolation weights array  & \texttt{0} & \texttt{0}  \\  
+ Normal components array  & \texttt{0} & \texttt{0}  \\  
 
 \end{tabular}
 \end{center}
@@ -425,6 +425,7 @@
       \item Analysis of the existing 2D  Lagrange finite elements
       \item Design of a generic 2D $P_k$  element inspired by existing elements
       \item Development of associated quadrature formulas
+      \item Online documentation on how to add a FE: https://www.ljll.fr/hecht/ftp/old/freefem/old/manual-full.pdf
     \end{itemize}
     \item \textcolor{blue}{\Large\textbf{\underline{Outlooks:}}}
       \begin{itemize}[label=$\square$,itemsep=1em]
