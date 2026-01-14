@@ -84,3 +84,11 @@ Npoint(npplo)=8	 Error(relative)= 1.12974e-06
 Npoint(npplo)=16	 Error(relative)= 7.11811e-08
 Npoint(npplo)=32	 Error(relative)= 3.6858e-10
 Npoint(npplo)=64	 Error(relative)= 3.51777e-14
+P=6
+Npoint(npplo)=1	 Error(relative)= 0.510162
+Npoint(npplo)=2	 Error(relative)= 0.0267086
+Npoint(npplo)=4	 Error(relative)= 0.000143357
+Npoint(npplo)=8	 Error(relative)= 1.32049e-06
+Npoint(npplo)=16	 Error(relative)= 2.1686e-09
+Npoint(npplo)=32	 Error(relative)= 1.79064e-12
+Npoint(npplo)=64	 Error(relative)= 1.08177e-12

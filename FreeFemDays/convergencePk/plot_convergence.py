@@ -70,5 +70,5 @@ plt.title("Relative Error")
 
 plt.xlabel("Nbr of points")
 plt.ylabel("Relative Error")
-plt.savefig("Poisson_2DC_sanspente.pdf",format="pdf")
+#plt.savefig("Poisson_2DC_sanspente.pdf",format="pdf")
 plt.show()

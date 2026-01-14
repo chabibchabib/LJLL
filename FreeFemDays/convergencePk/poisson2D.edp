@@ -14,7 +14,7 @@ for (int npplo =1; npplo<=64; npplo*=2){
     fespace Uh(Th,Pp);
     Uh u,v;
     // Formulation Var
-    solve  pph(u,v) =
+    solve  pph(u,v,solver=sparsesolver) =
     int2d(Th,qforder=25)(Grad(u)'*Grad(v))
     -int2d(Th,qforder=25)(f*v)//;
         + on(1,2,3,4, u = 0);
@@ -24,7 +24,8 @@ for (int npplo =1; npplo<=64; npplo*=2){
     cout<<"Error= "<<Err/ErrR<<endl;
     fileArg<<"Npoint(npplo)="<<npplo<<"\t Error(relative)= "<<Err/ErrR<<endl;
     if (npplo==64)
-    plot (u,fill=1,value=1,pdf="solution.pdf");
+    //plot (u,fill=1,value=1,pdf="solution.pdf");
+    plot (u,fill=1,value=1);
 }
 EndMacro
 
@@ -53,5 +54,5 @@ Verfimacro(PKLagrange6,outfile)}
 outfile<<"P="<<7<<endl;
 Verfimacro(PKLagrange7,outfile)}*/
 {ofstream outfile("Poisson_2D.txt", append);
-outfile<<"P="<<5<<endl;
-Verfimacro(PKLagrange5,outfile)}
+outfile<<"P="<<6<<endl;
+Verfimacro(PKLagrange6,outfile)}

@@ -68,7 +68,7 @@
 %Straight Lines [id:da6690519736816598]
 % Text Node
 \draw (90,219.4) node [anchor=north west][inner sep=0.75pt]    {$(\textcolor[rgb]{1,0.04,0.04}{i} ,\textcolor[rgb]{0.25,0.46,0.02}{j} ,\textcolor[rgb]{0.29,0.56,0.89}{k})$};
-\draw (122,340) node [anchor=north west][inner sep=0.75pt]    {$\textcolor[rgb]{1,0.04,0.04}{i} +\textcolor[rgb]{0.29,0.56,0.89}{j} +\textcolor[rgb]{0.25,0.46,0.02}{k} =6$};
+\draw (122,340) node [anchor=north west][inner sep=0.75pt]    {$\textcolor[rgb]{1,0.04,0.04}{i} +\textcolor[rgb]{0.25,0.46,0.02}{j} +\textcolor[rgb]{0.29,0.56,0.89}{k} =6$};
 
 
 \uncover<2,5>{
