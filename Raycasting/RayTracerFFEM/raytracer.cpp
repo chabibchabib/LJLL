@@ -21,7 +21,7 @@ struct ray {
     R2 dir={0,0};
     ray(R2 O, R2 D){
         origin[0]=O[0];
-        origin[0]=O[1];
+        origin[1]=O[1];
         dir[0]=D[0];
         dir[1]=D[1];
     }
@@ -70,22 +70,36 @@ long RayTracer(Fem2D::Mesh const *const &pTh, const long & itt,  KN<R> *const &R
     //HitsRay = 0; // Initialise tout à zéro
     static int count = 0;
     static R ddtp = 0;
-    double dt= 1000;
+    double dt= 2;
     R ddt = dt;
     ddtp = ddt;
     R l[3];
-    int k = 0;
-    int j;
-    while ((j = WalkInTriangle(pTh[it], it, l, Ray.dir[0], Ray.dir[1], dt)) >= 0) { // Dans la fct originale  u v sont maj grace à la ligne mpc.change
-        cout<<"j="<<j<<" (j + 1) % 3="<<(j + 1) % 3<<" (j + 2) % 3="<<(j + 2) % 3<<" itt="<<itt<<endl;
+    l[1]=Ray.origin[0]  ;
+    l[2]=Ray.origin[1]  ;
+    l[0]=1-l[1]-l[2]  ;
 
-        // MAJ origin ray
-        Ray.origin[0]=l[1];
-        Ray.origin[1]=l[2];
+    cout<<"Ray=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;
+    cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;
+    int k = 0;
+    int j=0;
+    while (j >= 0) { 
+        /*cout<<"Iteration next, triangle= "<<it<<" k="<<k<<endl;
+        cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;*/
+        j = WalkInTriangle(*pTh, it, l, Ray.dir[0], Ray.dir[1], dt);
+
+        const Triangle & T = (*pTh)[it];
+        const R2 Q[3]={(const R2) T[0],(const R2) T[1],(const R2) T[2]};
+        Ray.origin= l[0]*Q[0]  + l[1]*Q[1]  + l[2]*Q[2];
+        /*cout<<"Q=("<<Q[0][0]<<","<<Q[0][1]<<"),("<<Q[1][0]<<","<<Q[1][1]<<"),("<<Q[2][0]<<","<<Q[2][1]<<")"<<endl;
+
+        cout<<"j="<<j<<" (j + 1) % 3="<<(j + 1) % 3<<" (j + 2) % 3="<<(j + 2) % 3<<" itt="<<itt<<endl;
+        cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;
+        cout<<"Ray=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;*/
+
         ffassert(l[j] == 0);
         // int jj  = j;
         R a = l[(j + 1) % 3], b = l[(j + 2) % 3];
-        int itt = pTh[it].ElementAdj(it, j);
+        int itt = (*pTh).ElementAdj(it, j);
         if (itt == it || itt < 0)
             break; // le bord
         // Reflection si bord: update Ray (To do ajout d'une condition de reflection)
@@ -97,11 +111,12 @@ long RayTracer(Fem2D::Mesh const *const &pTh, const long & itt,  KN<R> *const &R
         l[j] = 0;
         l[(j + 1) % 3] = b;
         l[(j + 2) % 3] = a;
-
-        /*if (k++ > 1000) {
+        //k=k+1;
+        if (++k > 100) {
+            break;
             cerr << "Fatal  error  in RayTracer (R2) operator: loop  => velocity too high ???? or NaN "<< endl;
             ffassert(0);
-        }*/
+        }
     }
 
     return 1;
