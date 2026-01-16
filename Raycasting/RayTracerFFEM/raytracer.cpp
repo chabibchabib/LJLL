@@ -69,44 +69,42 @@ long RayTracer(Fem2D::Mesh const *const &pTh, const long & itt,  KN<R> *const &R
     ray Ray(R2((*RayRef)[0],(*RayRef)[1]),R2((*RayRef)[2],(*RayRef)[3]));
     //HitsRay = 0; // Initialise tout à zéro
     static int count = 0;
-    static R ddtp = 0;
     double dt= 2;
-    R ddt = dt;
-    ddtp = ddt;
     R l[3];
     l[1]=Ray.origin[0]  ;
     l[2]=Ray.origin[1]  ;
     l[0]=1-l[1]-l[2]  ;
+    if(abs(l[0]+l[1]+l[2]-1)> 1e-12) {cout<<"coord baryc erronee"<<endl; exit(0);}
 
     cout<<"Ray=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;
     cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;
     int k = 0;
     int j=0;
     while (j >= 0) { 
-        /*cout<<"Iteration next, triangle= "<<it<<" k="<<k<<endl;
-        cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;*/
+        //cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;
         j = WalkInTriangle(*pTh, it, l, Ray.dir[0], Ray.dir[1], dt);
 
         const Triangle & T = (*pTh)[it];
         const R2 Q[3]={(const R2) T[0],(const R2) T[1],(const R2) T[2]};
         Ray.origin= l[0]*Q[0]  + l[1]*Q[1]  + l[2]*Q[2];
-        /*cout<<"Q=("<<Q[0][0]<<","<<Q[0][1]<<"),("<<Q[1][0]<<","<<Q[1][1]<<"),("<<Q[2][0]<<","<<Q[2][1]<<")"<<endl;
-
+        cout<<"\t triangle= "<<it<<" k="<<k<<endl;
+        cout<<"Q=("<<Q[0][0]<<","<<Q[0][1]<<"),("<<Q[1][0]<<","<<Q[1][1]<<"),("<<Q[2][0]<<","<<Q[2][1]<<")"<<endl;
         cout<<"j="<<j<<" (j + 1) % 3="<<(j + 1) % 3<<" (j + 2) % 3="<<(j + 2) % 3<<" itt="<<itt<<endl;
         cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;
-        cout<<"Ray=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;*/
+        cout<<"Ray=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;
 
         ffassert(l[j] == 0);
         // int jj  = j;
         R a = l[(j + 1) % 3], b = l[(j + 2) % 3];
+        // MAJ mapping HitsRay
+        (*HitsRay)[it]=(*HitsRay)[it]+1;
+
         int itt = (*pTh).ElementAdj(it, j);
         if (itt == it || itt < 0)
             break; // le bord
         // Reflection si bord: update Ray (To do ajout d'une condition de reflection)
         //vector<REAL> normale= normalVector( j,*(mpc.T));
-        //reflection(Ray, normale);
-        // MAJ mapping HitsRay
-        HitsRay[it]+=1; 
+        //reflection(Ray, normale); 
         it = itt;
         l[j] = 0;
         l[(j + 1) % 3] = b;
