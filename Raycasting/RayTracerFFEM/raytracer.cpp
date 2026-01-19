@@ -72,12 +72,12 @@ long RayTracer(Fem2D::Mesh const *const &pTh, const long & itt,  KN<R> *const &R
     ray Ray(R2((*RayRef)[0],(*RayRef)[1]),R2((*RayRef)[2],(*RayRef)[3]));
     //HitsRay = 0; // Initialise tout à zéro
     static int count = 0;
-    double dt= 2;
+    double dt= 200;
     R l[3];
     l[1]=Ray.origin[0]  ;
     l[2]=Ray.origin[1]  ;
     l[0]=1-l[1]-l[2]  ;
-    if((l[1]< 1e-12)  || (l[1]>1.) || (l[2]< 1e-12) || (l[2]> 1.) ) {cout<<"coord baryc erronee"<<endl; exit(0);}
+    //if((l[1]< 1e-12)  || (l[1]>1.) || (l[2]< 1e-12) || (l[2]> 1.) || l[1] +l[2]>1. ) {cout<<"coord baryc erronee"<<endl; exit(0);}
 
     cout<<"Ray=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;
     cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;
@@ -91,18 +91,27 @@ long RayTracer(Fem2D::Mesh const *const &pTh, const long & itt,  KN<R> *const &R
         const Triangle & T = (*pTh)[it];
         const R2 Q[3]={(const R2) T[0],(const R2) T[1],(const R2) T[2]};
         Ray.origin= l[0]*Q[0]  + l[1]*Q[1]  + l[2]*Q[2];
-        
+        /*Ray.origin[0] = l[1];
+        Ray.origin[1] = l[2];*/
+
         // Reflect 
         //if((Ray.origin[0]>= 0.25 && Ray.origin[0]<= 0.75) || (Ray.origin[1]>= 0.25 && Ray.origin[1]<= 0.75)){
-        if(Ray.origin[1]== 1 ){
-        //if (0){
+        if(abs(Ray.origin[1])<1e-8 || abs(Ray.origin[1]-1)<1e-8 ){
+            (*HitsRay)[it]=(*HitsRay)[it]+1;
             cout<<"Im on borders\n";
             normale=normalVector( j,T);
-            cout<<" Normale sur triangle="<<it<<" Edge= "<<j<<" Normale= "<<normale[0]<<" , "<<normale[1]<<endl;
+            cout<<"Normale sur triangle="<<it<<" Edge= "<<j<<" Normale= "<<normale[0]<<" , "<<normale[1]<<endl;
             cout<<"Ray before=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;
             
             reflection(Ray, normale);
             cout<<"Ray after=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;
+            Ray.origin=Ray.origin+ Ray.dir * 1e-9;
+            /*R2 V0 = (R2)T[0], V1 = (R2)T[1], V2 = (R2)T[2];
+                
+                double det = (V1.y - V2.y) * (V0.x - V2.x) + (V2.x - V1.x) * (V0.y - V2.y);
+                l[0] = ((V1.y - V2.y) * (Ray.origin.x - V2.x) + (V2.x - V1.x) * (Ray.origin.y - V2.y)) / det;
+                l[1] = ((V2.y - V0.y) * (Ray.origin.x - V2.x) + (V0.x - V2.x) * (Ray.origin.y - V2.y)) / det;
+                l[2] = 1.0 - l[0] - l[1];*/
             continue;
 
         }
@@ -122,9 +131,6 @@ long RayTracer(Fem2D::Mesh const *const &pTh, const long & itt,  KN<R> *const &R
         int itt = (*pTh).ElementAdj(it, j);
         if (itt == it || itt < 0)
             break; // le bord
-        // Reflection si bord: update Ray (To do ajout d'une condition de reflection)
-        //vector<REAL> normale= normalVector( j,*(mpc.T));
-        //reflection(Ray, normale); 
         it = itt;
         l[j] = 0;
         l[(j + 1) % 3] = b;
