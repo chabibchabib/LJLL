@@ -51,6 +51,7 @@ R2 normalVector(int j,const Triangle &T){
 }*/
 
 void reflection(ray &r, R2 &normale){
+    cout<<"inside reflection fct\n";
         R ddotn=(r.dir[0]*normale[0] +r.dir[1]*normale[1]);
         if ( ddotn> 0.0) {
             normale[0] = -normale[0];
@@ -62,10 +63,12 @@ void reflection(ray &r, R2 &normale){
         R norm = sqrt(r.dir[0] * r.dir[0] + r.dir[1] * r.dir[1]);
         r.dir[0]/=norm;
         r.dir[1]/=norm;
+        cout<<"values ray "<<r.dir[0]<<" "<<r.dir[1]<<" values normale "<<normale[0]<<" "<<normale[1]<<endl;
     }
 
 long RayTracer(Fem2D::Mesh const *const &pTh, const long & itt,  KN<R> *const &RayRef, KN<long> * const &HitsRay)  {
     int it=itt;
+    R2 normale;
     ray Ray(R2((*RayRef)[0],(*RayRef)[1]),R2((*RayRef)[2],(*RayRef)[3]));
     //HitsRay = 0; // Initialise tout à zéro
     static int count = 0;
@@ -74,20 +77,37 @@ long RayTracer(Fem2D::Mesh const *const &pTh, const long & itt,  KN<R> *const &R
     l[1]=Ray.origin[0]  ;
     l[2]=Ray.origin[1]  ;
     l[0]=1-l[1]-l[2]  ;
-    if(abs(l[0]+l[1]+l[2]-1)> 1e-12) {cout<<"coord baryc erronee"<<endl; exit(0);}
+    if((l[1]< 1e-12)  || (l[1]>1.) || (l[2]< 1e-12) || (l[2]> 1.) ) {cout<<"coord baryc erronee"<<endl; exit(0);}
 
     cout<<"Ray=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;
     cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;
     int k = 0;
     int j=0;
     while (j >= 0) { 
+        cout<<"\t triangle= "<<it<<" k="<<k<<endl;
         //cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;
         j = WalkInTriangle(*pTh, it, l, Ray.dir[0], Ray.dir[1], dt);
 
         const Triangle & T = (*pTh)[it];
         const R2 Q[3]={(const R2) T[0],(const R2) T[1],(const R2) T[2]};
         Ray.origin= l[0]*Q[0]  + l[1]*Q[1]  + l[2]*Q[2];
-        cout<<"\t triangle= "<<it<<" k="<<k<<endl;
+        
+        // Reflect 
+        //if((Ray.origin[0]>= 0.25 && Ray.origin[0]<= 0.75) || (Ray.origin[1]>= 0.25 && Ray.origin[1]<= 0.75)){
+        if(Ray.origin[1]== 1 ){
+        //if (0){
+            cout<<"Im on borders\n";
+            normale=normalVector( j,T);
+            cout<<" Normale sur triangle="<<it<<" Edge= "<<j<<" Normale= "<<normale[0]<<" , "<<normale[1]<<endl;
+            cout<<"Ray before=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;
+            
+            reflection(Ray, normale);
+            cout<<"Ray after=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;
+            continue;
+
+        }
+
+
         cout<<"Q=("<<Q[0][0]<<","<<Q[0][1]<<"),("<<Q[1][0]<<","<<Q[1][1]<<"),("<<Q[2][0]<<","<<Q[2][1]<<")"<<endl;
         cout<<"j="<<j<<" (j + 1) % 3="<<(j + 1) % 3<<" (j + 2) % 3="<<(j + 2) % 3<<" itt="<<itt<<endl;
         cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;
@@ -109,12 +129,13 @@ long RayTracer(Fem2D::Mesh const *const &pTh, const long & itt,  KN<R> *const &R
         l[j] = 0;
         l[(j + 1) % 3] = b;
         l[(j + 2) % 3] = a;
+
         //k=k+1;
         if (++k > 100) {
+            cerr << "Trapping zone "<< endl;
             break;
-            cerr << "Fatal  error  in RayTracer (R2) operator: loop  => velocity too high ???? or NaN "<< endl;
-            ffassert(0);
         }
+
     }
 
     return 1;
