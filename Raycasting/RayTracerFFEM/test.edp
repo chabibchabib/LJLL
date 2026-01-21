@@ -1,5 +1,5 @@
 load"raytracer"
-mesh Th = square(1, 1);
+mesh Th = square(2, 2);
 //MeshArgs(Th);
 int nbTriangles = Th.nt;
 int[int]  tab(nbTriangles);
@@ -11,8 +11,11 @@ RayRef[1]=1./3;
 RayRef[2]=1;
 RayRef[3]=1.;
 int tt=0;
-tt= RayTracer(Th,it, RayRef,tab);
+//tt= RayTracer(Th,it, RayRef,tab);
 //plot(Th);
 //cout<<"TT="<<tt<<endl;
+cout<<endl;
+int nbrray = 2;
+tt= MeshRayTracer(Th, nbrray,tab);
 for (int i=0;i<nbTriangles;i++) cout<<" tab["<<i<<"]="<<tab[i]<<" ";
 cout<<endl;

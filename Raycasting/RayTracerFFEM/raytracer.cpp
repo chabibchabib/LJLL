@@ -147,12 +147,35 @@ long RayTracer(Fem2D::Mesh const *const &pTh, const long & itt,  KN<R> *const &R
     return 1;
 }
 
+inline R2 DiscretizeCercleAngle(R k, R n){
+    ffassert(k<n && k>=0);
+    R coef=2*k/(n-1)*Pi;
+    return R2(cos(coef),sin(coef));
+}
+
+long MeshRayTracer(Fem2D::Mesh const *const &pTh,  const long & NbrRays, KN<long> * const &HitsRay)  {
+    for (int it =0; it<pTh->nt;it++) { // parallelisable
+        for (int k=0;k<NbrRays;k++){ // Parallelisable
+            R2 Dir=DiscretizeCercleAngle( k, NbrRays); 
+            //ray Ray(R2(1/3,1/3),Dir);
+             KN<R> Ray(4);
+            Ray[0]=1./3;
+            Ray[1]=1./3;
+            Ray[2]=Dir[0];
+            Ray[3]=Dir[1];
+
+            RayTracer(pTh,it,  &Ray, HitsRay); // /!\ condition race
+        }
+    }
+    return 1;
+}
 static void Load_Init( ) {    // le constructeur qui ajoute la fonction "raytracer"  a freefem++
   if (verbosity) {
     cout << " load: raytracer  " << endl;
   }
 
   Global.Add("RayTracer", "(", new OneOperator4_< long, pmesh, long,  KN<R>*, KN<long>* >(RayTracer));
+  Global.Add("MeshRayTracer", "(", new OneOperator3_< long, pmesh, long, KN<long>* >(MeshRayTracer));
 
     cout<<"END load: raytracer"<<endl;
 }
