@@ -12,7 +12,7 @@
 #include "fem.hpp"
 #include "ff++.hpp"
 #include "AFunction_ext.hpp" // Extension of "AFunction.hpp" to deal with more than 3 parameters function
-
+#include<omp.h>
 
 using namespace std;
 
@@ -51,19 +51,21 @@ R2 normalVector(int j,const Triangle &T){
 }*/
 
 void reflection(ray &r, R2 &normale){
-    cout<<"inside reflection fct\n";
-        R ddotn=(r.dir[0]*normale[0] +r.dir[1]*normale[1]);
-        if ( ddotn> 0.0) {
-            normale[0] = -normale[0];
-            normale[1] = -normale[1];
-            ddotn*=-1;
-        }
-        r.dir[0]-=2*ddotn*normale[0];
-        r.dir[1]-=2*ddotn*normale[1];
-        R norm = sqrt(r.dir[0] * r.dir[0] + r.dir[1] * r.dir[1]);
-        r.dir[0]/=norm;
-        r.dir[1]/=norm;
-        cout<<"values ray "<<r.dir[0]<<" "<<r.dir[1]<<" values normale "<<normale[0]<<" "<<normale[1]<<endl;
+    //cout<<"inside reflection fct\n";
+    R ddotn=(r.dir[0]*normale[0] +r.dir[1]*normale[1]);
+    if ( ddotn> 0.0) {
+        normale[0] = -normale[0];
+        normale[1] = -normale[1];
+        ddotn*=-1;
+    }
+    r.dir[0]-=2*ddotn*normale[0];
+    r.dir[1]-=2*ddotn*normale[1];
+    R norm = sqrt(r.dir[0] * r.dir[0] + r.dir[1] * r.dir[1]);
+    r.dir[0]/=norm;
+    r.dir[1]/=norm;
+    //cout<<"values ray "<<r.dir[0]<<" "<<r.dir[1]<<" values normale "<<normale[0]<<" "<<normale[1]<<endl;
+    ffassert(r.dir[0] || r.dir[1] );
+
     }
 
 long RayTracer(Fem2D::Mesh const *const &pTh, const long & itt,  KN<R> *const &RayRef, KN<long> * const &HitsRay)  {
@@ -79,13 +81,13 @@ long RayTracer(Fem2D::Mesh const *const &pTh, const long & itt,  KN<R> *const &R
     l[0]=1-l[1]-l[2]  ;
     //if((l[1]< 1e-12)  || (l[1]>1.) || (l[2]< 1e-12) || (l[2]> 1.) || l[1] +l[2]>1. ) {cout<<"coord baryc erronee"<<endl; exit(0);}
 
-    cout<<"Ray=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;
-    cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;
+    /*cout<<"Ray=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;
+    cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;*/
     int k = 0;
     int j=0;
     while (j >= 0) { 
-        cout<<"\t triangle= "<<it<<" k="<<k<<endl;
-        //cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;
+        /*cout<<"\t triangle= "<<it<<" k="<<k<<endl;
+        cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;*/
         j = WalkInTriangle(*pTh, it, l, Ray.dir[0], Ray.dir[1], dt);
 
         const Triangle & T = (*pTh)[it];
@@ -96,37 +98,35 @@ long RayTracer(Fem2D::Mesh const *const &pTh, const long & itt,  KN<R> *const &R
 
         // Reflect 
         //if((Ray.origin[0]>= 0.25 && Ray.origin[0]<= 0.75) || (Ray.origin[1]>= 0.25 && Ray.origin[1]<= 0.75)){
-        if(abs(Ray.origin[1])<1e-8 || abs(Ray.origin[1]-1)<1e-8 ){
+        if((abs(Ray.origin[1])<1e-8 || abs(Ray.origin[1]-1)<1e-8) && ( abs(Ray.origin[0])<0.5) ){
+        //if(0){
+            #pragma omp atomic update
             (*HitsRay)[it]=(*HitsRay)[it]+1;
-            cout<<"Im on borders\n";
+            //out<<"Im on borders\n";
             normale=normalVector( j,T);
-            cout<<"Normale sur triangle="<<it<<" Edge= "<<j<<" Normale= "<<normale[0]<<" , "<<normale[1]<<endl;
-            cout<<"Ray before=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;
+            /*ccout<<"Normale sur triangle="<<it<<" Edge= "<<j<<" Normale= "<<normale[0]<<" , "<<normale[1]<<endl;
+            cout<<"Ray before=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;*/
             
             reflection(Ray, normale);
-            cout<<"Ray after=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;
+            //cout<<"Ray after=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;
             Ray.origin=Ray.origin+ Ray.dir * 1e-9;
-            /*R2 V0 = (R2)T[0], V1 = (R2)T[1], V2 = (R2)T[2];
-                
-                double det = (V1.y - V2.y) * (V0.x - V2.x) + (V2.x - V1.x) * (V0.y - V2.y);
-                l[0] = ((V1.y - V2.y) * (Ray.origin.x - V2.x) + (V2.x - V1.x) * (Ray.origin.y - V2.y)) / det;
-                l[1] = ((V2.y - V0.y) * (Ray.origin.x - V2.x) + (V0.x - V2.x) * (Ray.origin.y - V2.y)) / det;
-                l[2] = 1.0 - l[0] - l[1];*/
+
             continue;
 
         }
 
 
-        cout<<"Q=("<<Q[0][0]<<","<<Q[0][1]<<"),("<<Q[1][0]<<","<<Q[1][1]<<"),("<<Q[2][0]<<","<<Q[2][1]<<")"<<endl;
+        /*cout<<"Q=("<<Q[0][0]<<","<<Q[0][1]<<"),("<<Q[1][0]<<","<<Q[1][1]<<"),("<<Q[2][0]<<","<<Q[2][1]<<")"<<endl;
         cout<<"j="<<j<<" (j + 1) % 3="<<(j + 1) % 3<<" (j + 2) % 3="<<(j + 2) % 3<<" itt="<<itt<<endl;
         cout<<"l=("<<l[0]<<","<<l[1]<<" ,"<<l[2]<<")"<<endl;
         cout<<"Ray=("<<Ray.origin[0]<<","<<Ray.origin[1]<<" ),("<<Ray.dir[0]<<","<<Ray.dir[1]<<")"<<endl;
-
-        ffassert(l[j] == 0);
+        cout<<"DT="<<dt<<endl;*/
+        dt=100;
+        ffassert(abs(l[j])<1e-10);
         // int jj  = j;
         R a = l[(j + 1) % 3], b = l[(j + 2) % 3];
         // MAJ mapping HitsRay
-        (*HitsRay)[it]=(*HitsRay)[it]+1;
+
 
         int itt = (*pTh).ElementAdj(it, j);
         if (itt == it || itt < 0)
@@ -135,9 +135,10 @@ long RayTracer(Fem2D::Mesh const *const &pTh, const long & itt,  KN<R> *const &R
         l[j] = 0;
         l[(j + 1) % 3] = b;
         l[(j + 2) % 3] = a;
-
+        #pragma omp atomic update
+        (*HitsRay)[it]=(*HitsRay)[it]+1;
         //k=k+1;
-        if (++k > 100) {
+        if (++k > 10000) {
             cerr << "Trapping zone "<< endl;
             break;
         }
@@ -148,22 +149,22 @@ long RayTracer(Fem2D::Mesh const *const &pTh, const long & itt,  KN<R> *const &R
 }
 
 inline R2 DiscretizeCercleAngle(R k, R n){
-    ffassert(k<n && k>=0);
-    R coef=2*k/(n-1)*Pi;
+    ffassert(abs(k)<=n);
+    R coef=k/(n)*Pi;
     return R2(cos(coef),sin(coef));
 }
 
 long MeshRayTracer(Fem2D::Mesh const *const &pTh,  const long & NbrRays, KN<long> * const &HitsRay)  {
+    #pragma omp parallel for num_threads(8)
     for (int it =0; it<pTh->nt;it++) { // parallelisable
-        for (int k=0;k<NbrRays;k++){ // Parallelisable
-            R2 Dir=DiscretizeCercleAngle( k, NbrRays); 
-            //ray Ray(R2(1/3,1/3),Dir);
-             KN<R> Ray(4);
+            cout<<"Num threads="<<omp_get_num_threads()<<endl;
+        for (int angle= -(NbrRays-1);angle<=NbrRays;angle++){ // Parallelisable
+            R2 Dir=DiscretizeCercleAngle( angle, NbrRays); 
+            KN<R> Ray(4);
             Ray[0]=1./3;
             Ray[1]=1./3;
             Ray[2]=Dir[0];
             Ray[3]=Dir[1];
-
             RayTracer(pTh,it,  &Ray, HitsRay); // /!\ condition race
         }
     }
