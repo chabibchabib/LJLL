@@ -1,24 +1,669 @@
-load"raytracer"
-mesh Th = square(10, 10);
-//MeshArgs(Th);
-fespace Ph(Th,P0);
-Ph tabh; 
-int nbTriangles = Th.nt;
-int[int]  tab(nbTriangles);
-for (int i=0;i<nbTriangles;i++) tab[i]=0;
-int it=0;
-real[int]  RayRef(4);
-RayRef[0]=1./3; 
-RayRef[1]=1./3;
-RayRef[2]=1;
-RayRef[3]=1.;
-int tt=0;
-//tt= RayTracer(Th,it, RayRef,tab);
-//plot(Th);
-//cout<<"TT="<<tt<<endl;
-cout<<endl;
-int nbrrays = 50; // lance 2*Nbrrays
-tt= MeshRayTracer(Th, nbrrays,tab);
-for (int i=0;i<nbTriangles;i++){tabh[][i]=tab[i];}// cout<<" tab["<<i<<"]="<<tab[i]<<" ";
-plot(tabh,fill=1,value=1);
-cout<<endl;
+// NBPROC 8 
+// PARAM  -raspart -ffddm_overlap 1 -nppwl 5 -waven 10  -ns -wg
+int bplot = 0;
+mesh Tha = square(1,1);
+fespace Uha(Tha,P1);
+Uha<complex> ref, usupp;
+
+real alpha = 6.2;
+//real beta = 0.6/0.3;
+real beta = 0.6/0.6;
+int rhscst=100;
+load "qf11to25"
+load "Element_P3"
+load "Element_P4"
+load "gsl"
+load "iovtk"
+load "mpi-cmaes"
+load"raycaster"
+load"Element_PkLagrange"
+int qorder = 13;
+
+macro dimension 2// EOM
+include "ffddm.idp"
+
+ffddmprecond = "oras";
+
+macro def(i)i// EOM // scalar field definition
+macro init(i)i// EOM // scalar field initialization
+
+real waven = getARGV("-waven",40.);
+real lpmlgparam = getARGV("-L",1);
+real lpmlg = lpmlgparam;
+real freq = waven/2/pi;//getARGV("-frequency",10.); // frequency
+int nppwl = getARGV("-nppwl",20); // number of points per wavelength
+load "msh3"
+load "geophysics"
+
+int Dirichlet = 1;
+int Robin = 2;
+int Neumann = 7;
+int PML = 8;
+int bgamma = 12;
+int bnull = 13;
+real c0 = 1.;
+/*func Pk = P4;
+int pkorder=4;*/
+func Pk = P3;
+int pkorder=3;
+
+int traporder=2;
+func real[int] QuasiOptimality(int k, int p, int traporder)
+{
+    real[int] hsteps(4);
+    hsteps[0] = k^(-(1+real(traporder)/p));
+    hsteps[1] = k^( -(1+(traporder+1.)/(2*p)));
+    hsteps[2] = k^(-(1+1./p));
+    hsteps[3] = 1./k;
+    return hsteps;
+};
+
+int[int] lab = [bgamma,bgamma,bgamma,bgamma];
+real length = 1;
+func c  = c0;
+real xs = 0.5;
+real ys = 0.5;
+int RBC=376;
+int ABC=12; 
+real lambda = c0/freq;
+
+mesh Th;
+mesh Thref;
+mesh ThC;
+
+fespace Uh(Th,Pk);
+fespace Uhs(Thref,Pk);
+fespace Uhc(ThC,Pk);
+
+real err = 0;
+real nloc = nppwl/ffddmsplit*length/lambda;
+
+int nx = rint(nloc);
+int ny = rint(nloc);
+nx += nx%2;
+ny += ny%2;
+
+real k0 = 2*pi*freq/c0;
+func k = 2*pi*freq;
+
+int arcpts=10;
+int [int] arclabs=[2*RBC];
+
+NewMacro GenerateMesh(prmesh)
+
+    IFMACRO(!oneD)
+    lpmlg = lpmlgparam;
+    ENDIFMACRO
+    IFMACRO(oneD)
+    lpmlg = lpmlgoneD;
+    ENDIFMACRO
+
+    /*real[int] lengthpml(4); // length of global PML
+    for (int i=0; i<4; i++) lengthpml[i] = lpmlg;*/
+    
+    // calcules a partir des formules avec k=20 / p=6
+    /*real[int] steps=QuasiOptimality( k,  pkorder, traporder);
+    real hk=steps[0];
+    real hv=steps[1];
+    real hi=steps[2];
+    real hp=steps[3];*/
+    {
+    //int nxg = nx*(length+lengthpml[0]+lengthpml[1])/length;
+    int nxg = (1./hp)*(length+lengthpml[0]+lengthpml[1])/length;
+    int nyg = (1./hp)*(length+lengthpml[0]+lengthpml[1])/length;
+
+    border ag(t=-lengthpml[0],length+lengthpml[1]) {x=t; y=-lengthpml[2]; label=lab[0];}
+    border bg(t=-lengthpml[2],length+lengthpml[3]) {x=length+lengthpml[1]; y=t; label=lab[1];}
+    border cg(t=length+lengthpml[1],-lengthpml[0]) {x=t; y=length+lengthpml[3]; label=lab[2];}
+    border dg(t=length+lengthpml[3],-lengthpml[2]) {x=-lengthpml[0]; y=t; label=lab[3];}
+
+    // Mesh
+    border bba(t=0, length){x=t;   y=0;   label=ABC;}
+    border bbb(t=0, length){x=length;   y=t;   label=ABC;}
+    border bbc(t=0, length){x=length-t; y=length; label=ABC;}
+    border bbd(t=0, length){x=0; y=length-t;   label=ABC;}
+
+    border a1(t=0.05, 0.15){x=0.4-t;   y=0.2;   label=RBC;}
+    border b1(t=0.25,0.75 ){x=0.2;   y=t;   label=RBC;}
+
+    border c1(t=0.05, 0.15){x=0.2+t; y=0.8; label=RBC;}
+    border d1(t=0.05, 0.55){x=0.4; y=0.8-t;   label=RBC;}
+
+    border a2(t=0.05, 0.15){x=0.8-t;   y=0.2;   label=RBC;}
+    border b2(t=0.25,0.75 ){x=0.6;   y=t;   label=RBC;}
+    border c2(t=0.05, 0.15){x=0.6+t; y=0.8; label=RBC;}
+    border d2(t=0.05, 0.55){x=0.8; y=0.8-t;   label=RBC;}
+
+    border ad1(t=0,-pi/2 ){x=0.35+0.05*cos(t);   y=0.25+0.05*sin(t);   label=2*RBC;}
+    border cd1(t= pi/2,0 ){x=0.35+0.05*cos(t);   y=0.75+0.05*sin(t);   label=2*RBC;}
+    border bc1(t=pi,pi/2 ){x=0.25+0.05*cos(t);   y=0.75+0.05*sin(t);   label=2*RBC;}
+    border ab1(t=-pi/2 ,-pi){x=0.25+0.05*cos(t);   y=0.25+0.05*sin(t);   label=2*RBC;}
+
+    border ad2(t=0,-pi/2 ){x=0.75+0.05*cos(t);   y=0.25+0.05*sin(t);   label=2*RBC;}
+    border cd2(t= pi/2,0 ){x=0.75+0.05*cos(t);   y=0.75+0.05*sin(t);   label=2*RBC;}
+    border bc2(t=pi,pi/2 ){x=0.65+0.05*cos(t);   y=0.75+0.05*sin(t);   label=2*RBC;}
+    border ab2(t=-pi/2 ,-pi){x=0.65+0.05*cos(t);   y=0.25+0.05*sin(t);   label=2*RBC;}
+
+    //int arcpts =nxg*pi/2*0.05;
+    mesh Th2g = buildmesh(bba(-nxg)+bbb(-nxg)+bbc(-nxg)+bbd(-nxg)+ag(nxg)+bg(nxg)+cg(nxg)+dg(nxg),fixedborder=1,nbvx=10000000);
+    mesh Th2 = buildmesh (bba(nxg) + bbb(nxg) + bbc(nxg) +bbd(nxg) +a1(nxg*0.1) +ab1(arcpts)+b1(nyg*0.5)+bc1(arcpts)+c1(nxg*0.1)+cd1(arcpts) +d1(nyg*0.5)+ad1(arcpts)+a2(nxg*0.1)
+    +ab2(arcpts) +b2(nyg*0.5)+bc2(arcpts)+c2(nxg*0.1)+cd2(arcpts) +d2(nyg*0.5) +ad2(arcpts),fixedborder=1,nbvx=10000000 );
+    /*plot(bba(nxg) + bbb(nxg) + bbc(nxg) +bbd(nxg) +a1(nxg*0.1) +ab1(arcpts)+b1(nyg*0.5)+bc1(arcpts)+c1(nxg*0.1)+cd1(arcpts) +d1(nyg*0.5)+ad1(arcpts)+a2(nxg*0.1)
+    +ab2(arcpts) +b2(nyg*0.5)+bc2(arcpts)+c2(nxg*0.1)+cd2(arcpts) +d2(nyg*0.5) +ad2(arcpts),ps="orientation.pdf");
+    exit(0);*/
+    Th=Th2g+Th2;
+    int itmaxrays=1;
+    for (int adl=0;adl<itmaxrays;adl++){
+
+        Th = Th2+Th2g;
+        //int[int] tab = [10, 20]; // idx des triangles a raffiner
+        fespace Ph(Th, P0);
+        Ph splitfunc;
+
+        Ph tabh,tabh2; 
+        int nbTriangles = Th2.nt;
+        real [int]  tab(nbTriangles);
+        for (int i=0;i<nbTriangles;i++) tab[i]=0.;
+        int it=0;
+        int tt=0;
+
+        int nbrrays = 200; 
+        tt= MeshRaycaster(Th2, nbrrays,tab);
+        for (int i=0;i<nbTriangles;i++){tabh[][i]=tab[i];}// cout<<" tab["<<i<<"]="<<tab[i]<<" ";
+            plot(tabh,fill=1,value=1,cmm="Nbr Hits it " + adl,ps="nbr_hits_it"+adl+".pdf");
+
+            // Visible Area test
+            real [int]  tabvisiblearea(nbTriangles);
+            for (int i=0;i<nbTriangles;i++) tabvisiblearea[i]=0.;
+            //int threshold =15000;
+            int threshold =rint(0.02*tabh[].max);
+            tt= MeshRaycasterVisibleArea(Th2, nbrrays,tab,threshold,tabvisiblearea);
+            for (int i=0;i<nbTriangles;i++){tabh[][i]=tabvisiblearea[i];}// cout<<" tab["<<i<<"]="<<tab[i]<<" ";
+            //cout<<endl;
+
+            for (int i=0;i<nbTriangles;i++){tabh2[][i]=(tab[i]>=threshold);}// cout<<" tab["<<i<<"]="<<tab[i]<<" ";
+            plot(tabh2,fill=1,value=1,cmm="Trapping zone 10% of max array it "+adl,ps="trapping_zone_it"+adl+".pdf");
+            //differents pas
+            fespace PhTest(Th2, P1);
+
+            func functest = (tabh2[][nuTriangle] )? hk:((tabh[][nuTriangle])? hv : hi );
+            Th=adaptmesh(Th2, functest , IsMetric=1 ,requirededges=arclabs);
+            meshL ThL= extract(Th);
+            meshL Thl= buildmeshL(ag(nxg)+bg(nxg)+cg(nxg)+dg(nxg)) ;
+            ThL= trunc(ThL,region==ABC);
+            ThL=ThL+Thl;
+            mesh ThPML= buildmesh(ThL,fixedborder=1);
+            int reg = ThPML(0.5,0.5).region;
+            ThPML= trunc(ThPML,region!=reg);
+            Th2=Th;
+            Th=ThPML+Th;
+            plot(Th,cmm="Mesh it "+ adl,ps="Mesh_raycasting_it"+adl+".pdf");
+        } // end for adl
+
+    }
+
+        Uh up = sqrt((x-xs)^2+(y-ys)^2);
+        int ind = up[].imin;
+        real epst = 1e-10;
+        ffddmbuildDmesh(prmesh,Th,mpiCommWorld)
+        ffddmbuildDfespace(prmesh,prmesh,complex,def,init,Pk)
+        prmesh#Vhi<complex> u, x0, rhs, uex, udiff;
+
+        x0[] = 0;
+
+        //Th = square(1,1);
+
+EndMacro
+real errPML, errPMLS, errCAP, errCAPS, errIMP, errPML1D, errCAP1D;
+real errPMLS2,errPMLC;
+
+/*NewMacro GenerateSimpleMesh(prmesh)
+
+    IFMACRO(!oneD)
+    lpmlg = lpmlgparam;
+    ENDIFMACRO
+    IFMACRO(oneD)
+    lpmlg = lpmlgoneD;
+    ENDIFMACRO
+
+    real[int] lengthpml(4); // length of global PML
+    for (int i=0; i<4; i++) lengthpml[i] = lpmlg;
+
+    int nxg = nx*(length+lengthpml[0]+lengthpml[1])/length;
+    border ag(t=-lengthpml[0],length+lengthpml[1]) {x=t; y=-lengthpml[2]; label=lab[0];}
+    border bg(t=-lengthpml[2],length+lengthpml[3]) {x=length+lengthpml[1]; y=t; label=lab[1];}
+    border cg(t=length+lengthpml[1],-lengthpml[0]) {x=t; y=length+lengthpml[3]; label=lab[2];}
+    border dg(t=length+lengthpml[3],-lengthpml[2]) {x=-lengthpml[0]; y=t; label=lab[3];}
+
+    // Mesh
+    border bba(t=0, length){x=t;   y=0;   label=ABC;}
+    border bbb(t=0, length){x=length;   y=t;   label=ABC;}
+    border bbc(t=0, length){x=length-t; y=length; label=ABC;}
+    border bbd(t=0, length){x=0; y=length-t;   label=ABC;}
+
+    border a1(t=0, 0.2){x=0.4-t;   y=0.2;   label=RBC;}
+    border b1(t=0.2,0.8 ){x=0.2;   y=t;   label=RBC;}
+    border c1(t=0, 0.2){x=0.2+t; y=0.8; label=RBC;}
+    border d1(t=0, 0.6){x=0.4; y=0.8-t;   label=RBC;}
+
+    border a2(t=0, 0.2){x=0.8-t;   y=0.2;   label=RBC;}
+    border b2(t=0.2,0.8 ){x=0.6;   y=t;   label=RBC;}
+    border c2(t=0, 0.2){x=0.6+t; y=0.8; label=RBC;}
+    border d2(t=0, 0.6){x=0.8; y=0.8-t;   label=RBC;}
+    mesh Th2g = buildmesh(bba(-nx)+bbb(-nx)+bbc(-nx)+bbd(-nx)+ag(nxg)+bg(nxg)+cg(nxg)+dg(nxg),fixedborder=1,nbvx=10000000);
+    mesh Th2 = buildmesh (bba(nx) + bbb(nx) + bbc(nx) +bbd(nx) +a1(nx*0.2) +b1(nx*0.6)+c1(nx*0.2) +d1(nx*0.6)  +a2(nx*0.2) +b2(ny*0.6)+c2(nx*0.2) +d2(ny*0.6),fixedborder=1,nbvx=10000000 );
+    Thref=Th2g+Th2;
+
+    ffddmbuildDmesh(prmesh,Thref,mpiCommWorld)
+    ffddmbuildDfespace(prmesh,prmesh,complex,def,init,Pk)
+    prmesh#Vhi<complex> us, x0s, rhss, uexs, udiffs;
+    x0s[] = 0;
+    
+    plot(Thref,cmm="Reference Mesh ");
+
+
+EndMacro*/
+
+NewMacro GenerateSimpleMesh(prmesh)
+    IFMACRO(!oneD)
+    lpmlg = lpmlgparam;
+    ENDIFMACRO
+    IFMACRO(oneD)
+    lpmlg = lpmlgoneD;
+    ENDIFMACRO
+
+    real[int] lengthpml(4); // length of global PML
+    for (int i=0; i<4; i++) lengthpml[i] = lpmlg;
+    real[int] steps=QuasiOptimality( k,  pkorder, traporder);
+    real hk=steps[0];
+    real hv=steps[1];
+    real hi=steps[2];
+    real hp=steps[3];
+
+    int nxg = (1./hk)*(length+lengthpml[0]+lengthpml[1])/length;
+    int nyg = (1./hk)*(length+lengthpml[0]+lengthpml[1])/length;
+
+    border agr(t=-lengthpml[0],length+lengthpml[1]) {x=t; y=-lengthpml[2]; label=lab[0];}
+    border bgr(t=-lengthpml[2],length+lengthpml[3]) {x=length+lengthpml[1]; y=t; label=lab[1];}
+    border cgr(t=length+lengthpml[1],-lengthpml[0]) {x=t; y=length+lengthpml[3]; label=lab[2];}
+    border dgr(t=length+lengthpml[3],-lengthpml[2]) {x=-lengthpml[0]; y=t; label=lab[3];}
+
+    // Mesh
+    border bbar(t=0, length){x=t;   y=0;   label=ABC;}
+    border bbbr(t=0, length){x=length;   y=t;   label=ABC;}
+    border bbcr(t=0, length){x=length-t; y=length; label=ABC;}
+    border bbdr(t=0, length){x=0; y=length-t;   label=ABC;}
+
+    /*border a1r(t=0, 0.2){x=0.4-t;   y=0.2;   label=RBC;}
+    border b1r(t=0.2,0.8 ){x=0.2;   y=t;   label=RBC;}
+    border c1r(t=0, 0.2){x=0.2+t; y=0.8; label=RBC;}
+    border d1r(t=0, 0.6){x=0.4; y=0.8-t;   label=RBC;}
+
+    border a2r(t=0, 0.2){x=0.8-t;   y=0.2;   label=RBC;}
+    border b2r(t=0.2,0.8 ){x=0.6;   y=t;   label=RBC;}
+    border c2r(t=0, 0.2){x=0.6+t; y=0.8; label=RBC;}
+    border d2r(t=0, 0.6){x=0.8; y=0.8-t;   label=RBC;}*/
+
+    border a1r(t=0.05, 0.15){x=0.4-t;   y=0.2;   label=RBC;}
+    border b1r(t=0.25,0.75 ){x=0.2;   y=t;   label=RBC;}
+
+    border c1r(t=0.05, 0.15){x=0.2+t; y=0.8; label=RBC;}
+    border d1r(t=0.05, 0.55){x=0.4; y=0.8-t;   label=RBC;}
+
+    border a2r(t=0.05, 0.15){x=0.8-t;   y=0.2;   label=RBC;}
+    border b2r(t=0.25,0.75 ){x=0.6;   y=t;   label=RBC;}
+    border c2r(t=0.05, 0.15){x=0.6+t; y=0.8; label=RBC;}
+    border d2r(t=0.05, 0.55){x=0.8; y=0.8-t;   label=RBC;}
+    
+    
+    border ad1r(t=0,-pi/2 ){x=0.35+0.05*cos(t);   y=0.25+0.05*sin(t);   label=RBC;}
+    border cd1r(t= pi/2,0 ){x=0.35+0.05*cos(t);   y=0.75+0.05*sin(t);   label=RBC;}
+    border bc1r(t=pi,pi/2 ){x=0.25+0.05*cos(t);   y=0.75+0.05*sin(t);   label=RBC;}
+    border ab1r(t=-pi/2 ,-pi){x=0.25+0.05*cos(t);   y=0.25+0.05*sin(t);   label=RBC;}
+    border ad2r(t=0,-pi/2 ){x=0.75+0.05*cos(t);   y=0.25+0.05*sin(t);   label=RBC;}
+    border cd2r(t= pi/2,0 ){x=0.75+0.05*cos(t);   y=0.75+0.05*sin(t);   label=RBC;}
+    border bc2r(t=pi,pi/2 ){x=0.65+0.05*cos(t);   y=0.75+0.05*sin(t);   label=RBC;}
+    border ab2r(t=-pi/2 ,-pi){x=0.65+0.05*cos(t);   y=0.25+0.05*sin(t);   label=RBC;}
+
+    mesh Th2gr = buildmesh(bbar(-nxg)+bbbr(-nxg)+bbcr(-nxg)+bbdr(-nxg)+agr(nxg)+bgr(nxg)+cgr(nxg)+dgr(nxg),fixedborder=1,nbvx=10000000);
+    mesh Th2r = buildmesh (bbar(nxg) + bbbr(nxg) + bbcr(nxg) +bbdr(nxg) +a1r(nxg*0.1) +ab1r(arcpts)+b1r(nyg*0.5)+bc1r(arcpts)+c1r(nxg*0.1)+cd1r(arcpts) +d1r(nyg*0.5)+ad1r(arcpts)+a2r(nxg*0.1)
+    +ab2r(arcpts) +b2r(nyg*0.5)+bc2r(arcpts)+c2r(nxg*0.1)+cd2r(arcpts) +d2r(nyg*0.5) +ad2r(arcpts),fixedborder=1,nbvx=10000000 );
+
+    //mesh Th2gr = buildmesh(bbar(-nxg)+bbbr(-nxg)+bbcr(-nxg)+bbdr(-nxg)+agr(nxg)+bgr(nxg)+cgr(nxg)+dgr(nxg),fixedborder=1,nbvx=10000000);
+    //mesh Th2r = buildmesh (bbar(nxg) + bbbr(nxg) + bbcr(nxg) +bbdr(nxg) +a1r(nxg*0.2) +b1r(nyg*0.6)+c1r(nxg*0.2) +d1r(nyg*0.6)  +a2r(nxg*0.2) +b2r(nyg*0.6)+c2r(nxg*0.2) +d2r(nyg*0.6),fixedborder=1,nbvx=10000000 );
+    Thref=Th2gr+Th2r;
+    func functest = hk;
+    Thref=adaptmesh(Thref, functest , IsMetric=1 ,nbvx=100000000,requirededges=arclabs);
+    ffddmbuildDmesh(prmesh,Thref,mpiCommWorld)
+    ffddmbuildDfespace(prmesh,prmesh,complex,def,init,Pk)
+    prmesh#Vhi<complex> us, x0s, rhss, uexs, udiffs;
+    x0s[] = 0;
+    plot(Thref,cmm="Reference Mesh ",ps="reference_mesh.pdf");
+
+
+EndMacro
+
+
+NewMacro Generate(pr,prmesh,UREF,U,X0,UDIFF,RHS,UH)
+
+        /*macro sigmag(u) (c/k/max(epst,lpmlg-(u)))//EOM
+        macro dsigmag(u) (u)//EOM
+        macro sigmaCAP(u) (0)//EOM*/
+
+
+        IFMACRO(MSMOOTH)
+        macro sigma(u) (alpha*exp(-1./(beta*abs(u)+1e-10)))//EOM
+        macro dsigma(u) (beta/(beta*abs(u)+1e-10)^2*sigma(u))//EOM
+        ENDIFMACRO
+
+        IFMACRO(oneD)
+        real aCAP = 1-16/C^3;
+        real bCAP = (1-17/C^3)/C^2;
+        macro xCAP(u) (2*deltaCAP*k0*(u+1e-10))//
+        macro yCAP(u) (aCAP*(xCAP(u))-bCAP*(xCAP(u))^3+4/(C-xCAP(u))^2-4/(C+xCAP(u))^2)//
+        macro sigma(u) (yCAP(u))//EOM
+        macro dsigma(u) (0*csigma*(u))//EOM
+        ENDIFMACRO
+
+        IFMACRO((!MSMOOTH)&(!oneD))
+        macro sigma(u) (c/k/max(epst,lpmlg-(u)))//EOM
+        macro dsigma(u) (0)//EOM
+        ENDIFMACRO
+
+        IFMACRO(MPML)
+        macro sigmag(u) sigma(u)//EOM
+        macro dsigmag(u) dsigma(u)//EOM
+        macro sigmaCAP(u) (0)//EOM
+        Robin = bnull;
+        Dirichlet = bgamma;
+        ENDIFMACRO
+
+        IFMACRO(MCAP)
+        macro sigmag(u) (0)//EOM
+        macro dsigmag(u) (1)//EOM
+        macro sigmaCAP(u) sigma(u)//EOM
+        Robin = bnull;
+        Dirichlet = bgamma;
+        ENDIFMACRO
+
+        IFMACRO(MIMP)
+        macro sigmag(u) (0)//EOM
+        macro dsigmag(u) (1)//EOM
+        macro sigmaCAP(u) (0)//EOM
+        Robin = bgamma;
+        Dirichlet = bnull;
+        ENDIFMACRO
+
+        func sigmax = (x>=length)*sigmag(x-length)  +  (x<=0)*sigmag(-x);
+        func sigmay = (y>=length)*sigmag(y-length)  +  (y<=0)*sigmag(-y);
+
+        func dsigmax = (x>=length)*dsigmag(x-length)  -  (x<=0)*dsigmag(-x);
+        func dsigmay = (y>=length)*dsigmag(y-length)  -  (y<=0)*dsigmag(-y);
+
+        func gammax = 1+1i*sigmax;
+        func gammay = 1+1i*sigmay;
+
+        func dgammax = 1i*dsigmax;
+        func dgammay = 1i*dsigmay;
+
+        func sigmaCAPx = (x>=length)*sigmaCAP(x-length)  +  (x<=0)*sigmaCAP(-x);
+        func sigmaCAPy = (y>=length)*sigmaCAP(y-length)  +  (y<=0)*sigmaCAP(-y);
+
+        func fCAP = sigmaCAPx + sigmaCAPy;
+
+        macro Grad(u) [dx(u),dy(u)] // EOM
+        macro Gradpml(u) [1./gammax^2*dx(u),
+                          1./gammay^2*dy(u)] // EOM
+        macro Betapml(u) (dgammax/gammax^3*dx(u) + dgammay/gammay^3*dy(u)) // EOM
+
+        macro GradpmlB(u) [gammay/gammax*dx(u),
+                           gammax/gammay*dy(u)] // EOM
+
+        macro Varf(varfName, meshName, PhName)
+            varf varfName(u,v) =
+          int2d(meshName,qforder=qorder)(-1./c^2*u*v+1./k^2*Grad(u)'*Gradpml(v)-1./k^2*Betapml(u)*v - 1i*fCAP*u*v)
+        				- int1d(meshName,Robin,PML,Dirichlet,qforder=qorder)(1i*1./(k*c)*u*v); // EOM
+
+        // for the preconditioner
+        macro VarfOpt(varfName, meshName, PhName)
+            varf varfName(u,v) =
+          int2d(meshName,qforder=qorder)(-1./c^2*u*v+1./k^2*Grad(u)'*Gradpml(v)-1./k^2*Betapml(u)*v - 1i*fCAP*u*v)
+        				- int1d(meshName,Robin,PML,Dirichlet,10,qforder=qorder)(1i*1./(k*c)*u*v); // EOM
+
+        macro VarfB(varfName, meshName, PhName)
+            varf varfName(u,v) =
+          int2d(meshName,qforder=qorder)(-1./c^2*gammax*gammay*u*v+1./k^2*Grad(u)'*GradpmlB(v) - 1i*fCAP*u*v)
+        				- int1d(meshName,Robin,PML,Dirichlet,qforder=qorder)(1i*gammax*gammay*1./(k*c)*u*v); // EOM
+
+        // for the preconditioner
+        macro VarfOptB(varfName, meshName, PhName)
+            varf varfName(u,v) =
+          int2d(meshName,qforder=qorder)(-1./c^2*gammax*gammay*u*v+1./k^2*Grad(u)'*GradpmlB(v) - 1i*fCAP*u*v)
+        				- int1d(meshName,Robin,PML,Dirichlet,10,qforder=qorder)(1i*gammax*gammay*1./(k*c)*u*v); // EOM
+
+        macro Varfrhs(varfName, meshName, PhName)
+            varf varfName(u,v) =
+          int2d(meshName,qforder=qorder)((x>0)*(x<length)*(y>0)*(y<length)*rhscst*gslsfbesselJ0(k*sqrt((x-xs)^2+(y-ys)^2))*v); // EOM
+
+        vsym = 2;
+        vtgv = -2;
+        vtgvelim = -2;
+
+        UH upss = sqrt((x-xs)^2+(y-ys)^2);
+        int inds = upss[].imin;
+        real epst = 1e-10;
+
+        prmesh#Vhglob<complex> rhsg = 0;
+        rhsg[][inds] = 1./(k0^2);
+
+        IFMACRO(!MSYM)
+        //ffddmsetupOperator(pr,prmesh,Varf)
+        ffddmsetup(pr,prmesh,Varf,VarfOpt)
+        ENDIFMACRO
+
+        IFMACRO(MSYM)
+        //ffddmsetupOperator(pr,prmesh,VarfB)
+        ffddmsetup(pr,prmesh,VarfB,VarfOptB)
+        ENDIFMACRO
+
+        RHS[] = prmesh#Rih[mpiRank(prmesh#commddm)]*rhsg[];
+
+        ffddmbuildrhs(pr,Varfrhs,RHS[])
+
+        U[] = pr#fGMRES(X0[], RHS[], 1.e-10, 400, "right");
+        //u[] = pr#directsolve(rhs[]);
+
+        //pr#writesummary
+
+        real epsb = 0.05;
+        func supp = (sqrt((x-xs)^2+(y-ys)^2) > 1e-2) && (x > epsb) && (x < length-epsb) && (y > epsb) && (y < length-epsb);
+
+        //u = u * supp;
+
+        func dd = sqrt((x-xs)^2+(y-ys)^2) > 1e-5 ? sqrt((x-xs)^2+(y-ys)^2) : 1e-5;
+
+        //func uex = 1i*1./4*(gslsfbesselJn(0,k0*dd)+1i*gslsfbesselYn(0,k0*dd));
+
+        func uex = UREF;
+
+        complex erri = int2d(prmesh#Thi,qforder=qorder)(supp*prmesh#DP1[mpiRank(prmesh#commddm)]*(U-uex)^2), uexi = int2d(prmesh#Thi,qforder=qorder)(supp*prmesh#DP1[mpiRank(prmesh#commddm)]*uex^2);
+        complex errg = 0, uexg = 0;
+        mpiAllReduce(erri,errg,prmesh#commddm,mpiSUM);
+        mpiAllReduce(uexi,uexg,prmesh#commddm,mpiSUM);
+
+        err = abs(sqrt(errg))/abs(sqrt(uexg));
+
+        if (mpirank == 0) cout << Stringification(pr) +" ERROR = "+err << endl;
+
+        ffddmplot(prmesh,real(U), Stringification(pr)+" u, err = "+err);
+
+        ffddmplot(prmesh,real(uex), Stringification(pr)+" uex, err = "+err);
+
+        UDIFF = U - uex;
+        UDIFF = abs(UDIFF)*supp;
+        ffddmplot(prmesh,real(UDIFF), "alpha = " + alpha + ", beta = " + beta + ",err = "+err);
+        prmesh#Vhglob<complex> UDIFFG;
+        prmesh#Vhglob<real> UDIFFGR;
+
+        pr#fromVhi(UDIFF[],prmesh#Vhglob,UDIFFG[])
+        UDIFFGR[]=UDIFFG[].re;
+        plot(UDIFFGR,fill=1,value=1, ps="sol_"+Stringification(prmesh)+".pdf");
+        //ffddmplot(prmesh,real(uex), "exact solution");
+
+
+EndMacro
+
+NewMacro GenerateCoarserMesh(prmesh, TH, NX,NY)
+
+    IFMACRO(!oneD)
+    lpmlg = lpmlgparam;
+    ENDIFMACRO
+    IFMACRO(oneD)
+    lpmlg = lpmlgoneD;
+    ENDIFMACRO
+
+    real[int] lengthpmlC(4); // length of global PML
+    for (int i=0; i<4; i++) lengthpmlC[i] = lpmlg;
+
+    nxg = NX*(length+lengthpmlC[0]+lengthpmlC[1])/length;
+    nyg = NY*(length+lengthpmlC[0]+lengthpmlC[1])/length;
+
+    border agc(t=-lengthpmlC[0],length+lengthpmlC[1]) {x=t; y=-lengthpmlC[2]; label=lab[0];}
+    border bgc(t=-lengthpmlC[2],length+lengthpmlC[3]) {x=length+lengthpmlC[1]; y=t; label=lab[1];}
+    border cgc(t=length+lengthpmlC[1],-lengthpmlC[0]) {x=t; y=length+lengthpmlC[3]; label=lab[2];}
+    border dgc(t=length+lengthpmlC[3],-lengthpmlC[2]) {x=-lengthpmlC[0]; y=t; label=lab[3];}
+
+    // Mesh
+    /*border bbac(t=0, length){x=t;   y=0;   label=ABC;}
+    border bbbc(t=0, length){x=length;   y=t;   label=ABC;}
+    border bbcc(t=0, length){x=length-t; y=length; label=ABC;}
+    border bbdc(t=0, length){x=0; y=length-t;   label=ABC;}
+
+    border a1c(t=0, 0.2){x=0.4-t;   y=0.2;   label=RBC;}
+    border b1c(t=0.2,0.8 ){x=0.2;   y=t;   label=RBC;}
+    border c1c(t=0, 0.2){x=0.2+t; y=0.8; label=RBC;}
+    border d1c(t=0, 0.6){x=0.4; y=0.8-t;   label=RBC;}
+
+    border a2c(t=0, 0.2){x=0.8-t;   y=0.2;   label=RBC;}
+    border b2c(t=0.2,0.8 ){x=0.6;   y=t;   label=RBC;}
+    border c2c(t=0, 0.2){x=0.6+t; y=0.8; label=RBC;}
+    border d2c(t=0, 0.6){x=0.8; y=0.8-t;   label=RBC;}
+    mesh Th2gc = buildmesh(bbac(-NX)+bbbc(-NX)+bbcc(-NX)+bbdc(-NX)+agc(nxg)+bgc(nxg)+cgc(nxg)+dgc(nxg),fixedborder=1,nbvx=10000000);
+    mesh Th2c = buildmesh (bbac(NX) + bbbc(NX) + bbcc(NX) +bbdc(NX) +a1c(NX*0.2) +b1c(NX*0.6)+c1c(NX*0.2) +d1c(NX*0.6)  +a2c(NX*0.2) +b2c(NY*0.6)+c2c(NX*0.2) +d2c(NY*0.6),fixedborder=1,nbvx=10000000 );*/
+    
+        border ag(t=-lengthpml[0],length+lengthpml[1]) {x=t; y=-lengthpml[2]; label=lab[0];}
+    border bg(t=-lengthpml[2],length+lengthpml[3]) {x=length+lengthpml[1]; y=t; label=lab[1];}
+    border cg(t=length+lengthpml[1],-lengthpml[0]) {x=t; y=length+lengthpml[3]; label=lab[2];}
+    border dg(t=length+lengthpml[3],-lengthpml[2]) {x=-lengthpml[0]; y=t; label=lab[3];}
+
+    // Mesh
+    border bbac(t=0, length){x=t;   y=0;   label=ABC;}
+    border bbbc(t=0, length){x=length;   y=t;   label=ABC;}
+    border bbcc(t=0, length){x=length-t; y=length; label=ABC;}
+    border bbdc(t=0, length){x=0; y=length-t;   label=ABC;}
+
+    border a1c(t=0.05, 0.15){x=0.4-t;   y=0.2;   label=RBC;}
+    border b1c(t=0.25,0.75 ){x=0.2;   y=t;   label=RBC;}
+
+    border c1c(t=0.05, 0.15){x=0.2+t; y=0.8; label=RBC;}
+    border d1c(t=0.05, 0.55){x=0.4; y=0.8-t;   label=RBC;}
+
+    border a2c(t=0.05, 0.15){x=0.8-t;   y=0.2;   label=RBC;}
+    border b2c(t=0.25,0.75 ){x=0.6;   y=t;   label=RBC;}
+    border c2c(t=0.05, 0.15){x=0.6+t; y=0.8; label=RBC;}
+    border d2c(t=0.05, 0.55){x=0.8; y=0.8-t;   label=RBC;}
+
+    border ad1c(t=0,-pi/2 ){x=0.35+0.05*cos(t);   y=0.25+0.05*sin(t);   label=RBC;}
+    border cd1c(t= pi/2,0 ){x=0.35+0.05*cos(t);   y=0.75+0.05*sin(t);   label=RBC;}
+    border bc1c(t=pi,pi/2 ){x=0.25+0.05*cos(t);   y=0.75+0.05*sin(t);   label=RBC;}
+    border ab1c(t=-pi/2 ,-pi){x=0.25+0.05*cos(t);   y=0.25+0.05*sin(t);   label=RBC;}
+
+    border ad2c(t=0,-pi/2 ){x=0.75+0.05*cos(t);   y=0.25+0.05*sin(t);   label=RBC;}
+    border cd2c(t= pi/2,0 ){x=0.75+0.05*cos(t);   y=0.75+0.05*sin(t);   label=RBC;}
+    border bc2c(t=pi,pi/2 ){x=0.65+0.05*cos(t);   y=0.75+0.05*sin(t);   label=RBC;}
+    border ab2c(t=-pi/2 ,-pi){x=0.65+0.05*cos(t);   y=0.25+0.05*sin(t);   label=RBC;}
+//arcpts=5;
+    mesh Th2gc = buildmesh(bbac(-nxg)+bbbc(-nxg)+bbcc(-nxg)+bbdc(-nxg)+agc(nxg)+bgc(nxg)+cgc(nxg)+dgc(nxg),fixedborder=1,nbvx=10000000);
+    mesh Th2c = buildmesh (bbac(nxg) + bbbc(nxg) + bbcc(nxg) +bbdc(nxg) +a1c(nxg*0.1) +ab1c(arcpts)+b1c(nyg*0.5)+bc1c(arcpts)+c1c(nxg*0.1)+cd1c(arcpts) +d1c(nyg*0.5)+ad1c(arcpts)+a2c(nxg*0.1)
+    +ab2c(arcpts) +b2c(nyg*0.5)+bc2c(arcpts)+c2c(nxg*0.1)+cd2c(arcpts) +d2c(nyg*0.5) +ad2c(arcpts),fixedborder=1,nbvx=10000000 );
+    
+    TH=Th2gc+Th2c;
+
+    ffddmbuildDmesh(prmesh,TH,mpiCommWorld)
+    ffddmbuildDfespace(prmesh,prmesh,complex,def,init,Pk)
+    prmesh#Vhi<complex> uc, x0c, rhsc, uexc, udiffc;
+    x0c[] = 0;
+    
+    plot(TH,cmm="Coarser Mesh ",ps="coarser_mesh.pdf");
+
+
+EndMacro
+
+lpmlgparam = 1;
+lpmlg = lpmlgparam;
+beta = 0.6/lpmlg; 
+
+int raycasting=0;
+GenerateSimpleMesh(HmeshESimple)
+
+GenerateMesh(HmeshE)
+
+
+
+HmeshEVhglob<complex> uref = 1;
+HmeshESimpleVhglob<complex> urefs=1;
+{
+macro MSYM()1//
+macro MPML()1//
+macro MSMOOTH()1//
+Generate(PMLS2,HmeshE,uref,u,x0,udiff,rhs,Uh)
+errPMLS2 = err;
+//HmeshEVhglob<complex> uref = urefs;
+PMLS2fromVhi(u[],HmeshEVhglob,uref[])
+//plot(uref,fill=1,cmm="Sol. Raytracing mesh");
+
+}
+
+
+{
+macro MSYM()1//
+macro MPML()1//
+macro MSMOOTH()1//
+Generate(PMLS,HmeshESimple,uref,us,x0s,udiffs,rhss,Uhs)
+errPMLS = err;
+urefs = uref;
+
+PMLSfromVhi(us[],HmeshESimpleVhglob,urefs[])
+plot(urefs,fill=1,cmm="Sol de ref");
+real solnormadap = int2d(Thref, qforder=qorder)(real(urefs)^2 +imag(urefs)^2 );//+ int2d(Thref,qforder=qorder)(1./k^2*(real(Grad(urefs))'*real(Grad(urefs))));
+solnormadap=sqrt(solnormadap);
+cout<<"Sol Ref Mesh L2 norm: "<<solnormadap<<endl;
+real sourcenorm=sqrt(int2d(Thref,qforder=qorder)(((x>0)*(x<length)*(y>0)*(y<length)*rhscst*gslsfbesselJ0(k*sqrt((x-xs)^2+(y-ys)^2)))^2)); 
+cout<<"Source Ref Mesh L2 norm: "<<sourcenorm<<endl;
+cout<<"ratio Sol/Source Ref Mesh L2 norm: "<<solnormadap/sourcenorm<<endl;
+
+}
+
+
+if(mpirank==0) cout<<"nx"<<nx<<endl;
+int NX=15,NY=NX;
+
+//assert(NX<=nx);
+GenerateCoarserMesh(HmeshEC, ThC, NX,NY)
+HmeshECVhglob<complex> urefc = 1;
+{
+macro MSYM()1//
+macro MPML()1//
+macro MSMOOTH()1//
+Generate(PMLC,HmeshEC,urefs,uc,x0c,udiffc,rhsc,Uhc)
+errPMLC = err;
+urefc=urefs;
+PMLCfromVhi(uc[],HmeshECVhglob,urefc[])
+plot(urefc,fill=1,cmm="Sol. coarser mesh");
+}
+
+
+if(mpirank==0) cout<<"EOS "<<endl;
+
+
+

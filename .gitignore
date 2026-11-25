@@ -1,2 +1,23 @@
+# Mesh and simulation outputs
+*.msh
+*.dat
+*.log
+ErrorEstimates/rapport.pdf
+# LaTeX auxiliary files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.nav
+*.out
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+*.run.xml
+*.xdv
 *.so
-*.o

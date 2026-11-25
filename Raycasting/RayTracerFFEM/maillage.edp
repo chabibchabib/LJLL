@@ -1,0 +1,170 @@
+int bplot = 0;
+mesh Tha = square(1,1);
+fespace Uha(Tha,P1);
+Uha<complex> ref, usupp;
+
+real alpha = 6.2;
+//real beta = 0.6/0.3;
+real beta = 0.6/0.6;
+
+load "qf11to25"
+load "Element_P3"
+load "Element_P4"
+load"raycaster"
+include "getARGV.idp"
+load"medit"
+load"mmg"
+int qorder = 13;
+
+macro dimension 2// EOM
+
+
+macro def(i)i// EOM // scalar field definition
+macro init(i)i// EOM // scalar field initialization
+
+real waven = getARGV("-waven",40.);
+real lpmlgparam = getARGV("-L",1);
+real lpmlg = lpmlgparam;
+real freq = waven/2/pi;//getARGV("-frequency",10.); // frequency
+int nppwl = getARGV("-nppwl",20); // number of points per wavelength
+load "msh3"
+load "geophysics"
+
+int Dirichlet = 1;
+int Robin = 2;
+int Neumann = 7;
+int PML = 8;
+int bgamma = 12;
+int bnull = 13;
+real c0 = 1.;
+//func Pk = P4;
+func Pk = P3;
+int[int] lab = [bgamma,bgamma,bgamma,bgamma];
+real length = 1;
+func c  = c0;
+real xs = 0.5;
+real ys = 0.5;
+
+int nx=15;
+int ny=15;
+lpmlg=0.5;
+real[int] lengthpml(4); // length of global PML
+for (int i=0; i<4; i++) lengthpml[i] = lpmlg;
+
+int nxg = nx*(length+lengthpml[0]+lengthpml[1])/length;
+border ag(t=-lengthpml[0],length+lengthpml[1]) {x=t; y=-lengthpml[2]; label=lab[0];}
+border bg(t=-lengthpml[2],length+lengthpml[3]) {x=length+lengthpml[1]; y=t; label=lab[1];}
+border cg(t=length+lengthpml[1],-lengthpml[0]) {x=t; y=length+lengthpml[3]; label=lab[2];}
+border dg(t=length+lengthpml[3],-lengthpml[2]) {x=-lengthpml[0]; y=t; label=lab[3];}
+
+int RBC=376;
+int ABC=12;
+
+// Mesh
+border bba(t=0, length){x=t;   y=0;   label=ABC;}
+border bbb(t=0, length){x=length;   y=t;   label=ABC;}
+border bbc(t=0, length){x=length-t; y=length; label=ABC;}
+border bbd(t=0, length){x=0; y=length-t;   label=ABC;}
+
+border a1(t=0, 0.2){x=0.4-t;   y=0.2;   label=RBC;}
+border b1(t=0.2,0.8 ){x=0.2;   y=t;   label=RBC;}
+border c1(t=0, 0.2){x=0.2+t; y=0.8; label=RBC;}
+border d1(t=0, 0.6){x=0.4; y=0.8-t;   label=RBC;}
+
+border a2(t=0, 0.2){x=0.8-t;   y=0.2;   label=RBC;}
+border b2(t=0.2,0.8 ){x=0.6;   y=t;   label=RBC;}
+border c2(t=0, 0.2){x=0.6+t; y=0.8; label=RBC;}
+border d2(t=0, 0.6){x=0.8; y=0.8-t;   label=RBC;}
+mesh Th2g = buildmesh(bba(-nx)+bbb(-nx)+bbc(-nx)+bbd(-nx)+ag(nxg)+bg(nxg)+cg(nxg)+dg(nxg),fixedborder=1,nbvx=10000000);
+mesh Th2 = buildmesh (bba(nx) + bbb(nx) + bbc(nx) +bbd(nx) +a1(nx*0.2) +b1(ny*0.6)+c1(nx*0.2) +d1(ny*0.6)  +a2(nx*0.2) +b2(ny*0.6)+c2(nx*0.2) +d2(ny*0.6),fixedborder=1,nbvx=10000000 );
+for (int adl=0;adl<10;adl++){
+
+    mesh Th = Th2+Th2g;
+    //int[int] tab = [10, 20]; // indices des triangles à raffiner
+    fespace Ph(Th, P0);
+    Ph splitfunc;
+
+    // Construire une fonction anonyme testant l'appartenance à tab
+    /*
+    func int inTab(int idx) {
+        for (int i = 0; i < tab.n; i++)
+            if (tab[i] == idx) return 8; // facteur de split
+        return 1; // pas de split
+    }
+    */
+    //mesh Thc=Th;
+    //Th = splitmesh(Th, inTab(nuTriangle));
+    //plot(Th, cmm="Mesh " + adl);
+    /*plot(Thc,cmm="Initial Mesh");
+    medit("Maillage",Thc);*/
+
+    //fespace Ph(Th2,P0);
+    Ph tabh,tabh2; 
+    int nbTriangles = Th2.nt;
+    real [int]  tab(nbTriangles);
+    for (int i=0;i<nbTriangles;i++) tab[i]=0.;
+    int it=0;
+    int tt=0;
+    //tt= RayTracer(Th,it, RayRef,tab);
+    //cout<<"TT="<<tt<<endl;
+
+    cout<<endl;
+    int nbrrays = 200; // lance 2*Nbrrays
+    tt= MeshRaycaster(Th2, nbrrays,tab);
+    for (int i=0;i<nbTriangles;i++){tabh[][i]=tab[i];}// cout<<" tab["<<i<<"]="<<tab[i]<<" ";
+    plot(tabh,fill=1,value=1,ps="raycaster.ps",cmm="Nbr Hits it " + adl);
+    cout<<endl;
+    //medit("maillage",Th);
+
+    // Visible Area test
+    real [int]  tabvisiblearea(nbTriangles);
+    for (int i=0;i<nbTriangles;i++) tabvisiblearea[i]=0.;
+    //int threshold =15000;
+    int threshold =rint(0.1*tabh[].max);
+    tt= MeshRaycasterVisibleArea(Th2, nbrrays,tab,threshold,tabvisiblearea);
+    for (int i=0;i<nbTriangles;i++){tabh[][i]=tabvisiblearea[i];}// cout<<" tab["<<i<<"]="<<tab[i]<<" ";
+    //plot(tabh,fill=1,value=1,ps="raycastervisiblearea.ps",cmm="Detection of the (in)visible areas");
+    cout<<endl;
+
+    for (int i=0;i<nbTriangles;i++){tabh2[][i]=(tab[i]>=threshold);}// cout<<" tab["<<i<<"]="<<tab[i]<<" ";
+    plot(tabh2,fill=1,value=1,cmm="Trapping zone 10% of max array it "+adl);
+    //differents pas
+    real hinit=1./nx; 
+    //int[int] Nxs=[rint(hinit/0.0184202),rint(hinit/0.02),rint(hinit/0.0303481),rint(hinit/0.05)];
+    int[int] Nxs=[5,3,2,1];
+    for (int i =0; i<2; i++) cout<<Nxs[i]<< " ";
+    cout<<endl;
+
+
+    /*func int inTabTrapp(int idx) {
+            if (tabh2[][idx] == 1) return Nxs[0];
+        return 1; // pas de split
+    }
+
+    func int TabVisible(int idx) {
+            if (tabh[][idx] == 1 && tabh2[][idx] == 0) return Nxs[1]; // facteur de split
+            else if (tabh[][idx] == 0 && tabh2[][idx] == 0) return Nxs[2]; // facteur de split
+        
+        return 1; // pas de split
+    }*/
+
+    fespace PhTest(Th2, P1);
+    real hk=0.01;
+    real hv=0.025;
+    real hi=0.05;
+
+    func functest = (tabh2[][nuTriangle] )? hk:((tabh[][nuTriangle])? hv : hi );
+    mesh Test=adaptmesh(Th2, functest , IsMetric=1 );
+    //plot(Test,cmm="Final Mesh");
+    meshL ThL= extract(Test);
+    meshL Thl= buildmeshL(ag(nxg)+bg(nxg)+cg(nxg)+dg(nxg)) ;
+    ThL= trunc(ThL,region==ABC);
+    ThL=ThL+Thl;
+    mesh ThPML= buildmesh(ThL,fixedborder=1);
+    int reg = ThPML(0.5,0.5).region;
+    ThPML= trunc(ThPML,region!=reg);
+    Th2=Test;
+    Test=ThPML+Test;
+    plot(Test,cmm="Mesh it "+ adl);
+}
+cout<<"EOF script"<<endl;

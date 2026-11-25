@@ -1,0 +1,5 @@
+\babel@toc {french}{}\relax 
+\beamer@sectionintoc {1}{Source center}{2}{0}{1}
+\beamer@sectionintoc {2}{Source Top Left}{5}{0}{2}
+\beamer@sectionintoc {3}{Source Top Right}{8}{0}{3}
+\beamer@sectionintoc {4}{Solutions}{11}{0}{4}

@@ -1,0 +1,545 @@
+load"Element_P4"
+load"Element_P3"
+load"medit"
+load"qf11to25"
+load "gsl"
+load"mmg"
+func Pk=P3; // Used Element 
+int pp=3; // Element order
+
+int qorder = 25; // Integration order 
+// Borders Labels 
+int RBC=376; 
+int ABC=12; 
+int PMLint = 999; 
+real [int] kvals=[50,80,100,150];
+//real [int] kvals=[50];
+
+// Radial outer edges 
+real r =0.7;
+
+// Radial PML region dimension
+real lengthPML=0.15;//0.2;
+real R = lengthPML+ r;
+
+
+//real k =100; 
+real w = 1; 
+real c = 1. ;
+// PML zone parameters
+real beta = 0.6/0.6;
+int bgamma = 12;
+real length=1;
+real alpha = 7;//6.2;
+real x0=0.5, y0=0.5;
+real delta = lengthPML;   /* epaisseur PML(0.15)*/
+real sigma0 = alpha;      
+real mExp = 1;            /* ordre du profil polynomial*/
+
+// source coordinates
+real x0s=0.6, y0s=1;
+//real x0s=0.4, y0s=1;
+//real x0s=x0, y0s=y0;
+
+// Used to compute the distance from the source + create a mask around it
+func rhos  = sqrt((x-x0s)^2+(y-y0s)^2);
+func suppsource =1;//(rhos > 1./20);
+
+func rho  = sqrt((x-x0)^2+(y-y0)^2); // Distance from the center of the mesh ( inside the trapping zone)
+func d    = max(rho-r, 0.);
+func inPML =(region==1);// (rho>r); // Support PML region
+
+func sig     = inPML*sigma0*(d/delta)^mExp;
+func sigInt  = inPML*sigma0*delta/(mExp+1)*(d/delta)^(mExp+1);   /* primitive*/
+
+func gammarho   = 1. + 1i*sig;
+func gammatheta = 1. + 1i*sigInt/(rho+1e-12);   /* contineous =1 in rho=r0*/
+
+// These lines are used to determine which mesh point is near to the dirac point source (if we are using a Dirac type one)
+func dxr = x-x0;
+func dyr = y-y0;
+func rho2 = dxr^2+dyr^2+1e-12;
+
+// PML Gradient
+func A11 = (gammatheta/gammarho)*dxr^2/rho2 + (gammarho/gammatheta)*dyr^2/rho2;
+func A22 = (gammatheta/gammarho)*dyr^2/rho2 + (gammarho/gammatheta)*dxr^2/rho2;
+func A12 = (gammatheta/gammarho - gammarho/gammatheta)*dxr*dyr/rho2;
+macro GradpmlR(v) [A11*dx(v)+A12*dy(v), A12*dx(v)+A22*dy(v)]  //EOM
+macro Grad(u) [dx(u),dy(u)] // EOM
+
+// H1_k norm macro , res store the result
+macro H1knorm(u, Th, k,res) (
+    res=sqrt(
+        real(int2d(Th, qforder=qorder)(u * conj(u))) 
+        + 1.0/(k^2) * real(int2d(Th, qforder=qorder)(Grad(u)' * conj(Grad(u))))
+    )
+) // 
+func gpml = gammarho*gammatheta;   /* remplace gammax*gammay everywhere*/
+
+func inDisk =(rho < r);   
+func support  = rho>r/8; /*outside source disk*/
+func ROI  = inDisk*support;
+func  g = 1.+0i; /* cond au bord*/
+
+//func real locresol(){
+//    if ( (x>0.4 && x<0.6) &&(y>0.2 && y<0.8) ) return k^2;
+//    else return k; 
+//} ;
+
+// Hankel source
+//func  complex uHankel (){
+//    real kr = k * max(sqrt((x-x0)^2+(y-y0)^2),1e-10);
+//    real j0 = gslsfbesselJ0(kr);
+//    real y0val = gslsfbesselYn(0, kr);
+//    return (1i / 4.0) * (j0 + 1i * y0val);
+//}
+
+// Define the different regions of the mesh  ( 0 Trapping / 1 Visible / 2 Invisible / 3 PML)
+func int defineregions(){
+    if ( (x>0.37 && x<0.63) &&(y>0.25 && y<0.75) && rho <r ) return 0;
+    if ( (y>0.75) && rho <r) return 1;
+    if ( y<0.25 && rho <r) return 1;
+    if ( (x<0.4 ) &&(y>0.25 && y<0.75) && rho <r) return 2;
+    if ( (x>0.6) &&(y>0.25 && y<0.75)&& rho <r) return 2;
+    else return 3;
+
+}
+// Communication Matrix (norm L2->L2 of the restriction of the resolvent )
+real [int][int] CommMatrix;
+CommMatrix.resize(4);
+for (int i =0; i<4;i++){
+    CommMatrix[i].resize(4);
+
+}
+
+/****************************************************** Mesh Square & rectangle obstacles ******************************************************/
+// Radial PML region
+border bExtPML(t=0, 2*pi){x=0.5+R*cos(t); y=0.5+R*sin(t); label=ABC;}
+
+// Borders of the two rectangles
+border a1(t=0.05, 0.15){x=0.4-t;   y=0.2;   label=RBC;}
+border b1(t=0.25,0.75 ){x=0.2;   y=t;   label=RBC;}
+border c1(t=0.05, 0.15){x=0.2+t; y=0.8; label=RBC;}
+border d1(t=0.05, 0.55){x=0.4; y=0.8-t;   label=RBC;}
+border a2(t=0.05, 0.15){x=0.8-t;   y=0.2;   label=RBC;}
+border b2(t=0.25,0.75 ){x=0.6;   y=t;   label=RBC;}
+border c2(t=0.05, 0.15){x=0.6+t; y=0.8; label=RBC;}
+border d2(t=0.05, 0.55){x=0.8; y=0.8-t;   label=RBC;}
+border ad1(t=0,-pi/2 ){x=0.35+0.05*cos(t);   y=0.25+0.05*sin(t);   label=RBC;}
+border cd1(t= pi/2,0 ){x=0.35+0.05*cos(t);   y=0.75+0.05*sin(t);   label=RBC;}
+border bc1(t=pi,pi/2 ){x=0.25+0.05*cos(t);   y=0.75+0.05*sin(t);   label=RBC;}
+border ab1(t=-pi/2 ,-pi){x=0.25+0.05*cos(t);   y=0.25+0.05*sin(t); label=RBC;}
+border ad2(t=0,-pi/2 ){x=0.75+0.05*cos(t);   y=0.25+0.05*sin(t);   label=RBC;}
+border cd2(t= pi/2,0 ){x=0.75+0.05*cos(t);   y=0.75+0.05*sin(t);   label=RBC;}
+border bc2(t=pi,pi/2 ){x=0.65+0.05*cos(t);   y=0.75+0.05*sin(t);   label=RBC;}
+border ab2(t=-pi/2 ,-pi){x=0.65+0.05*cos(t);   y=0.25+0.05*sin(t); label=RBC;}
+
+border bPhys(t=0, 2*pi){x=0.5+r*cos(t); y=0.5+r*sin(t); label=PMLint;}
+
+// Multiborder so that the geometry around the corners stay the same  
+int Nseg = 2;            // segments par arc (geometrie FIXE)
+int Narc = 8;             // 8 arcs de coin
+
+// centres et angles de depart/arrivee de chaque arc (memes sens que tes bords d'origine)
+real[int] cx  = [0.35, 0.35, 0.25, 0.25, 0.75, 0.75, 0.65, 0.65];
+real[int] cy  = [0.25, 0.75, 0.75, 0.25, 0.25, 0.75, 0.75, 0.25];
+real[int] th0 = [0,    pi/2, pi,  -pi/2, 0,    pi/2, pi,  -pi/2];
+real[int] th1 = [-pi/2, 0,   pi/2, -pi,  -pi/2, 0,   pi/2, -pi ];
+real rc = 0.05;
+
+// un morceau i = (arc ia, segment k)
+border arcs(t=0,1; i){
+    int ia = i/Nseg;
+    int k  = i%Nseg;
+    real ang = th0[ia] + (th1[ia]-th0[ia])*(k+t)/Nseg;
+    x = cx[ia] + rc*cos(ang);
+    y = cy[ia] + rc*sin(ang);
+    label = RBC;
+}
+
+// In the macro, the number of pts persegment depends on h the mesh size
+real seglen = 2*rc*sin(pi/(4*Nseg));   // longueur de corde (pi/2 / Nseg / 2)
+// Generate Solution & The mesh 
+NewMacro GenerateSolandMesh(k,h,ThIn,uvec,rhsvec,verbosity)
+    mesh ThPML, ThPhys; // PML mesh & Physical Mesh (Approximation of Omega)
+    if(h){
+        real eps= 1e4/3;
+        real hk;/*=(eps/k^(pp +2))^(1./pp); // Mesh size Trapping zone*/
+        real hv;/*=(eps/ (k^(pp) * sqrt(k^3)) )^(1./pp); // Mesh size visible zone*/
+        real hi;/*=(eps/ (k^(pp+1)) )^(1./pp); // Mesh size invisible zone*/
+        
+        //real hp =(eps/k);//^(1./4);
+        real hp =// 3*hi;//
+        hk =h; hp =h;hv=h;hi=h; // Instruction to force the use of the same mesh size
+        cout<<"Used mes sizes per region: "<< hk<< " "<<hv<< " "<<hi<< " "<<hp<< " "<<endl;
+        int ndomain = 2*2*pi*r/hv ;
+        int npml =  2*pi*R/(hp) ;
+        int nrectL=0.5/hi;
+        int nrectLinvisible=0.5/hv;
+        int nrectl=0.1/hv;
+        int nk =0.5/hk;
+        /********************Generate the mesh/********************/
+        //int msub = max(1, int(ceil(seglen/hv)));
+        int msub = 3;
+        int[int] nn(Narc*Nseg);
+        nn = msub;
+        
+        real a  = asin(0.5/r);               // angle where y = 0 or 1
+        real b  = asin(0.3/r);               // angle where y = 0.2 or 0.8
+        real cx = 0.5, cy = 0.5;
+        real dx0 = r*cos(a);                 // Half-length of the segments at y = 0 and y = 1
+        border bInvisD(t=-b, b)          { x = cx + r*cos(t); y = cy + r*sin(t); label = PMLint; }  // Right : 0.2 < y < 0.8
+        border bHaut(t=b, pi-b)          { x = cx + r*cos(t); y = cy + r*sin(t); label = PMLint; } // Up   : y > 0.8
+        border bInvisG(t=pi-b, pi+b)     { x = cx + r*cos(t); y = cy + r*sin(t); label = PMLint; }  // Left : 0.2 < y < 0.8
+        border bBas(t=pi+b, 2*pi-b)      { x = cx + r*cos(t); y = cy + r*sin(t); label = PMLint; }  // Bottom    : y < 0.2
+        // Npts invisible & visible zones
+        int ninv =  2*b/hi;
+        int nv =  (pi-2*b)/hv;
+
+       mesh ThPhys = buildmesh(bInvisD(ninv)+ bHaut(nv) + bInvisG(ninv)+ bBas(nv)
+        + a1(max(1,nrectl)) + b1(max(1,nrectLinvisible)) + c1(max(1,nrectl)) + d1(max(1,nk))
+        + a2(max(1,nrectl)) + b2(max(1,nk)) + c2(max(1,nrectl)) + d2(max(1,nrectLinvisible))
+        + arcs(nn));
+        //mesh ThPML  = buildmesh(bExtPML(npml) + bPhys(-npts));
+        mesh ThPML  = buildmesh(bExtPML(npml) + bInvisD(-ninv)+ bHaut(-nv) + bInvisG(-ninv)+ bBas(-nv));
+        
+        ThPML= change(ThPML, fregion=1);
+        ThIn = ThPhys + ThPML;
+        if (verbosity) {plot(ThIn,cmm="Mesh INIT");}
+    }
+    real hMesh = sqrt(2.0 * ThIn.area / ThIn.nt); 
+    real eps = 1.5 * hMesh*1e-2;
+    func source = 1./k^2*(1.0 / (pi * eps^2)) * exp( -((x-x0s)^2 + (y-y0s)^2) / eps^2 );
+    fespace UH(ThIn, Pk);
+    UH<complex> u,v;
+    UH xx=x, yy=y;
+    UH x1=sqrt((x-x0s)^2+(y-y0s)^2);
+    int ix= x1[].imin;
+    real x0sidx=xx[][ix];
+    real y0sidx=yy[][ix];
+    // Var formulation
+    varf varfPML(u,v) =
+    int2d(ThIn,qforder=qorder)(
+        - 1./c^2*gpml*u*v+ 1./k^2*(dx(u)*(A11*dx(v)+A12*dy(v))+dy(u)*( A12*dx(v)+A22*dy(v)) ))+on (RBC, u=0);
+        //+ 1./k^2*( Grad(u)'*GradpmlR(v) ))+on (RBC, u=0);//- int1d(ThIn,ABC,qforder=qorder)(1i*gpml*1./(k*c)*u*v) ; //
+    UH<complex> rhs;
+    // Pts source (put a dirac source in the  nearest vertice)
+    //rhs[] =0;
+    //rhs[][ix]=1./k^2;
+    //real epsS = 0.02;   // fixe, independant du maillage (>= h)
+    //func src = 1./k^2*(1./(pi*epsS^2))*exp(-((x-x0sidx)^2+(y-y0sidx)^2)/epsS^2);
+    //// dans la macro, à la place de rhs[][ix]=1./k^2 :
+    //func  kr = k * max(sqrt((x-x0)^2+(y-y0)^2),1e-10);
+    //func srcrhs= gslsfbesselJ0(kr);
+    real rs = 0.1;   // rayon du support de la source
+    func chi = (rhos < rs) * (1 - (rhos/rs)^2)^3;          // lisse (C^2), support compact
+    func srcrhs = chi * gslsfbesselJ0(k*max(rhos,1e-10));  // J0 localisee autour de (x0s,y0s)
+    varf vrhs(unused, v) = int2d(ThIn, qforder=qorder)(srcrhs*v);
+    rhs[] = vrhs(0, UH);
+    // Uncomment the follwing lines if you want a Bessel type rhs
+    //rhs= gslsfbesselJ0(kr);
+
+    // Solve using sparse solver(MUMPS)
+    matrix<complex> A = varfPML(UH,UH,solver=sparsesolver);
+    u[]= A^-1*rhs[];
+
+    // Put solution in vectors
+    uvec.resize(u[].n); 
+    rhsvec.resize(rhs[].n);   
+
+    uvec = u[];
+    rhsvec= rhs[];
+    // Plot 
+    plot(u,fill=1, value=1, cmm="usol");
+    //plot(rhs,fill=1, value=1, cmm="source");
+
+EndMacro
+
+NewMacro GlobalEstimators(k,ThIn,usol,rhs,EtakVec, verbosity)
+    /******************************** Global Estimators *********************************/
+    fespace Wh(ThIn, P0); // elementwise constant space fct
+    Wh<complex> ww, src,vv;
+    
+    fespace WhP0Edge(ThIn, P0edge); 
+    varf Fwhtowhp0edge(usol,v) = int2d(ThIn)(usol*v);
+    
+    // These following lines are used to comute the sum of the values on the edges of each element
+    matrix Mat = Fwhtowhp0edge(WhP0Edge,Wh);
+    int[int] I(1), J(1);
+    real[int] K(1);
+    [I,J,K] = Mat;
+    K=1;
+    Mat = [I,J,K];
+    Mat.resize(Wh.ndof,WhP0Edge.ndof);
+
+    // strong residual
+    func resFort = 1./k*(dxx(usol) + dyy(usol)) + k*usol + k*rhs;
+    Wh<real> etaVol, wheretomesh,rfort;
+    // var formulation for strong residual
+    varf vLocalResidu(unused, vtest) = int2d(ThIn,qforder=qorder, region==0)( real(resFort*conj(resFort)) *vtest );
+    real[int] etaVolvec = vLocalResidu(0, Wh); 
+    // Volumic term for the estimator
+    etaVol[] =(region==0)*hTriangle^2* etaVolvec; 
+    Wh<real> etaFaces;
+    // jump term (in faces) for the estimator
+    varf JumpTerm(unused, vtest) =intalledges(ThIn )( (label!=PMLint)*(nTonEdge-1)*abs(jump(N.x*dx(usol)+N.y*dy(usol))*conj(jump(N.x*dx(usol)+N.y*dy(usol)) ) ) * vtest
+    );
+    real[int] etaFacesVec = JumpTerm(0, WhP0Edge);
+
+    etaFaces[] =Mat*etaFacesVec;
+    etaFaces = 1./k*(region==0)*hTriangle *etaFaces; // region ==0 to select only the physical domain
+    // Sum of etaFaces  & etaVol
+    Wh<real> etaKF=sqrt(etaFaces +etaVol)*suppsource;
+    EtakVec.resize(etaKF[].n);
+    EtakVec = etaKF[] ;
+EndMacro
+
+
+
+// Estimators Per region
+NewMacro RegionEstimators(k,ThIn, Eta, RegId, nReg, pp, EstReg)
+    fespace WhRE(ThIn, P0);
+    int  Nt = ThIn.nt;
+    real r  = ThIn.hmax;
+    WhRE hK = hTriangle, cxP = x, cyP = y;
+    real [int]  Etapregion(nReg);
+    real [int]  hj(nReg);
+    int [int]  NtReg(nReg);
+    real [int]  EtaHkpregion(nReg);
+
+    real[int,int] Adj(nReg, nReg); // Adjacent regions
+    Adj=0;
+    Etapregion =0;
+    hj =0;
+    NtReg= 0;
+    EtaHkpregion =0;
+    for (int R = 0; R < nReg; R++) Adj(R, R) = 1.;
+    // ---- h_j & EtaK in each region -------------
+    //real[int] hloc(Nt), inner(Nt);
+    for (int j = 0; j < Nt; j++) {
+        Etapregion[RegId[][j]] =  Etapregion[RegId[][j]] + Eta[][j]^2 ; 
+        EtaHkpregion[RegId[][j]] =  EtaHkpregion[RegId[][j]] + Eta[][j]^2*(hK[][j]*k)^(2*pp) ; 
+
+        hj[RegId[][j]] = max(hj[RegId[][j]], hK[][j]);
+        NtReg[RegId[][j]] +=1;
+        for (int e = 0; e < 3; e++) {
+            int ie = e;
+            int j2 = ThIn[j].adj(ie);                        // triangle voisin par l'arete e
+            if (j2 != j) {
+                int Ra = RegId[][j], Rb = RegId[][j2];
+                if (Ra != Rb) { Adj(Ra, Rb) = 1.;  Adj(Rb, Ra) = 1.; }
+            }
+        }
+    }
+    cout<<"Adj regions ( 0: Trapping / 1: Visible / 2: Invisible / 3: PML)"<<endl;
+    //Adj=1;
+    cout<<Adj<<endl;
+
+    // ---- Calculation per region ------------------------------------------
+    real C1 = 1., Cp = 1.;
+    EstReg = 0.;
+
+    for (int  i =0; i<nReg-1;i++){
+        cout << "EtaJ "<<sqrt(Etapregion[i])<<" hj= "<<hj[i]<< "EtaHk "<<sqrt(EtaHkpregion[i])<<endl;
+        for (int Kj=0;Kj<EstReg[].n; Kj++){
+            int j = RegId[][Kj];
+            real hJ = hK[][Kj];
+            real EtaKj = Eta[][Kj];
+            real EtaHKj =  Eta[][Kj]*(hJ*k)^(pp) ;
+            int test =  (i==j) ? 1 : 0;
+            real tmp =(EtaKj*test +Cp*CommMatrix[i][j]*EtaHKj);
+            EstReg[][Kj] +=  tmp;
+
+        }
+    
+    }
+    EstReg=C1*EstReg;// / NtReg[i];
+
+EndMacro
+
+// Adapt Mesh macro
+NewMacro GlobalAdaptMesh(k,ThIn,iteration,etaK,threshold,refincoef,Ph0,ThOut, verbosity,hmin,hmax)
+    Ph0 wheretomesh;
+    real normEta= 0;
+    normEta = sqrt(etaK[].l2^2);
+    if (verbosity) {   plot( etaK, cmm="EtaK iteration" + string(iteration), fill=true, value=true);}
+    
+    Ph0 EtaKsorted = etaK;
+    int[int] idxs(ThIn.nt);
+    for (int i = 0 ; i<ThIn.nt; i++){
+        idxs[i] = i;
+    } 
+    sort(EtaKsorted[], idxs);
+    int idxThreshold = int(threshold*ThIn.nt);
+    real RelThreshold= threshold*normEta;
+    wheretomesh=1;
+    for (int i = 0 ; i<idxThreshold; i++) {wheretomesh[][idxs[i]] = refincoef; wheretomesh[][idxs[ThIn.nt-1-i]] = 1./refincoef;}
+    //wheretomesh = wheretomesh * inDisk;
+    if (verbosity) plot( wheretomesh, cmm="where To mesh? + it=" +string(iteration), fill=true, value=true);
+    //real refincoef =2;
+    fespace Ph1(ThIn, P1);
+    //wheretomesh = (region == 1)?  1 : wheretomesh;  
+    Ph0 hT= hTriangle;
+    Ph1 hh1 = min(hmax,max(hmin,hT*wheretomesh));
+    //plot(hh1, cmm="hh1 "+ string(iteration), wait =1);
+    int[int] pmlintborder=[PMLint];
+    //ThOut = adaptmesh(ThIn, hh1, IsMetric=1, nbvx=200000, requirededges = pmlintborder);
+    ThOut = mmg2d(ThIn, metric=hh1[],requiredEdge = pmlintborder,mem =20,hgrad=1.3);
+
+EndMacro
+
+/******************* ADAPTIVE MESH USING  LOCAL ESTIMATES********************/
+
+int Nlevels = 5;
+mesh Thin,Thout;
+int verbosity =1;
+real[int] etavec;
+complex[int] uu, rhsvec;
+real h1 = 0.04 ;///2;
+real refincoef =2;
+mesh Thinit;
+mesh Thpml,Thphy;
+mesh Thref; real href= 0.02;
+int loop=1;
+//real[int] threshold(Nlevels);
+//for (int i =0;i<Nlevels;i++)  threshold[i] =  0.2/(i+1);
+real threshold =0.2;
+real [int] errors(Nlevels);
+int [int] ndofs(Nlevels);
+real hmin ,hmax;
+
+exec(" mkdir -p results/top_right");
+// Sauvegarde d'une solution P1 : x y Re  
+NewMacro SaveSol(Th, uh, fname)
+{
+    fespace P1s(Th, Pk);
+    P1s<complex> us1 = uh;
+    P1s xs = x, ys = y;
+    ofstream fs(fname);
+    fs.precision(10);
+    fs << "x y re im abs" << endl;
+    for (int ii = 0; ii < P1s.ndof; ii++)
+        fs << xs[][ii] << " " << ys[][ii] << " "
+           << real(us1[][ii])  << endl;
+}
+EndMacro
+
+for (int kidx=0;kidx<kvals.n;kidx++){
+    real k =kvals[kidx];  
+    // Communication Matrix ad fct of k 
+    CommMatrix[0] =[ k^2, sqrt(k^3) , 0 , 0];
+    CommMatrix[1] =[ sqrt(k^3), k , k , 1];
+    CommMatrix[2] =[ 0, k , k , 1];
+    CommMatrix[3] =[ 0, 1 , 1 , 1];
+    cout<<"CommMatrix "<<CommMatrix<<endl;
+
+    // Ref solution
+    string tagk = "k" + int(k);
+    { 
+        GenerateSolandMesh(k,href,Thref,uu,rhsvec,verbosity);
+    }
+    fespace UhrefFull(Thref, Pk);
+    UhrefFull<complex> urefF; urefF[] = uu;
+    mesh ThrefPhy = trunc(Thref, region==0);
+    fespace Uhref(ThrefPhy, Pk);
+    Uhref<complex> usref = urefF;      // interpolation exacte (memes sommets)
+    uu.resize(0); rhsvec.resize(0);
+    savemesh(ThrefPhy, "results/mesh_ref_" + tagk + ".msh");
+    SaveSol(ThrefPhy, usref, "results/sol_ref_" + tagk + ".dat");
+
+    real nL2ref = sqrt(int2d(ThrefPhy, qforder=qorder)(abs(usref)^2));
+    real nH1ref = sqrt(int2d(ThrefPhy, qforder=qorder)(
+                abs(usref)^2 + (abs(dx(usref))^2 + abs(dy(usref))^2)/k^2));
+
+    // ---- Fichier d'erreurs pour ce k ----
+    ofstream ferr("results/error_" + tagk + ".dat");
+    ferr.precision(10);
+    ferr << "level h hmax nt ndofFull ndofPhys errL2 errH1k relL2 relH1k" << endl;
+
+    /******************************** Adapt Mesh Loop ********************************/
+    for (int l=0;l<Nlevels;l++){
+        string taglev = "k" + int(k)+"lev" + int(l);
+        real hInit = (l==0) ? h1 : 0;
+        {   cout<<"hInit ="<< hInit<<endl;
+            GenerateSolandMesh(k,hInit,Thin,uu,rhsvec,verbosity);
+            if(l==0) {
+                    Thinit= Thin; 
+                    Thpml = trunc(Thin, region==1);
+                }
+        }
+
+        fespace UhFull(Thin, Pk);
+        UhFull<complex> uF, rF;
+        uF[] = uu;  rF[] = rhsvec;
+        uu.resize(0); rhsvec.resize(0);
+        Thphy = trunc(Thin, region==0);
+        fespace Uh(Thphy, Pk);
+        fespace UhP0(Thphy, P0);
+        Uh<complex> us = uF, rhs = rF;
+        savemesh(Thphy, "results/mesh_for_" + taglev + ".msh");
+        SaveSol(Thphy, us, "results/sol_appro_" + taglev + ".dat");
+        if(l==0){
+            UhP0 hK=hTriangle;
+            hmin =hK[].min; hmax=hK[].max;
+        }
+        //for (int i =0; i<us[].n;i++) usre[][i]=real(us[][i]);
+        /*GlobalEstimators*/
+        {
+        GlobalEstimators(k,Thphy,us,rhs,etavec, verbosity);
+        }
+        UhP0 etaK;
+        etaK[]=etavec;
+        etavec.resize(0);
+        // test 
+        { 
+            UhP0 EtaLoc;
+            UhP0 Regid=defineregions();
+            int nReg = 4;
+            UhP0 EstReg ;
+            RegionEstimators(k,Thphy, etaK, Regid, nReg, pp, EstReg);
+            cout<<"Estimateur Region:"<<endl;
+            UhP0 testr=defineregions();
+            //plot(testr, cmm="defineregions", fill=1, value=1);
+            etaK = EstReg;
+        }
+        /*Adapt Mesh*/
+        {
+            GlobalAdaptMesh(k,Thphy,l,etaK,threshold,refincoef,UhP0,Thout, 1, hmin,hmax);
+        }
+        Thin=Thout + Thpml;
+        // Compute errors
+        {   Uhref<complex> usproj = us;
+            Uhref<complex> diff = usref - usproj;
+            real ErrL2 = sqrt(int2d(Thref, qforder = qorder)(suppsource*abs(diff)^2) ); 
+            real ErrH1 = sqrt(int2d(ThrefPhy, qforder=qorder)(suppsource*(abs(diff)^2 + (abs(dx(diff))^2 + abs(dy(diff))^2)/k^2)));
+            errors[l] = ErrL2;
+            ndofs[l] = us[].n;
+
+            real hMean = sqrt(2.*Thphy.area/Thphy.nt);   // taille moyenne
+            real hMax  = Thphy.hmax;
+
+            cout<<"Iteration= "<<l<<" Error= "<<errors[l]<<" Ndof ndofs= "<<ndofs[l]<<endl;
+            ferr << l << " " << hMean << " " << hMax << " " << Thphy.nt << " "
+                << UhFull.ndof << " " << Uh.ndof << " "
+                << ErrL2 << " " << ErrH1 << " " << ErrL2/nL2ref << " " << ErrH1/nH1ref << endl;
+        }
+        if (verbosity)
+        {
+        plot(Thin, cmm="Mesh it "+ string(l));
+        }
+
+    //if (verbosity)
+    //{
+    //    plot(Thin, cmm="Final Mesh");
+    //    plot(Thinit, cmm="First Initial Mesh");
+    //    fespace UhP0(Thout, P0);
+    //    cout<<"Errors: ";
+    //    for (int l =0 ; l<Nlevels; l++) cout << errors[l]<< " ";
+    //    cout<<endl;
+    //    cout<<"Ndofs: ";
+    //    for (int l =0 ; l<Nlevels; l++) cout << ndofs[l]<< " ";
+    //    cout<<endl;
+    //}
+
+    }
+} // End Loop Kvals

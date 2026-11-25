@@ -1,0 +1,61 @@
+\documentclass[aspectratio=169,10pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+
+% ---- macros ----------------------------------------------------------
+% #1 = dossier de la source, #2 = nom affiche
+\newcommand{\errframe}[2]{%
+  \begin{frame}{#2 --- Relative errors}
+    \centering
+    \includegraphics[width=.95\textwidth,height=.75\textheight,keepaspectratio]{#1/err.pdf}
+  \end{frame}}
+
+% #1 = source, #2 = nom, #3,#4 = deux valeurs de k
+\newcommand{\meshframe}[4]{%
+  \begin{frame}{#2 --- Meshes of Levels: 0 and 4 ( Initial and last ones)}
+    \centering
+    \includegraphics[height=.40\textheight,keepaspectratio]{#1/mesh_k#3.pdf}\\[2mm]
+    \includegraphics[height=.40\textheight,keepaspectratio]{#1/mesh_k#4.pdf}
+  \end{frame}}
+
+\newcommand{\solframe}[4]{%
+  \begin{frame}{#2 --- Solutions : Reference, Level 0, Level 4}
+    \centering
+    \includegraphics[height=.40\textheight,keepaspectratio]{#1/sol_k#3.pdf}\\[2mm]
+    \includegraphics[height=.40\textheight,keepaspectratio]{#1/sol_k#4.pdf}
+  \end{frame}}
+
+% regroupe tout ce qui concerne une source (hors solutions)
+\newcommand{\sourcepart}[2]{%
+  \section{#2}
+  \errframe{#1}{#2}
+  \meshframe{#1}{#2}{50}{80}
+  \meshframe{#1}{#2}{100}{150}}
+
+\title{Local mesh adaptation for Helmholtz problem}
+\subtitle{Errors, meshes and solutions for three source position}
+\date{}
+
+\begin{document}
+\maketitle
+
+% ---- 1) Erreurs + maillages pour chaque position --------------------
+\sourcepart{figures/center}{Source center}
+\sourcepart{figures/top_left}{Source Top Left}
+\sourcepart{figures/top_right}{Source Top Right}
+
+% ---- 2) Solutions (dernieres slides) --------------------------------
+\section{Solutions}
+\solframe{figures/center}{Source center}{50}{80}
+\solframe{figures/center}{Source center}{100}{150}
+\solframe{figures/top_left}{Source Top Left}{50}{80}
+\solframe{figures/top_left}{Source Top Left}{100}{150}
+\solframe{figures/top_right}{Source Top Right}{50}{80}
+\solframe{figures/top_right}{Source Top Right}{100}{150}
+
+\end{document}

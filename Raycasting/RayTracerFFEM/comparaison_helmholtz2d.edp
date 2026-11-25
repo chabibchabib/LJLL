@@ -1,0 +1,424 @@
+//ff-mpirun -np 10 Helmholtz-2d-exact.edp  -wg -raspart -ffddm_overlap 1 -nppwl 20 -waven 40 -ns
+// NBPROC 8 
+// PARAM -wg -raspart -ffddm_overlap 1 -nppwl 55 -waven 20  -ns -fopenmp
+int bplot = 0;
+mesh Tha = square(1,1);
+fespace Uha(Tha,P1);
+Uha<complex> ref, usupp;
+
+real alpha = 6.2;
+//real beta = 0.6/0.3;
+real beta = 0.6/0.6;
+
+load "qf11to25"
+load "Element_P3"
+load "Element_P4"
+load "gsl"
+load "iovtk"
+load "mpi-cmaes"
+load"raytracer"
+int qorder = 13;
+
+macro dimension 2// EOM
+include "ffddm.idp"
+
+ffddmprecond = "oras";
+
+macro def(i)i// EOM // scalar field definition
+macro init(i)i// EOM // scalar field initialization
+
+real waven = getARGV("-waven",40.);
+real lpmlgparam = getARGV("-L",1);
+real lpmlg = lpmlgparam;
+real freq = waven/2/pi;//getARGV("-frequency",10.); // frequency
+int nppwl = getARGV("-nppwl",20); // number of points per wavelength
+load "msh3"
+load "geophysics"
+
+int Dirichlet = 1;
+int Robin = 2;
+int Neumann = 7;
+int PML = 8;
+int bgamma = 12;
+int bnull = 13;
+real c0 = 1.;
+//func Pk = P4;
+func Pk = P3;
+int[int] lab = [bgamma,bgamma,bgamma,bgamma];
+real length = 1;
+func c  = c0;
+real xs = 0.5;
+real ys = 0.5;
+
+NewMacro GenerateMesh(prmesh)
+
+      IFMACRO(!oneD)
+      lpmlg = lpmlgparam;
+      ENDIFMACRO
+      IFMACRO(oneD)
+      lpmlg = lpmlgoneD;
+      ENDIFMACRO
+
+      real[int] lengthpml(4); // length of global PML
+      for (int i=0; i<4; i++) lengthpml[i] = lpmlg;
+
+      {
+      int nxg = nx*(length+lengthpml[0]+lengthpml[1])/length;
+      border ag(t=-lengthpml[0],length+lengthpml[1]) {x=t; y=-lengthpml[2]; label=lab[0];}
+      border bg(t=-lengthpml[2],length+lengthpml[3]) {x=length+lengthpml[1]; y=t; label=lab[1];}
+      border cg(t=length+lengthpml[1],-lengthpml[0]) {x=t; y=length+lengthpml[3]; label=lab[2];}
+      border dg(t=length+lengthpml[3],-lengthpml[2]) {x=-lengthpml[0]; y=t; label=lab[3];}
+
+      mesh Th2g = buildmesh(bba(-nx)+bbb(-nx)+bbc(-nx)+bbd(-nx)+ag(nxg)+bg(nxg)+cg(nxg)+dg(nxg),fixedborder=1,nbvx=10000000);
+      //cout<<"LPML:"<<lengthpml[0]<<lengthpml[1]<<lengthpml[2]<<lengthpml[3]<<lpmlg<<endl; exit(0);
+      Th = Th2+Th2g;
+      //plot(Th);
+      /*fespace Ph(Th2,P0);
+      Ph tabh; 
+      int nbTriangles = Th2.nt;
+      real [int]  tab(nbTriangles);
+      for (int i=0;i<nbTriangles;i++) tab[i]=0.;
+      int it=0;
+      real[int]  RayRef(4);
+      RayRef[0]=1./3; 
+      RayRef[1]=1./3;
+      RayRef[2]=1;
+      RayRef[3]=1.;
+      int tt=0;
+      //tt= RayTracer(Th,it, RayRef,tab);
+      //cout<<"TT="<<tt<<endl;
+
+      plot( Th );
+      cout<<endl;
+      int nbrrays = 200; // lance 2*Nbrrays
+      tt= MeshRayTracer(Th2, nbrrays,tab);
+      for (int i=0;i<nbTriangles;i++){tabh[][i]=tab[i];}// cout<<" tab["<<i<<"]="<<tab[i]<<" ";
+      plot(tabh,fill=1,value=1,ps="raycaster.ps",cmm="Detection of the trapping zone");
+      cout<<endl;
+      //medit("maillage",Th);
+
+       // Visible Area test
+      real [int]  tabvisiblearea(nbTriangles);
+      for (int i=0;i<nbTriangles;i++) tabvisiblearea[i]=0.;
+      //int threshold =15000;
+      int threshold =rint(0.8*tabh[].max);
+      tt= MeshRayTracerVisibleArea(Th2, nbrrays,tab,threshold,tabvisiblearea);
+      for (int i=0;i<nbTriangles;i++){tabh[][i]=tabvisiblearea[i];}// cout<<" tab["<<i<<"]="<<tab[i]<<" ";
+      plot(tabh,fill=1,value=1,ps="raycastervisiblearea.ps",cmm="Detection of the (in)visible areas");
+      cout<<endl;*/
+      }
+
+      /*
+      {
+      real nloc = nppwl/ffddmsplit*length/lambda;
+      int nx = rint(nloc*(length+lengthpml[0]+lengthpml[1])/length);
+      int ny = rint(nloc*(length+lengthpml[2]+lengthpml[3])/length);
+      nx += nx%2;
+      ny += ny%2;
+      Th = square(nx,ny,[-lengthpml[0]+x*(length+lengthpml[0]+lengthpml[1]),-lengthpml[2]+y*(length+lengthpml[2]+lengthpml[3])],label=lab);
+      }
+      */
+
+      Uh ups = sqrt((x-xs)^2+(y-ys)^2);
+      int ind = ups[].imin;
+
+      real epst = 1e-10;
+
+      ffddmbuildDmesh(prmesh,Th,mpiCommWorld)
+
+      ffddmbuildDfespace(prmesh,prmesh,complex,def,init,Pk)
+
+      prmesh#Vhi<complex> u, x0, rhs, uex, udiff;
+      x0[] = 0;
+
+      Th = square(1,1);
+EndMacro
+
+NewMacro Generate(pr,prmesh)
+
+
+    /*macro sigmag(u) (c/k/max(epst,lpmlg-(u)))//EOM
+    macro dsigmag(u) (u)//EOM
+    macro sigmaCAP(u) (0)//EOM*/
+    
+    
+    IFMACRO(MSMOOTH)
+    macro sigma(u) (alpha*exp(-1./(beta*abs(u)+1e-10)))//EOM
+    macro dsigma(u) (beta/(beta*abs(u)+1e-10)^2*sigma(u))//EOM
+    ENDIFMACRO
+    
+    IFMACRO(oneD)
+    real aCAP = 1-16/C^3;
+    real bCAP = (1-17/C^3)/C^2;
+    macro xCAP(u) (2*deltaCAP*k0*(u+1e-10))//
+    macro yCAP(u) (aCAP*(xCAP(u))-bCAP*(xCAP(u))^3+4/(C-xCAP(u))^2-4/(C+xCAP(u))^2)//
+    macro sigma(u) (yCAP(u))//EOM
+    macro dsigma(u) (0*csigma*(u))//EOM
+    ENDIFMACRO
+    
+    IFMACRO((!MSMOOTH)&(!oneD))
+    macro sigma(u) (c/k/max(epst,lpmlg-(u)))//EOM
+    macro dsigma(u) (0)//EOM
+    ENDIFMACRO
+    
+    IFMACRO(MPML)
+    macro sigmag(u) sigma(u)//EOM
+    macro dsigmag(u) dsigma(u)//EOM
+    macro sigmaCAP(u) (0)//EOM
+    Robin = bnull;
+    Dirichlet = bgamma;
+    ENDIFMACRO
+    
+    IFMACRO(MCAP)
+    macro sigmag(u) (0)//EOM
+    macro dsigmag(u) (1)//EOM
+    macro sigmaCAP(u) sigma(u)//EOM
+    Robin = bnull;
+    Dirichlet = bgamma;
+    ENDIFMACRO
+    
+    IFMACRO(MIMP)
+    macro sigmag(u) (0)//EOM
+    macro dsigmag(u) (1)//EOM
+    macro sigmaCAP(u) (0)//EOM
+    Robin = bgamma;
+    Dirichlet = bnull;
+    ENDIFMACRO
+    
+    func sigmax = (x>=length)*sigmag(x-length)  +  (x<=0)*sigmag(-x);
+    func sigmay = (y>=length)*sigmag(y-length)  +  (y<=0)*sigmag(-y);
+    
+    func dsigmax = (x>=length)*dsigmag(x-length)  -  (x<=0)*dsigmag(-x);
+    func dsigmay = (y>=length)*dsigmag(y-length)  -  (y<=0)*dsigmag(-y);
+    
+    func gammax = 1+1i*sigmax;
+    func gammay = 1+1i*sigmay;
+    
+    func dgammax = 1i*dsigmax;
+    func dgammay = 1i*dsigmay;
+    
+    func sigmaCAPx = (x>=length)*sigmaCAP(x-length)  +  (x<=0)*sigmaCAP(-x);
+    func sigmaCAPy = (y>=length)*sigmaCAP(y-length)  +  (y<=0)*sigmaCAP(-y);
+    
+    func fCAP = sigmaCAPx + sigmaCAPy;
+    
+    macro Grad(u) [dx(u),dy(u)] // EOM
+    macro Gradpml(u) [1./gammax^2*dx(u),
+                      1./gammay^2*dy(u)] // EOM
+    macro Betapml(u) (dgammax/gammax^3*dx(u) + dgammay/gammay^3*dy(u)) // EOM
+    
+    macro GradpmlB(u) [gammay/gammax*dx(u),
+                       gammax/gammay*dy(u)] // EOM
+    
+    macro Varf(varfName, meshName, PhName)
+        varf varfName(u,v) =
+      int2d(meshName,qforder=qorder)(-1./c^2*u*v+1./k^2*Grad(u)'*Gradpml(v)-1./k^2*Betapml(u)*v - 1i*fCAP*u*v)
+    				- int1d(meshName,Robin,PML,Dirichlet,qforder=qorder)(1i*1./(k*c)*u*v); // EOM
+    
+    // for the preconditioner
+    macro VarfOpt(varfName, meshName, PhName)
+        varf varfName(u,v) =
+      int2d(meshName,qforder=qorder)(-1./c^2*u*v+1./k^2*Grad(u)'*Gradpml(v)-1./k^2*Betapml(u)*v - 1i*fCAP*u*v)
+    				- int1d(meshName,Robin,PML,Dirichlet,10,qforder=qorder)(1i*1./(k*c)*u*v); // EOM
+    
+    macro VarfB(varfName, meshName, PhName)
+        varf varfName(u,v) =
+      int2d(meshName,qforder=qorder)(-1./c^2*gammax*gammay*u*v+1./k^2*Grad(u)'*GradpmlB(v) - 1i*fCAP*u*v)
+    				- int1d(meshName,Robin,PML,Dirichlet,qforder=qorder)(1i*gammax*gammay*1./(k*c)*u*v); // EOM
+    
+    // for the preconditioner
+    macro VarfOptB(varfName, meshName, PhName)
+        varf varfName(u,v) =
+      int2d(meshName,qforder=qorder)(-1./c^2*gammax*gammay*u*v+1./k^2*Grad(u)'*GradpmlB(v) - 1i*fCAP*u*v)
+    				- int1d(meshName,Robin,PML,Dirichlet,10,qforder=qorder)(1i*gammax*gammay*1./(k*c)*u*v); // EOM
+    
+    macro Varfrhs(varfName, meshName, PhName)
+        varf varfName(u,v) =
+      int2d(meshName,qforder=qorder)((x>0)*(x<length)*(y>0)*(y<length)*gslsfbesselJ0(k*sqrt((x-xs)^2+(y-ys)^2))*v); // EOM
+    
+    vsym = 2;
+    vtgv = -2;
+    vtgvelim = -2;
+    
+    prmesh#Vhglob<complex> rhsg = 0;
+    rhsg[][ind] = 1./(k0^2);
+    
+    IFMACRO(!MSYM)
+    //ffddmsetupOperator(pr,prmesh,Varf)
+    ffddmsetup(pr,prmesh,Varf,VarfOpt)
+    ENDIFMACRO
+    
+    IFMACRO(MSYM)
+    //ffddmsetupOperator(pr,prmesh,VarfB)
+    ffddmsetup(pr,prmesh,VarfB,VarfOptB)
+    ENDIFMACRO
+    
+    rhs[] = prmesh#Rih[mpiRank(prmesh#commddm)]*rhsg[];
+    
+    ffddmbuildrhs(pr,Varfrhs,rhs[])
+    
+    u[] = pr#fGMRES(x0[], rhs[], 1.e-10, 400, "right");
+    //u[] = pr#directsolve(rhs[]);
+    
+    //pr#writesummary
+    
+    real epsb = 0.05;
+    func supp = (sqrt((x-xs)^2+(y-ys)^2) > 1e-2) && (x > epsb) && (x < length-epsb) && (y > epsb) && (y < length-epsb);
+    
+    //u = u * supp;
+    
+    func dd = sqrt((x-xs)^2+(y-ys)^2) > 1e-5 ? sqrt((x-xs)^2+(y-ys)^2) : 1e-5;
+    
+    //func uex = 1i*1./4*(gslsfbesselJn(0,k0*dd)+1i*gslsfbesselYn(0,k0*dd));
+    
+    func uex = uref;
+    
+    complex erri = int2d(prmesh#Thi,qforder=qorder)(supp*prmesh#DP1[mpiRank(prmesh#commddm)]*(u-uex)^2), uexi = int2d(prmesh#Thi,qforder=qorder)(supp*prmesh#DP1[mpiRank(prmesh#commddm)]*uex^2);
+    complex errg = 0, uexg = 0;
+    mpiAllReduce(erri,errg,prmesh#commddm,mpiSUM);
+    mpiAllReduce(uexi,uexg,prmesh#commddm,mpiSUM);
+    
+    err = abs(sqrt(errg))/abs(sqrt(uexg));
+    
+    if (mpirank == 0) cout << Stringification(pr) +" ERROR = "+err << endl;
+    
+    ffddmplot(prmesh,real(u), Stringification(pr)+" u, err = "+err);
+    
+    ffddmplot(prmesh,real(uex), Stringification(pr)+" uex, err = "+err);
+    
+    udiff = u - uex;
+    
+    ffddmplot(prmesh,real(udiff), "alpha = " + alpha + ", beta = " + beta + ",err = "+err);
+    
+    //pr#fromVhi(u[],prmesh#Vhglob,uerr#pr[])
+    
+    //ffddmplot(prmesh,real(uex), "exact solution");
+
+EndMacro
+
+real errPML, errPMLS, errCAP, errCAPS, errIMP, errPML1D, errCAP1D;
+
+real[int] waventab = [10];//[20,40,60,80,100,120];
+
+real[int] Ltab = [1.];//[0.01,0.02,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.8,1];
+
+//real[int] waventab = [30];
+//real[int] Ltab = [0.8,0.6,0.5];
+
+real csigma = 50;
+
+for (int ii=0; ii<waventab.n;ii++) {
+//waven = waventab[ii];
+
+freq = waven/2/pi;
+
+real k0 = 2*pi*freq/c0;
+func k = 2*pi*freq;
+
+real lambda = c0/freq;
+
+real C = 2.62206;
+real deltaCAP = C/(4*pi);
+real lpmlgoneD = C/(2*deltaCAP*k0);
+
+if (mpirank == 0) cout << "lambda = " << lambda << ", h = " << lambda/nppwl <<" " <<lambda<< endl;
+
+mesh Th;
+fespace Uh(Th,Pk);
+
+real err = 0;
+
+real nloc = nppwl/ffddmsplit*length/lambda;
+
+int nx = rint(nloc);
+int ny = rint(nloc);
+nx += nx%2;
+ny += ny%2;
+
+/*border bba(t=0,length) {x=t; y=0; label=0;}
+border bbb(t=0,length) {x=length; y=t; label=0;}
+border bbc(t=length,0) {x=t; y=length; label=0;}
+border bbd(t=length,0) {x=0; y=t; label=0;}
+
+mesh Th2 = buildmesh(bba(nx)+bbb(nx)+bbc(nx)+bbd(nx),fixedborder=1,nbvx=10000000);*/
+
+// Mesh
+border bba(t=0, length){x=t;   y=0;   label=1;}
+border bbb(t=0, length){x=length;   y=t;   label=2;}
+border bbc(t=0, length){x=length-t; y=length; label=3;}
+border bbd(t=0, length){x=0; y=length-t;   label=4;}
+
+border a1(t=0, 0.2){x=0.4-t;   y=0.2;   label=11;}
+border b1(t=0.2,0.8 ){x=0.2;   y=t;   label=21;}
+border c1(t=0, 0.2){x=0.2+t; y=0.8; label=31;}
+border d1(t=0, 0.6){x=0.4; y=0.8-t;   label=41;}
+
+border a2(t=0, 0.2){x=0.8-t;   y=0.2;   label=12;}
+border b2(t=0.2,0.8 ){x=0.6;   y=t;   label=22;}
+border c2(t=0, 0.2){x=0.6+t; y=0.8; label=32;}
+border d2(t=0, 0.6){x=0.8; y=0.8-t;   label=42;}
+/*int nptsR = 10;
+int npts = 10;*/
+
+mesh Th2 = buildmesh (bba(nx) + bbb(nx) + bbc(nx) +bbd(nx) +a1(nx*0.2) +b1(ny*0.6)+c1(nx*0.2) +d1(ny*0.6)  +a2(nx*0.2) +b2(ny*0.6)+c2(nx*0.2) +d2(ny*0.6),fixedborder=1,nbvx=10000000 );
+
+
+lpmlgparam = 0.5;
+lpmlg = lpmlgparam;
+beta = 0.6/lpmlg; 
+GenerateMesh(HmeshE)
+
+HmeshEVhglob<complex> uref = 1;
+
+{
+macro MSYM()1//
+macro MPML()1//
+macro MSMOOTH()1//
+Generate(PMLS,HmeshE)
+errPMLS = err;
+PMLSfromVhi(u[],HmeshEVhglob,uref[])
+}
+
+
+/////////////////////////////// Ray casting
+
+int val=0;
+if (mpirank ==0 && val==1){
+  fespace Ph(Th2,P0);
+  Ph tabh; 
+  int nbTriangles = Th2.nt;
+  real [int]  tab(nbTriangles);
+  for (int i=0;i<nbTriangles;i++) tab[i]=0.;
+  int it=0;
+  real[int]  RayRef(4);
+  RayRef[0]=1./3; 
+  RayRef[1]=1./3;
+  RayRef[2]=1;
+  RayRef[3]=1.;
+  int tt=0;
+  //tt= RayTracer(Th,it, RayRef,tab);
+  //cout<<"TT="<<tt<<endl;
+  plot( Th2 );
+  cout<<endl;
+  int nbrrays = 60; // lance 2*Nbrrays
+  tt= MeshRayTracer(Th2, nbrrays,tab);
+  for (int i=0;i<nbTriangles;i++){tabh[][i]=tab[i];}// cout<<" tab["<<i<<"]="<<tab[i]<<" ";
+  plot(tabh,fill=1,value=1,ps="raycaster.ps",cmm="Detection of the trapping zone");
+  //cout<<endl;
+  //medit("maillage",Th);
+
+  // Visible Area test
+  real [int]  tabvisiblearea(nbTriangles);
+  for (int i=0;i<nbTriangles;i++) tabvisiblearea[i]=0.;
+  //int threshold =15000;
+  int threshold =rint(0.8*tabh[].max);
+  tt= MeshRayTracerVisibleArea(Th2, nbrrays,tab,threshold,tabvisiblearea);
+  for (int i=0;i<nbTriangles;i++){tabh[][i]=tabvisiblearea[i];}// cout<<" tab["<<i<<"]="<<tab[i]<<" ";
+  plot(tabh,fill=1,value=1,ps="raycastervisiblearea.ps",cmm="Detection of the (in)visible areas");
+  //cout<<endl;
+} // end mpirank 0
+
+///////////////////////////////
+cout<<"END OF SCRIPT"<<endl;
+} // end waven
+
